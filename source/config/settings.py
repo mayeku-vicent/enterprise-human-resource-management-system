@@ -13,14 +13,12 @@ env = environ.Env(
 # Read .env file if it exists
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "*").split(",") if host.strip()]
-
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-this-in-production-key-xyz123')
 
 DEBUG = env('DEBUG', default=True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "*").split(",") if host.strip()]
 
 SECRET_KEY = 'django-insecure-ea8cs3!!7uy52k8!2%3x$#-$myi^&9^u*vl(*e=(63vy#=x9zz'
 
