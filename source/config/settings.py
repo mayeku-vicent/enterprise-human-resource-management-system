@@ -17,8 +17,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-this-in-production-key-xyz123')
 
 DEBUG = env('DEBUG', default=True)
-import os
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "*").split(",") if h.strip()]
+ALLOWED_HOSTS = [
+    'enterprise-human-resource-management.onrender.com',
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+]
 
 SECRET_KEY = 'django-insecure-ea8cs3!!7uy52k8!2%3x$#-$myi^&9^u*vl(*e=(63vy#=x9zz'
 
