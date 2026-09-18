@@ -1,3 +1,4 @@
+ALLOWED_HOSTS = ['*']
 from pathlib import Path
 import os
 import environ
