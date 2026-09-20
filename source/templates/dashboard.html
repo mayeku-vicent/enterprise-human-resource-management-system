@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Funeral Expense Claims Dashboard</h2>
+        
+        <!-- Submit New Claim Section -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h4>Submit a New Claim</h4>
+                <form id="claimForm" class="mt-3">
+                    <div class="mb-3">
+                        <label for="claim_type" class="form-label">Claim Type</label>
+                        <select class="form-select" id="claim_type" required>
+                            <option value="" selected disabled>Select claim type...</option>
+                            <option value="MEDICAL">Medical Expenses</option>
+                            <option value="TRANSPORT">Travel & Transport</option>
+                            <option value="FUNERAL">Funeral & Welfare Support</option>
+                            <option value="OTHER">Other Operational Expenses</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="2" required placeholder="Provide details..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount (UGX)</label>
+                        <input type="number" class="form-control" id="amount" required placeholder="250000">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Claim</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Existing Claims Table Section -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4>Existing Claims</h4>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Claim Type / Description</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claimsTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Loading claims...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchClaims();
+
+        const claimForm = document.getElementById("claimForm");
+        if (claimForm) {
+            claimForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
+                
+                const payload = {
+                    claim_type: document.getElementById("claim_type").value,
+                    description: document.getElementById("description").value,
+                    amount: document.getElementById("amount").value
+                };
+
+                try {
+                    const response = await fetch('/api/claims/', {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-CSRFToken": getCookie('csrftoken')
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        alert("Claim submitted successfully!");
+                        claimForm.reset();
+                        fetchClaims(); 
+                    } else {
+                        const errData = await response.json();
+                        console.error("Submission error details:", errData);
+                        alert("Failed to submit claim. Check console for details.");
+                    }
+                } catch (error) {
+                    console.error("Error submitting claim:", error);
+                }
+            });
+        }
+    });
+
+    async function fetchClaims() {
+        const tableBody = document.getElementById("claimsTableBody");
+        if (!tableBody) return;
+        
+        try {
+            const response = await fetch('/api/claims/', {
+                headers: { "Accept": "application/json" }
+            }); 
+            
+            if (!response.ok) {
+                throw new Error(`Server returned status ${response.status}`);
+            }
+
+            const data = await response.json();
+            tableBody.innerHTML = ""; 
+            
+            const claimsList = Array.isArray(data) ? data : (data.results || []);
+
+            if (claimsList.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No claims found. Submit your first claim above!</td></tr>`;
+                return;
+            }
+
+            claimsList.forEach(claim => {
+                const badgeClass = claim.status === 'APPROVED' ? 'success' : claim.status === 'REJECTED' ? 'danger' : 'warning';
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${claim.id}</td>
+                        <td><strong>${claim.claim_type || 'Claim'}</strong><br><small>${claim.description || ''}</small></td>
+                        <td>UGX ${claim.amount}</td>
+                        <td><span class="badge bg-${badgeClass}">${claim.status || 'PENDING'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-success me-1" onclick="changeClaimStatus(${claim.id}, 'approve')">Approve</button>
+                            <button class="btn btn-sm btn-danger" onclick="changeClaimStatus(${claim.id}, 'reject')">Reject</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error("Error loading claims:", error);
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading claims.</td></tr>`;
+        }
+    }
+
+    async function changeClaimStatus(id, actionName) {
+        try {
+            const response = await fetch(`/api/claims/${id}/${actionName}/`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')
+                }
+            });
+
+            if (response.ok) {
+                fetchClaims(); 
+            } else {
+                alert("Failed to update claim status.");
+            }
+        } catch (error) {
+            console.error("Error updating status:", error);
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

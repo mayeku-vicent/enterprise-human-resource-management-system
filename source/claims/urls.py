@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import ExpenseClaimViewSet
 
 router = DefaultRouter()
-router.register(r'claims', ExpenseClaimViewSet)
+router.register(r'', ExpenseClaimViewSet, basename='expenseclaim')
 
 urlpatterns = [
     path('', include(router.urls)),

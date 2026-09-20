@@ -1,4 +1,3 @@
-ALLOWED_HOSTS = ['*']
 from pathlib import Path
 import os
 import environ
@@ -8,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialize environ
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, True)
 )
 
 # Read .env file if it exists
@@ -17,13 +16,14 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # Quick-start development settings
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-ea8cs3!!7uy52k8!2%3x$#-$myi^&9^u*vl(*e=(63vy#=x9zz')
 
-DEBUG = env('DEBUG', default=False)
+DEBUG = env('DEBUG', default=True)
 
 ALLOWED_HOSTS = [
     'enterprise-human-resource-management.onrender.com',
     'localhost',
     '127.0.0.1',
     '[::1]',
+    '*'
 ]
 
 INSTALLED_APPS = [
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'organization',
     'leave',
     'claims',
+    'hrms_modules',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,13 +71,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# Explicit and safe database configuration pointing strictly to local sqlite3 file
 DATABASES = {
-    'default': env.db(
-        'DATABASE_URL',
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -91,7 +92,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'

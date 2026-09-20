@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Leave Management Portal</h2>
+        
+        <!-- Submit New Leave Request Section -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h4>Request Leave</h4>
+                <form id="leaveForm" class="mt-3">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="leave_type" class="form-label">Leave Type</label>
+                            <select class="form-select" id="leave_type" required>
+                                <option value="" selected disabled>Select leave type...</option>
+                                <option value="ANNUAL">Annual Leave</option>
+                                <option value="SICK">Sick Leave</option>
+                                <option value="MATERNITY">Maternity/Paternity</option>
+                                <option value="STUDY">Study Leave</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason</label>
+                        <textarea class="form-control" id="reason" rows="2" required placeholder="Provide brief reason..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Existing Leave Requests Table Section -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4>Leave History</h4>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Leave Type & Reason</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaveTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Loading leave requests...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchLeaveRequests();
+
+        const leaveForm = document.getElementById("leaveForm");
+        if (leaveForm) {
+            leaveForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
+                
+                const payload = {
+                    leave_type: document.getElementById("leave_type").value,
+                    start_date: document.getElementById("start_date").value,
+                    end_date: document.getElementById("end_date").value,
+                    reason: document.getElementById("reason").value
+                };
+
+                try {
+                    const response = await fetch('/api/leave/', {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-CSRFToken": getCookie('csrftoken')
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        alert("Leave request submitted successfully!");
+                        leaveForm.reset();
+                        fetchLeaveRequests(); 
+                    } else {
+                        const errData = await response.json();
+                        console.error("Submission error details:", errData);
+                        alert("Failed to submit request. Check console for details.");
+                    }
+                } catch (error) {
+                    console.error("Error submitting leave request:", error);
+                }
+            });
+        }
+    });
+
+    async function fetchLeaveRequests() {
+        const tableBody = document.getElementById("leaveTableBody");
+        if (!tableBody) return;
+        
+        try {
+            const response = await fetch('/api/leave/', {
+                headers: { "Accept": "application/json" }
+            }); 
+            
+            if (!response.ok) {
+                throw new Error(`Server returned status ${response.status}`);
+            }
+
+            const data = await response.json();
+            tableBody.innerHTML = ""; 
+            
+            const leaveList = Array.isArray(data) ? data : (data.results || []);
+
+            if (leaveList.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No leave requests found.</td></tr>`;
+                return;
+            }
+
+            leaveList.forEach(leave => {
+                const badgeClass = leave.status === 'APPROVED' ? 'success' : leave.status === 'REJECTED' ? 'danger' : 'warning';
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${leave.id}</td>
+                        <td><strong>${leave.leave_type}</strong><br><small>${leave.reason}</small></td>
+                        <td>${leave.start_date} to ${leave.end_date}</td>
+                        <td><span class="badge bg-${badgeClass}">${leave.status || 'PENDING'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-success me-1" onclick="changeLeaveStatus(${leave.id}, 'approve')">Approve</button>
+                            <button class="btn btn-sm btn-danger" onclick="changeLeaveStatus(${leave.id}, 'reject')">Reject</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error("Error loading leave requests:", error);
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading data.</td></tr>`;
+        }
+    }
+
+    async function changeLeaveStatus(id, actionName) {
+        try {
+            const response = await fetch(`/api/leave/${id}/${actionName}/`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')
+                }
+            });
+
+            if (response.ok) {
+                fetchLeaveRequests(); 
+            } else {
+                alert("Failed to update status.");
+            }
+        } catch (error) {
+            console.error("Error updating status:", error);
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

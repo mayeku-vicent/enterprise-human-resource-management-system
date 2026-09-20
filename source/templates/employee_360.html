@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Employee 360 Profile</h2>
+            <span id="employeeBadge" class="badge bg-primary fs-6">Loading...</span>
+        </div>
+
+        <!-- Bio & Organization Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h4 class="card-title text-primary mb-3" id="empName">Loading Profile...</h4>
+                <div class="row" id="empDetails">
+                    <div class="col-md-3"><strong>Username:</strong> <span id="valUsername">-</span></div>
+                    <div class="col-md-3"><strong>Email:</strong> <span id="valEmail">-</span></div>
+                    <div class="col-md-3"><strong>Department:</strong> <span id="valDept">-</span></div>
+                    <div class="col-md-3"><strong>Position:</strong> <span id="valPos">-</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub-Modules Grid -->
+        <div class="row">
+            <!-- Attendance History -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Recent Attendance</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead><tr><th>Date</th><th>Check-In</th><th>Status</th></tr></thead>
+                                <tbody id="attendanceTableBody">
+                                    <tr><td colspan="3" class="text-muted text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expense Claims -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Expense Claims</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead><tr><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
+                                <tbody id="claimsTableBody">
+                                    <tr><td colspan="3" class="text-muted text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Requests -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Leave Requests</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead><tr><th>Type</th><th>Dates</th><th>Status</th></tr></thead>
+                                <tbody id="leaveTableBody">
+                                    <tr><td colspan="3" class="text-muted text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const pathSegments = window.location.pathname.split('/');
+        // Filter out empty segments to safely get the user ID
+        const validSegments = pathSegments.filter(seg => seg.length > 0);
+        const userId = validSegments[validSegments.length - 1];
+        
+        fetchEmployee360Data(userId);
+    });
+
+    async function fetchEmployee360Data(userId) {
+        try {
+            const response = await fetch(`/api/employee-360/${userId}/`, {
+                headers: { "Accept": "application/json" }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with status ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Populate header & bio
+            document.getElementById("empName").innerText = `${data.first_name || ''} ${data.last_name || ''} (${data.username})`;
+            document.getElementById("valUsername").innerText = data.username;
+            document.getElementById("valEmail").innerText = data.email || 'N/A';
+            
+            if (data.profile) {
+                document.getElementById("valDept").innerText = data.profile.department_name || 'Unassigned';
+                document.getElementById("valPos").innerText = data.profile.position_title || data.profile.job_title || 'Staff';
+                document.getElementById("employeeBadge").innerText = "Active Employee";
+            } else {
+                document.getElementById("valDept").innerText = "No Profile Linked";
+                document.getElementById("valPos").innerText = "N/A";
+                document.getElementById("employeeBadge").innerText = "Profile Incomplete";
+                document.getElementById("employeeBadge").className = "badge bg-warning text-dark fs-6";
+            }
+
+            // Populate Attendance
+            const attBody = document.getElementById("attendanceTableBody");
+            attBody.innerHTML = data.attendance_history.length === 0 ? 
+                `<tr><td colspan="3" class="text-muted text-center">No records.</td></tr>` : 
+                data.attendance_history.map(a => `<tr><td>${a.date}</td><td>${a.check_in_time}</td><td><span class="badge bg-secondary">${a.status}</span></td></tr>`).join('');
+
+            // Populate Claims
+            const claimsBody = document.getElementById("claimsTableBody");
+            claimsBody.innerHTML = data.expense_claims.length === 0 ? 
+                `<tr><td colspan="3" class="text-muted text-center">No claims.</td></tr>` : 
+                data.expense_claims.map(c => `<tr><td>${c.claim_type}</td><td>$${c.amount}</td><td><span class="badge bg-secondary">${c.status}</span></td></tr>`).join('');
+
+            // Populate Leave
+            const leaveBody = document.getElementById("leaveTableBody");
+            leaveBody.innerHTML = data.leave_requests.length === 0 ? 
+                `<tr><td colspan="3" class="text-muted text-center">No leave requests.</td></tr>` : 
+                data.leave_requests.map(l => `<tr><td>${l.leave_type}</td><td><small>${l.start_date}</small></td><td><span class="badge bg-secondary">${l.status}</span></td></tr>`).join('');
+
+        } catch (error) {
+            console.error("Error fetching Employee 360:", error);
+            document.getElementById("empName").innerText = "Error Loading Profile";
+            document.getElementById("employeeBadge").innerText = "Failed";
+            document.getElementById("employeeBadge").className = "badge bg-danger fs-6";
+            
+            // Show error in tables
+            document.getElementById("attendanceTableBody").innerHTML = `<tr><td colspan="3" class="text-danger text-center">Failed to load</td></tr>`;
+            document.getElementById("claimsTableBody").innerHTML = `<tr><td colspan="3" class="text-danger text-center">Failed to load</td></tr>`;
+            document.getElementById("leaveTableBody").innerHTML = `<tr><td colspan="3" class="text-danger text-center">Failed to load</td></tr>`;
+        }
+    }
+</script>
+{% endblock %}

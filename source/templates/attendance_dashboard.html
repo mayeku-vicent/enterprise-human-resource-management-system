@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Attendance & Time Tracking Portal</h2>
+        
+        <!-- Check-In / Check-Out Actions Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+                <h4>Daily Time Log</h4>
+                <p class="text-muted">Click below to record your check-in or check-out status for today.</p>
+                <div class="mt-3">
+                    <button id="checkInBtn" class="btn btn-success btn-lg me-2">Check In</button>
+                    <button id="checkOutBtn" class="btn btn-danger btn-lg">Check Out</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Attendance History Table Section -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4>Attendance History</h4>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Check-In Time</th>
+                            <th>Check-Out Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Loading attendance records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchAttendanceRecords();
+
+        document.getElementById("checkInBtn").addEventListener("click", function() {
+            submitAttendanceAction('/api/attendance/', 'POST', { status: 'PRESENT' });
+        });
+
+        document.getElementById("checkOutBtn").addEventListener("click", function() {
+            submitAttendanceAction('/api/attendance/check_out/', 'POST', {});
+        });
+    });
+
+    async function fetchAttendanceRecords() {
+        const tableBody = document.getElementById("attendanceTableBody");
+        if (!tableBody) return;
+        
+        try {
+            const response = await fetch('/api/attendance/', {
+                headers: { "Accept": "application/json" }
+            }); 
+            
+            if (!response.ok) throw new Error(`Server returned status ${response.status}`);
+
+            const data = await response.json();
+            tableBody.innerHTML = ""; 
+            
+            // Handles both pagination (.results) and direct array responses
+            const records = Array.isArray(data) ? data : (data.results || []);
+
+            if (records.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No attendance records found.</td></tr>`;
+                return;
+            }
+
+            records.forEach(record => {
+                const badgeClass = record.status === 'PRESENT' ? 'success' : record.status === 'LATE' ? 'warning' : 'danger';
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${record.id}</td>
+                        <td>${record.date}</td>
+                        <td>${record.check_in_time || '-'}</td>
+                        <td>${record.check_out_time || '<span class="text-muted">Not checked out</span>'}</td>
+                        <td><span class="badge bg-${badgeClass}">${record.status}</span></td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error("Error loading attendance records:", error);
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading data.</td></tr>`;
+        }
+    }
+
+    async function submitAttendanceAction(url, method, payload) {
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: Object.keys(payload).length > 0 ? JSON.stringify(payload) : undefined
+            });
+
+            // Read text first to prevent JSON syntax crash if server returns HTML/plain text
+            const responseText = await response.text();
+            let resultData = {};
+            try {
+                resultData = JSON.parse(responseText);
+            } catch (e) {
+                resultData = { detail: responseText };
+            }
+
+            if (response.ok) {
+                alert("Action completed successfully!");
+                fetchAttendanceRecords();
+            } else {
+                let errorMsg = "Failed to process request.";
+                
+                if (resultData.non_field_errors) {
+                    errorMsg = Array.isArray(resultData.non_field_errors) ? resultData.non_field_errors.join(", ") : resultData.non_field_errors;
+                } else if (resultData.detail) {
+                    errorMsg = resultData.detail;
+                } else if (resultData.error) {
+                    errorMsg = resultData.error;
+                } else if (resultData.employee && resultData.date) {
+                    // Handles DRF unique_together constraint error payload format
+                    errorMsg = "You have already checked in for today!";
+                } else {
+                    const firstKey = Object.keys(resultData)[0];
+                    if (firstKey) {
+                        const val = resultData[firstKey];
+                        errorMsg = Array.isArray(val) ? val[0] : val;
+                    }
+                }
+
+                // Fallback check for unique constraint message text
+                if (typeof errorMsg === 'string' && (errorMsg.includes("unique set") || errorMsg.includes("already exists"))) {
+                    errorMsg = "You have already checked in for today!";
+                }
+                
+                alert(errorMsg);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred while communicating with the server.");
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
