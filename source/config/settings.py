@@ -39,6 +39,14 @@ INSTALLED_APPS = [
     'leave',
     'claims',
     'hrms_modules',
+    'recruitment',
+    'payroll',
+    'documents',
+    'assets',
+    'performance',
+    'compliance',
+    'training',
+    'attendance_shifts',
 ]
 
 MIDDLEWARE = [

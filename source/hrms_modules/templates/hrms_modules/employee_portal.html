@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Portal Dashboard</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Enterprise HRMS Portal</a>
+            <span class="text-white">Welcome, {{ request.user.username }}</span>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="mb-4">My Dashboard Overview</h2>
+
+        <div class="row g-4">
+            <!-- Assigned Assets Card -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">Assigned Assets</div>
+                    <div class="card-body">
+                        {% if assets %}
+                            <ul class="list-group list-group-flush">
+                                {% for asset in assets %}
+                                    <li class="list-group-item">
+                                        <strong>{{ asset.name }}</strong><br>
+                                        <small class="text-muted">Serial: {{ asset.serial_number }}</small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No assets currently assigned.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Goals Card -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-success text-white">Performance Goals</div>
+                    <div class="card-body">
+                        {% if goals %}
+                            <ul class="list-group list-group-flush">
+                                {% for goal in goals %}
+                                    <li class="list-group-item">
+                                        <strong>{{ goal.title }}</strong><br>
+                                        <small class="text-muted">Target: {{ goal.target_date }}</small>
+                                        <span class="badge {% if goal.is_completed %}bg-success{% else %}bg-warning text-dark{% endif %} float-end">
+                                            {% if goal.is_completed %}Completed{% else %}Pending{% endif %}
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No active performance goals.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training & Certifications Card -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-info text-dark">Certifications</div>
+                    <div class="card-body">
+                        {% if certifications %}
+                            <ul class="list-group list-group-flush">
+                                {% for cert in certifications %}
+                                    <li class="list-group-item">
+                                        <strong>{{ cert.certification_name }}</strong><br>
+                                        <small class="text-muted">{{ cert.issuing_organization }}</small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No certifications recorded.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
