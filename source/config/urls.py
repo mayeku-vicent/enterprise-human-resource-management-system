@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
 )
 
 # Existing UI views
-from claims.views import dashboard_view
+from hrms_modules.dashboard_views import central_dashboard_view
 from leave.views import leave_dashboard_view
 from hrms_modules.views import (
     attendance_dashboard_view, 
@@ -36,10 +36,10 @@ router.register(r'shift-assignments', EmployeeShiftAssignmentViewSet)
 urlpatterns = [
     # Admin and Root Redirect
     path('admin/', admin.site.urls),
-    path('', lambda request: redirect('admin/')),
+  path('', lambda request: redirect('dashboard')),
 
     # UI Dashboards
-    path('dashboard/', dashboard_view, name='dashboard'),
+    path('dashboard/', central_dashboard_view, name='dashboard'),
     path('leave-dashboard/', leave_dashboard_view, name='leave-dashboard'),
     path('attendance-dashboard/', attendance_dashboard_view, name='attendance-dashboard'),
     path('claims-dashboard/', claims_dashboard_view, name='claims-dashboard'),

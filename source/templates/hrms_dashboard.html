@@ -1,0 +1,460 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Executive Dashboard - Enterprise HRMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        margin-bottom: 28px;
+    }
+
+    .dashboard-header h1 {
+        font-weight: 700;
+        color: #172b4d;
+    }
+
+    .dashboard-header p {
+        margin-bottom: 0;
+    }
+
+    .kpi-card {
+        border: 0;
+        border-radius: 12px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.10) !important;
+    }
+
+    .kpi-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #172b4d;
+        line-height: 1.2;
+    }
+
+    .dashboard-section {
+        border: 0;
+        border-radius: 12px;
+    }
+
+    .dashboard-section-title {
+        color: #172b4d;
+        font-weight: 700;
+    }
+
+    .quick-action {
+        min-width: 145px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="mb-1">Executive Dashboard</h1>
+        <p class="text-muted">
+            Enterprise Human Resource Management System
+        </p>
+    </div>
+
+    <div class="text-muted">
+        {{ today|date:"d M Y" }}
+    </div>
+</div>
+
+
+<!-- =========================================================
+     KPI CARDS
+     ========================================================= -->
+
+<div class="row g-3 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">Total Employees</div>
+                <div class="kpi-value mt-2">{{ total_employees }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">Active Employees</div>
+                <div class="kpi-value mt-2">{{ active_employees }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">New Employees</div>
+                <div class="kpi-value mt-2">{{ new_employees }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">Employees on Leave</div>
+                <div class="kpi-value mt-2">{{ employees_on_leave }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">Employees Absent</div>
+                <div class="kpi-value mt-2">{{ employees_absent }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">Open Vacancies</div>
+                <div class="kpi-value mt-2">{{ open_vacancies }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">Pending Approvals</div>
+                <div class="kpi-value mt-2">{{ pending_approvals }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card kpi-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="kpi-label">Latest Payroll</div>
+
+                <div class="kpi-value mt-2">
+                    {{ latest_payroll_amount }}
+                </div>
+
+                {% if latest_payroll_period %}
+                    <small class="text-muted">
+                        {{ latest_payroll_period }}
+                    </small>
+                {% else %}
+                    <small class="text-muted">
+                        No payroll data
+                    </small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     QUICK ACTIONS
+     ========================================================= -->
+
+<div class="card dashboard-section shadow-sm mb-4">
+    <div class="card-body">
+
+        <h5 class="dashboard-section-title mb-3">
+            Quick Actions
+        </h5>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a href="/admin/accounts/user/add/"
+               class="btn btn-primary quick-action">
+                Add Employee
+            </a>
+
+            <a href="/admin/recruitment/jobvacancy/add/"
+               class="btn btn-outline-primary quick-action">
+                Create Vacancy
+            </a>
+
+            <a href="/leave-dashboard/"
+               class="btn btn-outline-secondary quick-action">
+                Approve Leave
+            </a>
+
+            <a href="/admin/payroll/payslip/"
+               class="btn btn-outline-success quick-action">
+                Payroll
+            </a>
+
+            <a href="/admin/"
+               class="btn btn-outline-dark quick-action">
+                Administration
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- =========================================================
+     ANALYTICS
+     ========================================================= -->
+
+<div class="row g-4">
+
+    <!-- Department Headcount -->
+    <div class="col-lg-6">
+
+        <div class="card dashboard-section shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h5 class="dashboard-section-title">
+                    Headcount by Department
+                </h5>
+
+                {% if department_headcount %}
+
+                    <div class="table-responsive mt-3">
+
+                        <table class="table table-hover align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th class="text-end">Employees</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for item in department_headcount %}
+
+                                <tr>
+                                    <td>
+                                        {{ item.department__name }}
+                                    </td>
+
+                                    <td class="text-end fw-semibold">
+                                        {{ item.total }}
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="text-muted mt-3">
+                        No department data available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Recruitment Pipeline -->
+    <div class="col-lg-6">
+
+        <div class="card dashboard-section shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h5 class="dashboard-section-title">
+                    Recruitment Pipeline
+                </h5>
+
+                {% if applicant_pipeline %}
+
+                    <div class="table-responsive mt-3">
+
+                        <table class="table table-hover align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th class="text-end">Applicants</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for item in applicant_pipeline %}
+
+                                <tr>
+                                    <td>{{ item.status }}</td>
+
+                                    <td class="text-end fw-semibold">
+                                        {{ item.total }}
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="text-muted mt-3">
+                        No applicant data available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Performance Distribution -->
+    <div class="col-lg-6">
+
+        <div class="card dashboard-section shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h5 class="dashboard-section-title">
+                    Performance Distribution
+                </h5>
+
+                {% if performance_distribution %}
+
+                    <div class="table-responsive mt-3">
+
+                        <table class="table table-hover align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Rating</th>
+                                    <th class="text-end">Employees</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for item in performance_distribution %}
+
+                                <tr>
+                                    <td>{{ item.rating }}</td>
+
+                                    <td class="text-end fw-semibold">
+                                        {{ item.total }}
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="text-muted mt-3">
+                        No performance data available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Today's Attendance -->
+    <div class="col-lg-6">
+
+        <div class="card dashboard-section shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h5 class="dashboard-section-title">
+                    Today's Attendance
+                </h5>
+
+                <div class="row text-center mt-4">
+
+                    <div class="col-4">
+
+                        <div class="kpi-value">
+                            {{ employees_present }}
+                        </div>
+
+                        <small class="text-muted">
+                            Present
+                        </small>
+
+                    </div>
+
+                    <div class="col-4">
+
+                        <div class="kpi-value">
+                            {{ employees_late }}
+                        </div>
+
+                        <small class="text-muted">
+                            Late
+                        </small>
+
+                    </div>
+
+                    <div class="col-4">
+
+                        <div class="kpi-value">
+                            {{ employees_absent }}
+                        </div>
+
+                        <small class="text-muted">
+                            Absent
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
