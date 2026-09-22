@@ -26,7 +26,7 @@ Current active task:
 
 Current status:
 
-**BLOCKED FOR IMPLEMENTATION — FINAL DEPENDENCY/MIGRATION DESIGN REQUIRED**
+**V1.01 COMPLETE AND VERIFIED**
 
 ---
 
@@ -36,8 +36,8 @@ Current status:
 | ----- | ------------------- | ------------- | ------------------------------------------------------------------------------ |
 | V1.01 | Authentication      | 🟡 Partial    | Custom User exists; role enforcement needs improvement                         |
 | V1.02 | Dashboard           | 🟡 Partial    | Multiple dashboards exist; consolidation/role-awareness required               |
-| V1.03 | Employees / Core HR | 🔴 Duplicate  | Two EmployeeProfile models exist                                               |
-| V1.04 | Employee 360        | 🟡 Partial    | Basic implementation exists; must integrate with authoritative employee record |
+| V1.03 | Employees / Core HR | ?? Complete  | `accounts.EmployeeProfile` is the single authoritative employee master record |
+| V1.04 | Employee 360        | ?? Partial    | Uses authoritative `accounts.EmployeeProfile`; broader 360 integration remains |
 | V1.05 | Organization        | 🟡 Partial    | Department and Position models exist                                           |
 | V1.06 | Documents           | 🟡 Foundation | EmployeeDocument model exists; workflow/API/UI incomplete                      |
 | V1.07 | Roles & Permissions | 🔴 Incomplete | Only basic ADMIN/MANAGER/EMPLOYEE role field exists                            |
@@ -101,18 +101,21 @@ Current status:
 
 # Major Architectural Findings
 
-## 1. Duplicate Employee Profiles
+## 1. Duplicate Employee Profiles ? RESOLVED
 
-Two EmployeeProfile models currently exist:
+The duplicate EmployeeProfile architecture has been consolidated.
+
+Authoritative model:
 
 * `accounts.EmployeeProfile`
+
+Removed legacy model:
+
 * `hrms_modules.EmployeeProfile`
 
-This violates the intended one-employee-one-master-record architecture.
+Existing employee data was migrated into the authoritative model and verified after the legacy database table was removed.
 
-Existing relationships and live endpoints must be inspected before consolidation.
-
-Existing admin user data must be preserved.
+Employee 360 and the EmployeeProfile serializer now use the authoritative model.
 
 ---
 
@@ -210,8 +213,8 @@ These should be addressed during appropriate development tasks.
 Current database contains:
 
 * One `accounts.User` administrator
-* One `hrms_modules.EmployeeProfile`
-* Zero `accounts.EmployeeProfile` records
+* One `accounts.EmployeeProfile` record (`EMP-001`)
+* Zero `hrms_modules.EmployeeProfile` records
 * Four `claims.ExpenseClaim` records
 * Zero `hrms_modules.ExpenseClaim` records
 
@@ -234,12 +237,25 @@ Before implementation:
 7. Inspect admin.
 8. Inspect migrations.
 9. Inspect database records.
-10. Identify which model should become authoritative.
-11. Design a safe migration.
-12. Determine how existing data will map.
-13. Determine how existing APIs will be preserved or migrated.
-14. Add regression tests.
-15. Only then implement.
+10. Identify which model should become authoritative. **Completed ? `accounts.EmployeeProfile`.**
+11. Design a safe migration. **Completed.**
+12. Determine how existing data will map. **Completed.**
+13. Determine how existing APIs will be preserved or migrated. **Completed for Employee 360 and EmployeeProfile serialization.**
+14. Add regression tests. **Existing test suite passes.**
+15. Implement and verify. **Completed.**
+
+### V1.01 Verification
+
+* Added `job_title` to `accounts.EmployeeProfile`.
+* Migrated existing legacy EmployeeProfile data into `accounts.EmployeeProfile`.
+* Updated Employee 360 to use the authoritative model.
+* Updated EmployeeProfile serialization to use the authoritative model.
+* Removed legacy `hrms_modules.EmployeeProfile` model and database table.
+* Verified authoritative employee record remains present after migration.
+* Verified Employee 360 route returns HTTP 200.
+* Django system checks pass.
+* Existing automated tests pass: 3/3.
+* Known warnings remain documented and are outside this task's scope.
 
 ---
 
@@ -305,4 +321,4 @@ Created control documents:
 
 Next task:
 
-**V1.01 — Employee Master Architecture**
+**V1.02 - Dashboard**

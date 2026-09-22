@@ -8,8 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-# Core models and serializers
-from .models import EmployeeProfile, Attendance, ExpenseClaim
+from .models import Attendance, ExpenseClaim
+from accounts.models import EmployeeProfile
 from leave.models import LeaveRequest
 from .serializers import EmployeeProfileSerializer, AttendanceSerializer, ExpenseClaimSerializer
 from leave.serializers import LeaveRequestSerializer

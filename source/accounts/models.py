@@ -25,6 +25,7 @@ class EmployeeProfile(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile')
     employee_id = models.CharField(max_length=50, unique=True, help_text="Unique company badge/ID number")
+    job_title = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     date_of_joining = models.DateField(blank=True, null=True)
     

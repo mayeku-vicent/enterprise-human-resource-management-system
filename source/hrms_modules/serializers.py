@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import EmployeeProfile, Attendance, ExpenseClaim
+from .models import Attendance, ExpenseClaim
+from accounts.models import EmployeeProfile
 
 User = get_user_model()
 
@@ -11,18 +12,24 @@ class UserSerializer(serializers.ModelSerializer):
 
 class EmployeeProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    
-    # Safely handle department and position depending on whether they are fields or relations
-    department = serializers.CharField(source='get_department_display', read_only=True) if hasattr(EmployeeProfile, 'get_department_display') else serializers.CharField(read_only=True, required=False)
-    position = serializers.CharField(read_only=True, required=False)
+    department_name = serializers.ReadOnlyField(source='department.name')
+    position_title = serializers.ReadOnlyField(source='position.title')
 
     class Meta:
         model = EmployeeProfile
-        fields = ['id', 'user', 'department', 'position', 'job_title', 'phone_number', 'date_joined']
-        extra_kwargs = {
-            'department': {'required': False},
-            'position': {'required': False},
-        }
+        fields = [
+            'id',
+            'user',
+            'employee_id',
+            'department',
+            'department_name',
+            'position',
+            'position_title',
+            'job_title',
+            'phone_number',
+            'date_of_joining',
+            'emergency_contact',
+        ]
 
 class AttendanceSerializer(serializers.ModelSerializer):
     employee_username = serializers.ReadOnlyField(source='employee.username')
