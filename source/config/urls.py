@@ -11,9 +11,10 @@ from rest_framework_simplejwt.views import (
 from hrms_modules.dashboard_views import central_dashboard_view
 from leave.views import leave_dashboard_view
 from hrms_modules.views import (
-    attendance_dashboard_view, 
-    claims_dashboard_view, 
-    employee_360_view 
+    attendance_dashboard_view,
+    claims_dashboard_view,
+    employee_360_view,
+    employee_directory_view,
 )
 
 # New API ViewSets
@@ -44,6 +45,7 @@ urlpatterns = [
     path('attendance-dashboard/', attendance_dashboard_view, name='attendance-dashboard'),
     path('claims-dashboard/', claims_dashboard_view, name='claims-dashboard'),
     path('employee-360/<int:user_id>/', employee_360_view, name='employee-360-ui'),
+    path('employees/', employee_directory_view, name='employee-directory'),
 
     # JWT Authentication APIs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

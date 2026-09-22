@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Employee Directory</h2>
+            <p class="text-muted mb-0">
+                Central directory of employees and their current employment information.
+            </p>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+
+                <div class="col-md-5">
+                    <label for="employeeSearch" class="form-label">
+                        Search employees
+                    </label>
+                    <input
+                        type="text"
+                        id="employeeSearch"
+                        class="form-control"
+                        placeholder="Search by name, employee ID, department..."
+                    >
+                </div>
+
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">
+                        Employment Status
+                    </label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All statuses</option>
+                        <option value="ACTIVE">Active</option>
+                        <option value="PROBATION">Probation</option>
+                        <option value="ON_LEAVE">On Leave</option>
+                        <option value="SUSPENDED">Suspended</option>
+                        <option value="RESIGNED">Resigned</option>
+                        <option value="TERMINATED">Terminated</option>
+                        <option value="RETIRED">Retired</option>
+                        <option value="INACTIVE">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button
+                        type="button"
+                        id="clearFilters"
+                        class="btn btn-outline-secondary w-100"
+                    >
+                        Clear
+                    </button>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="text-muted small">
+                        <strong id="employeeCount">0</strong> employees
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Directory -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div id="loadingMessage" class="text-center py-5">
+                <div class="spinner-border" role="status"></div>
+                <p class="text-muted mt-3 mb-0">
+                    Loading employees...
+                </p>
+            </div>
+
+            <div id="errorMessage" class="alert alert-danger d-none">
+                Unable to load employee information.
+            </div>
+
+            <div class="table-responsive d-none" id="employeeTableContainer">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Employee ID</th>
+                            <th>Department</th>
+                            <th>Position</th>
+                            <th>Grade</th>
+                            <th>Employment Type</th>
+                            <th>Status</th>
+                            <th>Manager</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="employeeTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="emptyMessage" class="text-center text-muted py-5 d-none">
+                No employees match the current search or filter.
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const searchInput = document.getElementById('employeeSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const clearFilters = document.getElementById('clearFilters');
+
+    const tableContainer = document.getElementById('employeeTableContainer');
+    const tableBody = document.getElementById('employeeTableBody');
+
+    const loadingMessage = document.getElementById('loadingMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const emptyMessage = document.getElementById('emptyMessage');
+
+    const employeeCount = document.getElementById('employeeCount');
+
+    let employees = [];
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatStatus(status) {
+        const labels = {
+            ACTIVE: 'Active',
+            PROBATION: 'Probation',
+            ON_LEAVE: 'On Leave',
+            SUSPENDED: 'Suspended',
+            RESIGNED: 'Resigned',
+            TERMINATED: 'Terminated',
+            RETIRED: 'Retired',
+            INACTIVE: 'Inactive'
+        };
+
+        return labels[status] || status || 'Unknown';
+    }
+
+    function statusBadge(status) {
+        const classes = {
+            ACTIVE: 'bg-success',
+            PROBATION: 'bg-warning text-dark',
+            ON_LEAVE: 'bg-info text-dark',
+            SUSPENDED: 'bg-warning text-dark',
+            RESIGNED: 'bg-secondary',
+            TERMINATED: 'bg-danger',
+            RETIRED: 'bg-secondary',
+            INACTIVE: 'bg-dark'
+        };
+
+        const className = classes[status] || 'bg-secondary';
+
+        return `
+            <span class="badge ${className}">
+                ${escapeHtml(formatStatus(status))}
+            </span>
+        `;
+    }
+
+    function employeeName(employee) {
+        const user = employee.user || {};
+
+        const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+
+        return fullName || user.username || 'Unnamed Employee';
+    }
+
+    function managerName(employee) {
+        if (!employee.manager) {
+            return '—';
+        }
+
+        return employee.manager.full_name ||
+               employee.manager.employee_id ||
+               '—';
+    }
+
+    function renderEmployees() {
+
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const selectedStatus = statusFilter.value;
+
+        const filtered = employees.filter(function (employee) {
+
+            const name = employeeName(employee).toLowerCase();
+            const employeeId = (employee.employee_id || '').toLowerCase();
+            const department = (employee.department_name || '').toLowerCase();
+            const position = (employee.position_title || '').toLowerCase();
+            const location = (employee.location || '').toLowerCase();
+
+            const matchesSearch =
+                !searchTerm ||
+                name.includes(searchTerm) ||
+                employeeId.includes(searchTerm) ||
+                department.includes(searchTerm) ||
+                position.includes(searchTerm) ||
+                location.includes(searchTerm);
+
+            const matchesStatus =
+                !selectedStatus ||
+                employee.employment_status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        employeeCount.textContent = filtered.length;
+
+        tableBody.innerHTML = '';
+
+        if (filtered.length === 0) {
+            tableContainer.classList.add('d-none');
+            emptyMessage.classList.remove('d-none');
+            return;
+        }
+
+        emptyMessage.classList.add('d-none');
+        tableContainer.classList.remove('d-none');
+
+        filtered.forEach(function (employee) {
+
+            const user = employee.user || {};
+
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>
+                    <div class="fw-semibold">
+                        ${escapeHtml(employeeName(employee))}
+                    </div>
+                    <div class="small text-muted">
+                        ${escapeHtml(user.email || '')}
+                    </div>
+                </td>
+
+                <td>
+                    <span class="fw-semibold">
+                        ${escapeHtml(employee.employee_id)}
+                    </span>
+                </td>
+
+                <td>
+                    ${escapeHtml(employee.department_name || '—')}
+                </td>
+
+                <td>
+                    ${escapeHtml(employee.position_title || employee.job_title || '—')}
+                </td>
+
+                <td>
+                    ${escapeHtml(employee.grade || '—')}
+                </td>
+
+                <td>
+                    ${escapeHtml(employee.employment_type || '—')}
+                </td>
+
+                <td>
+                    ${statusBadge(employee.employment_status)}
+                </td>
+
+                <td>
+                    ${escapeHtml(managerName(employee))}
+                </td>
+
+                <td>
+                    ${escapeHtml(employee.location || '—')}
+                </td>
+
+                <td>
+                    <a
+                        href="/employee-360/${employee.user.id}/"
+                        class="btn btn-sm btn-outline-primary"
+                    >
+                        View 360
+                    </a>
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    function loadEmployees() {
+
+        fetch('/api/employees/')
+            .then(function (response) {
+
+                if (!response.ok) {
+                    throw new Error('Employee API returned an error.');
+                }
+
+                return response.json();
+            })
+            .then(function (data) {
+
+                if (Array.isArray(data)) {
+                    employees = data;
+                } else if (data.results && Array.isArray(data.results)) {
+                    employees = data.results;
+                } else {
+                    employees = [];
+                }
+
+                loadingMessage.classList.add('d-none');
+
+                if (employees.length === 0) {
+                    employeeCount.textContent = '0';
+                    emptyMessage.classList.remove('d-none');
+                    return;
+                }
+
+                renderEmployees();
+            })
+            .catch(function (error) {
+
+                console.error('Employee directory error:', error);
+
+                loadingMessage.classList.add('d-none');
+                errorMessage.classList.remove('d-none');
+            });
+    }
+
+    searchInput.addEventListener('input', renderEmployees);
+    statusFilter.addEventListener('change', renderEmployees);
+
+    clearFilters.addEventListener('click', function () {
+        searchInput.value = '';
+        statusFilter.value = '';
+        renderEmployees();
+    });
+
+    loadEmployees();
+});
+</script>
+{% endblock %}

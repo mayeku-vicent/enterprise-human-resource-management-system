@@ -1,149 +1,1762 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Employee 360 Profile</h2>
-            <span id="employeeBadge" class="badge bg-primary fs-6">Loading...</span>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">Employee 360 Profile</h2>
+            <p class="text-muted mb-0">
+                Complete employee record and workforce information
+            </p>
         </div>
 
-        <!-- Bio & Organization Card -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h4 class="card-title text-primary mb-3" id="empName">Loading Profile...</h4>
-                <div class="row" id="empDetails">
-                    <div class="col-md-3"><strong>Username:</strong> <span id="valUsername">-</span></div>
-                    <div class="col-md-3"><strong>Email:</strong> <span id="valEmail">-</span></div>
-                    <div class="col-md-3"><strong>Department:</strong> <span id="valDept">-</span></div>
-                    <div class="col-md-3"><strong>Position:</strong> <span id="valPos">-</span></div>
-                </div>
-            </div>
+        <div class="d-flex gap-2">
+            <a href="/employees/" class="btn btn-outline-secondary">
+                ← Employee Directory
+            </a>
+
+            <span id="employeeBadge"
+                  class="badge bg-secondary fs-6 d-flex align-items-center">
+                Loading...
+            </span>
         </div>
 
-        <!-- Sub-Modules Grid -->
-        <div class="row">
-            <!-- Attendance History -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Recent Attendance</h5>
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead><tr><th>Date</th><th>Check-In</th><th>Status</th></tr></thead>
-                                <tbody id="attendanceTableBody">
-                                    <tr><td colspan="3" class="text-muted text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Expense Claims -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Expense Claims</h5>
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead><tr><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
-                                <tbody id="claimsTableBody">
-                                    <tr><td colspan="3" class="text-muted text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Leave Requests -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Leave Requests</h5>
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead><tr><th>Type</th><th>Dates</th><th>Status</th></tr></thead>
-                                <tbody id="leaveTableBody">
-                                    <tr><td colspan="3" class="text-muted text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <!-- Employee Photo -->
+                <div class="col-md-2 text-center mb-3 mb-md-0">
+
+                    <div id="employeePhotoContainer"
+                         class="mx-auto"
+                         style="
+                            width: 120px;
+                            height: 120px;
+                            border-radius: 50%;
+                            overflow: hidden;
+                            background: #f1f3f5;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                         ">
+
+                        <span id="employeeInitials"
+                              class="fs-1 fw-bold text-secondary">
+                            ?
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Employee Name -->
+                <div class="col-md-4">
+
+                    <h3 id="empName"
+                        class="text-primary mb-2">
+                        Loading Profile...
+                    </h3>
+
+                    <p class="text-muted mb-1">
+                        Employee ID:
+                        <strong id="valEmployeeId">-</strong>
+                    </p>
+
+                    <p class="text-muted mb-0">
+                        Username:
+                        <strong id="valUsername">-</strong>
+                    </p>
+
+                </div>
+
+
+            
+                <div class="col-md-6">
+
+                    <div class="row">
+
+                        <div class="col-sm-6 mb-3">
+                            <small class="text-muted d-block">
+                                Department
+                            </small>
+                            <strong id="valDept">
+                                -
+                            </strong>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
+                            <small class="text-muted d-block">
+                                Position
+                            </small>
+                            <strong id="valPos">
+                                -
+                            </strong>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">
+                                Grade
+                            </small>
+                            <strong id="valGrade">
+                                -
+                            </strong>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block">
+                                Manager
+                            </small>
+                            <strong id="valManager">
+                                -
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                Employment & Organization
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+        <div class="col-md-3 mb-3">
+           <small class="text-muted d-block">
+             Employment Type
+           </small>
+           <strong id="valEmploymentType">
+        -
+           </strong>
+        </div>
+
+                <div class="col-md-3 mb-3">
+                    <small class="text-muted d-block">
+                        Employment Status
+                    </small>
+                    <strong id="valEmploymentStatus">
+                        -
+                    </strong>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <small class="text-muted d-block">
+                        Date of Joining
+                    </small>
+                    <strong id="valJoiningDate">
+                        -
+                    </strong>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <small class="text-muted d-block">
+                        Location
+                    </small>
+                    <strong id="valLocation">
+                        -
+                    </strong>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted d-block">
+                        Job Title
+                    </small>
+                    <strong id="valJobTitle">
+                        -
+                    </strong>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted d-block">
+                        Position
+                    </small>
+                    <strong id="valPosition">
+                        -
+                    </strong>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted d-block">
+                        Department
+                    </small>
+                    <strong id="valDepartment">
+                        -
+                    </strong>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted d-block">
+                        Manager
+                    </small>
+                    <strong id="valManagerDetails">
+                        -
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTACT INFORMATION
+    ====================================================== -->
+    <div class="row mb-4">
+
+<!-- Contact Information -->
+
+<div class="col-md-6 mb-4 mb-md-0">
+
+<div class="card shadow-sm h-100">
+
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            Contact Information
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        <!-- Account Email -->
+        <div class="mb-3">
+            <small class="text-muted d-block">
+                Account Email
+            </small>
+            <strong id="valEmail">
+                -
+            </strong>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-sm align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Primary</th>
+                    </tr>
+                </thead>
+
+                <tbody id="contactsTableBody">
+
+                    <tr>
+                        <td colspan="4"
+                            class="text-muted text-center">
+                            Loading...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </div>
 
+</div>
+
+
+        <!-- Emergency Contacts -->
+        <div class="col-md-6">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Emergency Contacts
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Relationship</th>
+                                    <th>Phone</th>
+                                    <th>Primary</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="emergencyContactsTableBody">
+
+                                <tr>
+                                    <td colspan="4"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         EMPLOYMENT HISTORY
+    ====================================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                Employment History
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Job Title</th>
+                            <th>Department</th>
+                            <th>Position</th>
+                            <th>Employment Type</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="employmentHistoryTableBody">
+
+                        <tr>
+                            <td colspan="7"
+                                class="text-muted text-center">
+                                Loading...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         WORKFORCE ACTIVITY
+    ====================================================== -->
+    <div class="row">
+
+        <!-- Attendance -->
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Recent Attendance
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Check-In</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="attendanceTableBody">
+
+                                <tr>
+                                    <td colspan="3"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Expense Claims -->
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Expense Claims
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="claimsTableBody">
+
+                                <tr>
+                                    <td colspan="3"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Leave -->
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Leave Requests
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="leaveTableBody">
+
+                                <tr>
+                                    <td colspan="3"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ASSETS
+    ====================================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                Assigned Assets
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="assetsTableBody">
+
+                        <tr>
+                            <td colspan="3"
+                                class="text-muted text-center">
+                                Loading...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PERFORMANCE
+    ====================================================== -->
+    <div class="row">
+
+        <!-- Goals -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Performance Goals
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Goal</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="goalsTableBody">
+
+                                <tr>
+                                    <td colspan="2"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Appraisals -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Performance Appraisals
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="appraisalsTableBody">
+
+                                <tr>
+                                    <td colspan="2"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+<!-- =====================================================
+     TRAINING
+====================================================== -->
+
+<div class="card shadow-sm mb-4">
+
+  <div class="card-header bg-white">
+    <h5 class="mb-0">
+        Training & Certifications
+    </h5>
+</div>
+
+<div class="card-body">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>Certification</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="certificationsTableBody">
+
+                <tr>
+                    <td colspan="2"
+                        class="text-muted text-center">
+                        Loading...
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+    <!-- =====================================================
+         SHIFT ASSIGNMENTS
+    ====================================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                Shift Assignments
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Shift</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="shiftsTableBody">
+
+                        <tr>
+                            <td colspan="2"
+                                class="text-muted text-center">
+                                Loading...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================== -->
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const pathSegments = window.location.pathname.split('/');
-        // Filter out empty segments to safely get the user ID
-        const validSegments = pathSegments.filter(seg => seg.length > 0);
-        const userId = validSegments[validSegments.length - 1];
-        
-        fetchEmployee360Data(userId);
-    });
 
-    async function fetchEmployee360Data(userId) {
-        try {
-            const response = await fetch(`/api/employee-360/${userId}/`, {
-                headers: { "Accept": "application/json" }
-            });
+document.addEventListener("DOMContentLoaded", function () {
 
-            if (!response.ok) {
-                throw new Error(`Server responded with status ${response.status}`);
+    const pathSegments = window.location.pathname.split('/');
+
+    const validSegments = pathSegments.filter(
+        segment => segment.length > 0
+    );
+
+    const userId = validSegments[validSegments.length - 1];
+
+    fetchEmployee360Data(userId);
+
+});
+
+
+/* =========================================================
+   MAIN API REQUEST
+========================================================= */
+
+async function fetchEmployee360Data(userId) {
+
+    try {
+
+        const response = await fetch(
+            `/api/employee-360/${userId}/`,
+            {
+                headers: {
+                    "Accept": "application/json"
+                }
             }
+        );
 
-            const data = await response.json();
+        if (!response.ok) {
 
-            // Populate header & bio
-            document.getElementById("empName").innerText = `${data.first_name || ''} ${data.last_name || ''} (${data.username})`;
-            document.getElementById("valUsername").innerText = data.username;
-            document.getElementById("valEmail").innerText = data.email || 'N/A';
-            
-            if (data.profile) {
-                document.getElementById("valDept").innerText = data.profile.department_name || 'Unassigned';
-                document.getElementById("valPos").innerText = data.profile.position_title || data.profile.job_title || 'Staff';
-                document.getElementById("employeeBadge").innerText = "Active Employee";
-            } else {
-                document.getElementById("valDept").innerText = "No Profile Linked";
-                document.getElementById("valPos").innerText = "N/A";
-                document.getElementById("employeeBadge").innerText = "Profile Incomplete";
-                document.getElementById("employeeBadge").className = "badge bg-warning text-dark fs-6";
-            }
+            throw new Error(
+                `Server responded with status ${response.status}`
+            );
 
-            // Populate Attendance
-            const attBody = document.getElementById("attendanceTableBody");
-            attBody.innerHTML = data.attendance_history.length === 0 ? 
-                `<tr><td colspan="3" class="text-muted text-center">No records.</td></tr>` : 
-                data.attendance_history.map(a => `<tr><td>${a.date}</td><td>${a.check_in_time}</td><td><span class="badge bg-secondary">${a.status}</span></td></tr>`).join('');
-
-            // Populate Claims
-            const claimsBody = document.getElementById("claimsTableBody");
-            claimsBody.innerHTML = data.expense_claims.length === 0 ? 
-                `<tr><td colspan="3" class="text-muted text-center">No claims.</td></tr>` : 
-                data.expense_claims.map(c => `<tr><td>${c.claim_type}</td><td>$${c.amount}</td><td><span class="badge bg-secondary">${c.status}</span></td></tr>`).join('');
-
-            // Populate Leave
-            const leaveBody = document.getElementById("leaveTableBody");
-            leaveBody.innerHTML = data.leave_requests.length === 0 ? 
-                `<tr><td colspan="3" class="text-muted text-center">No leave requests.</td></tr>` : 
-                data.leave_requests.map(l => `<tr><td>${l.leave_type}</td><td><small>${l.start_date}</small></td><td><span class="badge bg-secondary">${l.status}</span></td></tr>`).join('');
-
-        } catch (error) {
-            console.error("Error fetching Employee 360:", error);
-            document.getElementById("empName").innerText = "Error Loading Profile";
-            document.getElementById("employeeBadge").innerText = "Failed";
-            document.getElementById("employeeBadge").className = "badge bg-danger fs-6";
-            
-            // Show error in tables
-            document.getElementById("attendanceTableBody").innerHTML = `<tr><td colspan="3" class="text-danger text-center">Failed to load</td></tr>`;
-            document.getElementById("claimsTableBody").innerHTML = `<tr><td colspan="3" class="text-danger text-center">Failed to load</td></tr>`;
-            document.getElementById("leaveTableBody").innerHTML = `<tr><td colspan="3" class="text-danger text-center">Failed to load</td></tr>`;
         }
+
+        const data = await response.json();
+
+
+        /* =================================================
+           BASIC EMPLOYEE INFORMATION
+        ================================================= */
+
+        const profile = data.profile;
+
+        const fullName =
+            `${data.first_name || ''} ${data.last_name || ''}`
+            .trim();
+
+        document.getElementById("empName").innerText =
+            fullName || data.username;
+
+        document.getElementById("valUsername").innerText =
+            data.username || "-";
+
+        document.getElementById("valEmail").innerText =
+            data.email || "N/A";
+
+
+        /* =================================================
+           EMPLOYEE PROFILE
+        ================================================= */
+
+        if (profile) {
+
+            document.getElementById("valEmployeeId").innerText =
+                profile.employee_id || "-";
+
+            document.getElementById("valDept").innerText =
+                profile.department_name || "Unassigned";
+
+            document.getElementById("valDepartment").innerText =
+                profile.department_name || "Unassigned";
+
+            document.getElementById("valPos").innerText =
+                profile.position_title ||
+                profile.job_title ||
+                "Staff";
+
+            document.getElementById("valPosition").innerText =
+                profile.position_title || "Unassigned";
+
+            document.getElementById("valGrade").innerText =
+                profile.grade || "Unassigned";
+
+            document.getElementById("valJobTitle").innerText =
+                profile.job_title || "Not specified";
+
+            document.getElementById("valEmploymentType").innerText =
+                formatValue(profile.employment_type);
+
+            document.getElementById("valEmploymentStatus").innerText =
+                formatValue(profile.employment_status);
+
+            document.getElementById("valJoiningDate").innerText =
+                profile.date_of_joining || "Not specified";
+
+            document.getElementById("valLocation").innerText =
+                profile.location || "Not specified";
+
+
+            /* Manager */
+
+            if (profile.manager) {
+
+                document.getElementById("valManager").innerText =
+                    profile.manager.full_name || "-";
+
+                document.getElementById("valManagerDetails").innerText =
+                    profile.manager.full_name || "-";
+
+            } else {
+
+                document.getElementById("valManager").innerText =
+                    "Not assigned";
+
+                document.getElementById("valManagerDetails").innerText =
+                    "Not assigned";
+
+            }
+
+
+            /* Employee Status Badge */
+
+            const status =
+                profile.employment_status || "UNKNOWN";
+
+            document.getElementById("employeeBadge").innerText =
+                formatValue(status);
+
+            setStatusBadge(
+                document.getElementById("employeeBadge"),
+                status
+            );
+
+
+            /* Employee Initials */
+
+            const initials = getInitials(
+                fullName || data.username
+            );
+
+            document.getElementById("employeeInitials").innerText =
+                initials;
+
+
+            /* Employee Photo */
+
+            if (profile.photo) {
+
+                const photoContainer =
+                    document.getElementById(
+                        "employeePhotoContainer"
+                    );
+
+                photoContainer.innerHTML = "";
+
+                const image =
+                    document.createElement("img");
+
+                image.src = profile.photo;
+                image.alt = fullName || "Employee photo";
+
+                image.style.width = "100%";
+                image.style.height = "100%";
+                image.style.objectFit = "cover";
+
+                photoContainer.appendChild(image);
+
+            }
+
+        } else {
+
+            document.getElementById("employeeBadge").innerText =
+                "Profile Incomplete";
+
+            document.getElementById("employeeBadge").className =
+                "badge bg-warning text-dark fs-6 d-flex align-items-center";
+
+        }
+
+
+        /* =================================================
+           CONTACTS
+        ================================================= */
+
+        renderContacts(
+            data.employee_contacts || []
+        );
+
+
+        /* =================================================
+           EMERGENCY CONTACTS
+        ================================================= */
+
+        renderEmergencyContacts(
+            data.emergency_contacts || []
+        );
+
+
+        /* =================================================
+           EMPLOYMENT HISTORY
+        ================================================= */
+
+        renderEmploymentHistory(
+            data.employment_history || []
+        );
+
+
+        /* =================================================
+           ATTENDANCE
+        ================================================= */
+
+        renderAttendance(
+            data.attendance_history || []
+        );
+
+
+        /* =================================================
+           CLAIMS
+        ================================================= */
+
+        renderClaims(
+            data.expense_claims || []
+        );
+
+
+        /* =================================================
+           LEAVE
+        ================================================= */
+
+        renderLeave(
+            data.leave_requests || []
+        );
+
+
+        /* =================================================
+           ASSETS
+        ================================================= */
+
+        renderAssets(
+            data.assets || []
+        );
+
+
+        /* =================================================
+           PERFORMANCE GOALS
+        ================================================= */
+
+        renderGoals(
+            data.performance_goals || []
+        );
+
+
+        /* =================================================
+           APPRAISALS
+        ================================================= */
+
+        renderAppraisals(
+            data.appraisals || []
+        );
+
+
+        /* =================================================
+           CERTIFICATIONS
+        ================================================= */
+
+        renderCertifications(
+            data.certifications || []
+        );
+
+
+        /* =================================================
+           SHIFTS
+        ================================================= */
+
+        renderShifts(
+            data.shift_assignments || []
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Error fetching Employee 360:",
+            error
+        );
+
+        document.getElementById("empName").innerText =
+            "Error Loading Profile";
+
+        document.getElementById("employeeBadge").innerText =
+            "Failed";
+
+        document.getElementById("employeeBadge").className =
+            "badge bg-danger fs-6 d-flex align-items-center";
+
+        showTableError(
+            "attendanceTableBody",
+            3
+        );
+
+        showTableError(
+            "claimsTableBody",
+            3
+        );
+
+        showTableError(
+            "leaveTableBody",
+            3
+        );
+
+        showTableError(
+            "contactsTableBody",
+            4
+        );
+
+        showTableError(
+            "emergencyContactsTableBody",
+            4
+        );
+
+        showTableError(
+            "employmentHistoryTableBody",
+            7
+        );
+
+        showTableError(
+            "assetsTableBody",
+            3
+        );
+
+        showTableError(
+            "goalsTableBody",
+            2
+        );
+
+        showTableError(
+            "appraisalsTableBody",
+            2
+        );
+
+        showTableError(
+            "certificationsTableBody",
+            2
+        );
+
+        showTableError(
+            "shiftsTableBody",
+            2
+        );
+
     }
+
+}
+
+
+/* =========================================================
+   CONTACTS
+========================================================= */
+
+function renderContacts(contacts) {
+
+    const body =
+        document.getElementById(
+            "contactsTableBody"
+        );
+
+    if (!contacts.length) {
+
+        body.innerHTML = emptyRow(
+            4,
+            "No contact records available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = contacts.map(
+        contact => `
+            <tr>
+                <td>${formatValue(contact.contact_type)}</td>
+                <td>${contact.phone_number || "-"}</td>
+                <td>${contact.email || "-"}</td>
+                <td>
+                    ${
+                        contact.is_primary
+                            ? '<span class="badge bg-primary">Primary</span>'
+                            : '<span class="text-muted">No</span>'
+                    }
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   EMERGENCY CONTACTS
+========================================================= */
+
+function renderEmergencyContacts(contacts) {
+
+    const body =
+        document.getElementById(
+            "emergencyContactsTableBody"
+        );
+
+    if (!contacts.length) {
+
+        body.innerHTML = emptyRow(
+            4,
+            "No emergency contacts available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = contacts.map(
+        contact => `
+            <tr>
+                <td>${contact.full_name || "-"}</td>
+                <td>${contact.relationship || "-"}</td>
+                <td>${contact.phone_number || "-"}</td>
+                <td>
+                    ${
+                        contact.is_primary
+                            ? '<span class="badge bg-primary">Primary</span>'
+                            : '<span class="text-muted">No</span>'
+                    }
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   EMPLOYMENT HISTORY
+========================================================= */
+
+function renderEmploymentHistory(history) {
+
+    const body =
+        document.getElementById(
+            "employmentHistoryTableBody"
+        );
+
+    if (!history.length) {
+
+        body.innerHTML = emptyRow(
+            7,
+            "No employment history records available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = history.map(
+        record => `
+            <tr>
+                <td>${record.job_title || "-"}</td>
+
+                <td>${record.department || "-"}</td>
+
+                <td>${record.position || "-"}</td>
+
+                <td>${formatValue(record.employment_type)}</td>
+
+                <td>
+                    <span class="badge bg-secondary">
+                        ${formatValue(record.employment_status)}
+                    </span>
+                </td>
+
+                <td>${record.start_date || "-"}</td>
+
+                <td>${record.end_date || "Current"}</td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   ATTENDANCE
+========================================================= */
+
+function renderAttendance(attendance) {
+
+    const body =
+        document.getElementById(
+            "attendanceTableBody"
+        );
+
+    if (!attendance.length) {
+
+        body.innerHTML = emptyRow(
+            3,
+            "No attendance records."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = attendance.map(
+        record => `
+            <tr>
+                <td>${record.date || "-"}</td>
+                <td>${record.check_in_time || "-"}</td>
+                <td>
+                    <span class="badge bg-secondary">
+                        ${formatValue(record.status)}
+                    </span>
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   CLAIMS
+========================================================= */
+
+function renderClaims(claims) {
+
+    const body =
+        document.getElementById(
+            "claimsTableBody"
+        );
+
+    if (!claims.length) {
+
+        body.innerHTML = emptyRow(
+            3,
+            "No expense claims."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = claims.map(
+        claim => `
+            <tr>
+                <td>${claim.claim_type || "-"}</td>
+
+                <td>
+                    ${claim.amount || "-"}
+                </td>
+
+                <td>
+                    <span class="badge bg-secondary">
+                        ${formatValue(claim.status)}
+                    </span>
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   LEAVE
+========================================================= */
+
+function renderLeave(leaves) {
+
+    const body =
+        document.getElementById(
+            "leaveTableBody"
+        );
+
+    if (!leaves.length) {
+
+        body.innerHTML = emptyRow(
+            3,
+            "No leave requests."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = leaves.map(
+        leave => `
+            <tr>
+                <td>${leave.leave_type || "-"}</td>
+
+                <td>
+                    ${leave.start_date || "-"}
+                </td>
+
+                <td>
+                    <span class="badge bg-secondary">
+                        ${formatValue(leave.status)}
+                    </span>
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   ASSETS
+========================================================= */
+
+function renderAssets(assets) {
+
+    const body =
+        document.getElementById(
+            "assetsTableBody"
+        );
+
+    if (!assets.length) {
+
+        body.innerHTML = emptyRow(
+            3,
+            "No assets assigned."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = assets.map(
+        asset => `
+            <tr>
+                <td>
+                    ${asset.name || asset.asset_name || "-"}
+                </td>
+
+                <td>
+                    ${asset.asset_type || asset.type || "-"}
+                </td>
+
+                <td>
+                    <span class="badge bg-secondary">
+                        ${formatValue(asset.status)}
+                    </span>
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   PERFORMANCE GOALS
+========================================================= */
+
+function renderGoals(goals) {
+
+    const body =
+        document.getElementById(
+            "goalsTableBody"
+        );
+
+    if (!goals.length) {
+
+        body.innerHTML = emptyRow(
+            2,
+            "No performance goals available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = goals.map(
+        goal => `
+            <tr>
+                <td>
+                    ${
+                        goal.title ||
+                        goal.name ||
+                        goal.description ||
+                        "-"
+                    }
+                </td>
+
+                <td>
+                    <span class="badge bg-secondary">
+                        ${formatValue(goal.status)}
+                    </span>
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   APPRAISALS
+========================================================= */
+
+function renderAppraisals(appraisals) {
+
+    const body =
+        document.getElementById(
+            "appraisalsTableBody"
+        );
+
+    if (!appraisals.length) {
+
+        body.innerHTML = emptyRow(
+            2,
+            "No performance appraisals available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = appraisals.map(
+        appraisal => `
+            <tr>
+                <td>
+                    ${
+                        appraisal.period ||
+                        appraisal.review_period ||
+                        appraisal.date ||
+                        "-"
+                    }
+                </td>
+
+                <td>
+                    ${
+                        appraisal.rating ||
+                        appraisal.score ||
+                        appraisal.status ||
+                        "-"
+                    }
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   CERTIFICATIONS
+========================================================= */
+
+function renderCertifications(certifications) {
+
+    const body =
+        document.getElementById(
+            "certificationsTableBody"
+        );
+
+    if (!certifications.length) {
+
+        body.innerHTML = emptyRow(
+            2,
+            "No training or certification records available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = certifications.map(
+        certification => `
+            <tr>
+                <td>
+                    ${
+                        certification.name ||
+                        certification.title ||
+                        certification.certification_name ||
+                        "-"
+                    }
+                </td>
+
+                <td>
+                    <span class="badge bg-secondary">
+                        ${
+                            certification.status ||
+                            "Recorded"
+                        }
+                    </span>
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   SHIFTS
+========================================================= */
+
+function renderShifts(shifts) {
+
+    const body =
+        document.getElementById(
+            "shiftsTableBody"
+        );
+
+    if (!shifts.length) {
+
+        body.innerHTML = emptyRow(
+            2,
+            "No shift assignments available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = shifts.map(
+        shift => `
+            <tr>
+                <td>
+                    ${
+                        shift.shift_name ||
+                        shift.work_shift ||
+                        shift.shift ||
+                        "-"
+                    }
+                </td>
+
+                <td>
+                    ${
+                        shift.assigned_date ||
+                        shift.date ||
+                        "-"
+                    }
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function formatValue(value) {
+
+    if (!value) {
+        return "Not specified";
+    }
+
+    return String(value)
+        .replaceAll("_", " ")
+        .toLowerCase()
+        .replace(/\b\w/g, letter =>
+            letter.toUpperCase()
+        );
+
+}
+
+
+function getInitials(name) {
+
+    if (!name) {
+        return "?";
+    }
+
+    const words = name
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (words.length === 1) {
+
+        return words[0]
+            .substring(0, 2)
+            .toUpperCase();
+
+    }
+
+    return (
+        words[0][0] +
+        words[words.length - 1][0]
+    ).toUpperCase();
+
+}
+
+
+function setStatusBadge(element, status) {
+
+    const normalized =
+        String(status || "")
+            .toUpperCase();
+
+    element.className =
+        "badge fs-6 d-flex align-items-center";
+
+    if (normalized === "ACTIVE") {
+
+        element.classList.add(
+            "bg-success"
+        );
+
+    } else if (
+        normalized === "ON_LEAVE" ||
+        normalized === "PROBATION"
+    ) {
+
+        element.classList.add(
+            "bg-warning",
+            "text-dark"
+        );
+
+    } else if (
+        normalized === "RESIGNED" ||
+        normalized === "TERMINATED" ||
+        normalized === "RETIRED"
+    ) {
+
+        element.classList.add(
+            "bg-secondary"
+        );
+
+    } else {
+
+        element.classList.add(
+            "bg-primary"
+        );
+
+    }
+
+}
+
+
+function emptyRow(colspan, message) {
+
+    return `
+        <tr>
+            <td colspan="${colspan}"
+                class="text-muted text-center py-3">
+                ${message}
+            </td>
+        </tr>
+    `;
+
+}
+
+
+function showTableError(elementId, colspan) {
+
+    const element =
+        document.getElementById(elementId);
+
+    if (!element) {
+        return;
+    }
+
+    element.innerHTML = `
+        <tr>
+            <td colspan="${colspan}"
+                class="text-danger text-center">
+                Failed to load
+            </td>
+        </tr>
+    `;
+
+}
+
 </script>
+
 {% endblock %}

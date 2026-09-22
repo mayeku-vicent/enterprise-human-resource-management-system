@@ -1,4 +1,4 @@
-﻿# Enterprise HRMS â€” Project Progress
+# Enterprise HRMS — Project Progress
 
 ## Master Blueprint
 
@@ -6,7 +6,7 @@ The master blueprint is:
 
 `STRUCTURE.txt`
 
-Development must follow the V1 â†’ V5 roadmap.
+Development must follow the V1 → V5 roadmap.
 
 ---
 
@@ -18,84 +18,84 @@ Last architecture audit:
 
 Current development stage:
 
-**V1 â€” CORE HR**
+**V1 — CORE HR**
 
 Current active task:
 
-**V1.03 â€” Employees / Core HR**
+**V1.04 — Employee 360**
 
 Current status:
 
-**V1.02 COMPLETE AND VERIFIED**
+**V1.03 COMPLETE AND VERIFIED**
 
 ---
 
-# V1 â€” CORE HR
+# V1 — CORE HR
 
 | ID    | Area                | Status        | Notes                                                                          |
 | ----- | ------------------- | ------------- | ------------------------------------------------------------------------------ |
-| V1.01 | Authentication      | ðŸŸ¡ Partial    | Custom User exists; role enforcement needs improvement                         |
+| V1.01 | Authentication      | 🟡 Partial    | Custom User exists; role enforcement needs improvement                         |
 | V1.02 | Dashboard           | Complete      | Central dashboard implemented, protected, routed from `/`, with real KPI data and preserved module dashboards |
-| V1.03 | Employees / Core HR | Partial      | `accounts.EmployeeProfile` is the single authoritative employee master record |
+| V1.03 | Employees / Core HR | Complete | Authoritative employee master, employment history, contacts, emergency contacts, employee directory, and Employee 360 integration implemented and verified |
 | V1.04 | Employee 360        | ?? Partial    | Uses authoritative `accounts.EmployeeProfile`; broader 360 integration remains |
-| V1.05 | Organization        | ðŸŸ¡ Partial    | Department and Position models exist                                           |
-| V1.06 | Documents           | ðŸŸ¡ Foundation | EmployeeDocument model exists; workflow/API/UI incomplete                      |
-| V1.07 | Roles & Permissions | ðŸ”´ Incomplete | Only basic ADMIN/MANAGER/EMPLOYEE role field exists                            |
-| V1.08 | Audit               | ðŸ”´ Incomplete | AuditLog model exists but business-event recording is incomplete               |
+| V1.05 | Organization        | 🟡 Partial    | Department and Position models exist                                           |
+| V1.06 | Documents           | 🟡 Foundation | EmployeeDocument model exists; workflow/API/UI incomplete                      |
+| V1.07 | Roles & Permissions | 🔴 Incomplete | Only basic ADMIN/MANAGER/EMPLOYEE role field exists                            |
+| V1.08 | Audit               | 🔴 Incomplete | AuditLog model exists but business-event recording is incomplete               |
 
 ---
 
-# V2 â€” WORKFORCE
+# V2 — WORKFORCE
 
 | Area                  | Status        | Notes                                       |
 | --------------------- | ------------- | ------------------------------------------- |
-| Attendance            | ðŸŸ¡ Partial    | Basic attendance exists                     |
-| Shift Management      | ðŸŸ¢ Foundation | WorkShift and assignments exist             |
-| Leave                 | ðŸŸ¡ Partial    | One model but multiple API surfaces         |
-| Employee Self Service | ðŸŸ¡ Partial    | Employee portal exists                      |
-| Manager Self Service  | ðŸŸ¡ Partial    | Requires stronger role/workflow enforcement |
-| Notifications         | ðŸ”´ Missing    | Not implemented as a complete subsystem     |
-| Workflow              | ðŸ”´ Missing    | No generalized workflow engine              |
+| Attendance            | 🟡 Partial    | Basic attendance exists                     |
+| Shift Management      | 🟢 Foundation | WorkShift and assignments exist             |
+| Leave                 | 🟡 Partial    | One model but multiple API surfaces         |
+| Employee Self Service | 🟡 Partial    | Employee portal exists                      |
+| Manager Self Service  | 🟡 Partial    | Requires stronger role/workflow enforcement |
+| Notifications         | 🔴 Missing    | Not implemented as a complete subsystem     |
+| Workflow              | 🔴 Missing    | No generalized workflow engine              |
 
 ---
 
-# V3 â€” TALENT
+# V3 — TALENT
 
 | Area        | Status           | Notes                                    |
 | ----------- | ---------------- | ---------------------------------------- |
-| Recruitment | ðŸŸ¡ Foundation    | Models exist; workflow/UI/API incomplete |
-| Onboarding  | ðŸ”´ Missing       | Not implemented                          |
-| Performance | ðŸŸ¢/ðŸŸ¡ Foundation | Goals and appraisals exist               |
-| Training    | ðŸŸ¢/ðŸŸ¡ Foundation | Courses and certifications exist         |
-| Career      | ðŸ”´ Missing       | Not implemented                          |
-| Succession  | ðŸ”´ Missing       | Not implemented                          |
+| Recruitment | 🟡 Foundation    | Models exist; workflow/UI/API incomplete |
+| Onboarding  | 🔴 Missing       | Not implemented                          |
+| Performance | 🟢/🟡 Foundation | Goals and appraisals exist               |
+| Training    | 🟢/🟡 Foundation | Courses and certifications exist         |
+| Career      | 🔴 Missing       | Not implemented                          |
+| Succession  | 🔴 Missing       | Not implemented                          |
 
 ---
 
-# V4 â€” FINANCE
+# V4 — FINANCE
 
 | Area         | Status        | Notes                                             |
 | ------------ | ------------- | ------------------------------------------------- |
-| Payroll      | ðŸŸ¡ Foundation | Salary and payslip models exist                   |
-| Compensation | ðŸ”´ Missing    | Not implemented                                   |
-| Benefits     | ðŸ”´ Missing    | Not implemented                                   |
-| Expenses     | ðŸŸ¡ Partial    | Claims/expense functionality exists               |
-| Claims       | ðŸ”´ Duplicate  | Claims exists in both `claims` and `hrms_modules` |
+| Payroll      | 🟡 Foundation | Salary and payslip models exist                   |
+| Compensation | 🔴 Missing    | Not implemented                                   |
+| Benefits     | 🔴 Missing    | Not implemented                                   |
+| Expenses     | 🟡 Partial    | Claims/expense functionality exists               |
+| Claims       | 🔴 Duplicate  | Claims exists in both `claims` and `hrms_modules` |
 
 ---
 
-# V5 â€” ENTERPRISE
+# V5 — ENTERPRISE
 
 | Area                  | Status           | Notes                                                             |
 | --------------------- | ---------------- | ----------------------------------------------------------------- |
-| Advanced Analytics    | ðŸ”´ Missing       | Not implemented                                                   |
-| Business Intelligence | ðŸ”´ Missing       | Not implemented                                                   |
-| Integrations          | ðŸ”´/ðŸŸ¡ Foundation | Basic API capability exists; integration architecture incomplete  |
-| APIs                  | ðŸŸ¡ Partial       | Several REST APIs exist; consistency/security require improvement |
-| Mobile                | ðŸ”´ Missing       | Not implemented                                                   |
-| Advanced Security     | ðŸ”´ Missing       | Requires RBAC, audit, security controls                           |
-| Compliance            | ðŸŸ¡ Foundation    | AuditLog model exists; implementation incomplete                  |
-| System Monitoring     | ðŸ”´ Missing       | Not implemented                                                   |
+| Advanced Analytics    | 🔴 Missing       | Not implemented                                                   |
+| Business Intelligence | 🔴 Missing       | Not implemented                                                   |
+| Integrations          | 🔴/🟡 Foundation | Basic API capability exists; integration architecture incomplete  |
+| APIs                  | 🟡 Partial       | Several REST APIs exist; consistency/security require improvement |
+| Mobile                | 🔴 Missing       | Not implemented                                                   |
+| Advanced Security     | 🔴 Missing       | Requires RBAC, audit, security controls                           |
+| Compliance            | 🟡 Foundation    | AuditLog model exists; implementation incomplete                  |
+| System Monitoring     | 🔴 Missing       | Not implemented                                                   |
 
 ---
 
@@ -224,7 +224,7 @@ Existing records must be preserved during future consolidation.
 
 # Current Task
 
-## V1.01 â€” Employee Master Architecture
+## V1.01 — Employee Master Architecture
 
 Before implementation:
 
@@ -276,15 +276,15 @@ Every completed task must update this file.
 
 # Status Definitions
 
-ðŸŸ¢ Complete and verified
+🟢 Complete and verified
 
-ðŸŸ¡ Partially implemented / requires improvement
+🟡 Partially implemented / requires improvement
 
-ðŸ”´ Missing or incomplete
+🔴 Missing or incomplete
 
-ðŸŸ£ Duplicate/conflicting implementation
+🟣 Duplicate/conflicting implementation
 
-âš ï¸ Broken / regression risk
+⚠️ Broken / regression risk
 
 ---
 
@@ -321,6 +321,7 @@ Created control documents:
 
 Next task:
 
-**V1.03 - Employees / Core HR**
+**V1.04 - Employee 360**
+
 
 
