@@ -24,6 +24,10 @@ from .serializers import (
     EmployeeProfileSerializer,
     AttendanceSerializer,
     ExpenseClaimSerializer,
+    EmployeeSalarySerializer,
+    PayslipSerializer,
+    EmployeeDocumentSerializer,
+    AuditLogSerializer,
 )
 
 from leave.serializers import LeaveRequestSerializer
@@ -31,6 +35,10 @@ from leave.serializers import LeaveRequestSerializer
 # Employee 360 module models & serializers
 from assets.models import CompanyAsset
 from assets.serializers import CompanyAssetSerializer
+
+from payroll.models import EmployeeSalary, Payslip
+from documents.models import EmployeeDocument
+from compliance.models import AuditLog
 
 from performance.models import PerformanceGoal, Appraisal
 from performance.serializers import (
@@ -272,6 +280,39 @@ class Employee360DetailView(APIView):
         shifts = EmployeeShiftAssignment.objects.filter(
             employee=target_user
         ).order_by('-assigned_date')
+                # ----------------------------------------------------
+        # COMPENSATION / SALARY
+        # ----------------------------------------------------
+
+        salary = (
+            EmployeeSalary.objects.filter(
+                employee=target_user
+            ).first()
+        )
+
+        # ----------------------------------------------------
+        # PAYROLL
+        # ----------------------------------------------------
+
+        payslips = Payslip.objects.filter(
+            employee=target_user
+        ).order_by('-generated_at')
+
+        # ----------------------------------------------------
+        # DOCUMENTS
+        # ----------------------------------------------------
+
+        documents = EmployeeDocument.objects.filter(
+            employee=target_user
+        ).order_by('-uploaded_at')
+
+        # ----------------------------------------------------
+        # AUDIT HISTORY
+        # ----------------------------------------------------
+
+        audit_history = AuditLog.objects.filter(
+            user=target_user
+        ).order_by('-timestamp')
 
         # ----------------------------------------------------
         # EMPLOYMENT HISTORY
@@ -415,6 +456,42 @@ class Employee360DetailView(APIView):
 
             "shift_assignments": EmployeeShiftAssignmentSerializer(
                 shifts,
+                many=True
+            ).data,
+                       # ------------------------------------------------
+            # COMPENSATION / SALARY
+            # ------------------------------------------------
+
+            "salary": (
+                EmployeeSalarySerializer(salary).data
+                if salary
+                else None
+            ),
+
+            # ------------------------------------------------
+            # PAYROLL
+            # ------------------------------------------------
+
+            "payslips": PayslipSerializer(
+                payslips,
+                many=True
+            ).data,
+
+            # ------------------------------------------------
+            # DOCUMENTS
+            # ------------------------------------------------
+
+            "documents": EmployeeDocumentSerializer(
+                documents,
+                many=True
+            ).data,
+
+            # ------------------------------------------------
+            # AUDIT HISTORY
+            # ------------------------------------------------
+
+            "audit_history": AuditLogSerializer(
+                audit_history,
                 many=True
             ).data,
 

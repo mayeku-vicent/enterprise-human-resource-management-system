@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Attendance, ExpenseClaim
+
+from payroll.models import EmployeeSalary, Payslip
+from documents.models import EmployeeDocument
+from compliance.models import AuditLog
 from accounts.models import EmployeeProfile
 
 User = get_user_model()
@@ -92,3 +96,74 @@ class ExpenseClaimSerializer(serializers.ModelSerializer):
         if request and hasattr(request, 'user') and request.user.is_authenticated:
             validated_data['employee'] = request.user
         return super().create(validated_data)
+class EmployeeSalarySerializer(serializers.ModelSerializer):
+    employee_username = serializers.ReadOnlyField(
+        source='employee.username'
+    )
+
+    class Meta:
+        model = EmployeeSalary
+        fields = [
+            'id',
+            'employee',
+            'employee_username',
+            'basic_salary',
+            'allowances',
+            'deductions',
+            'updated_at',
+        ]
+
+
+class PayslipSerializer(serializers.ModelSerializer):
+    employee_username = serializers.ReadOnlyField(
+        source='employee.username'
+    )
+
+    class Meta:
+        model = Payslip
+        fields = [
+            'id',
+            'employee',
+            'employee_username',
+            'pay_period',
+            'net_pay',
+            'is_paid',
+            'generated_at',
+        ]
+
+
+class EmployeeDocumentSerializer(serializers.ModelSerializer):
+    employee_username = serializers.ReadOnlyField(
+        source='employee.username'
+    )
+
+    class Meta:
+        model = EmployeeDocument
+        fields = [
+            'id',
+            'employee',
+            'employee_username',
+            'title',
+            'category',
+            'file',
+            'uploaded_at',
+            'expiration_date',
+        ]
+
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(
+        source='user.username'
+    )
+
+    class Meta:
+        model = AuditLog
+        fields = [
+            'id',
+            'user',
+            'username',
+            'action',
+            'ip_address',
+            'description',
+            'timestamp',
+        ]

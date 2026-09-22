@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
-from django.views.generic import TemplateView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -24,6 +23,7 @@ from performance.views import PerformanceGoalViewSet, AppraisalViewSet
 from training.views import TrainingCourseViewSet, EmployeeCertificationViewSet
 from attendance_shifts.views import WorkShiftViewSet, EmployeeShiftAssignmentViewSet
 
+
 # Setup the DRF router for our new modules
 router = DefaultRouter()
 router.register(r'assets', CompanyAssetViewSet)
@@ -34,10 +34,14 @@ router.register(r'certifications', EmployeeCertificationViewSet)
 router.register(r'work-shifts', WorkShiftViewSet)
 router.register(r'shift-assignments', EmployeeShiftAssignmentViewSet)
 
+
 urlpatterns = [
-    # Admin and Root Redirect
+    # Admin and Authentication
     path('admin/', admin.site.urls),
-  path('', lambda request: redirect('dashboard')),
+    path('accounts/', include('django.contrib.auth.urls')),
+
+    # Root Redirect
+    path('', lambda request: redirect('dashboard')),
 
     # UI Dashboards
     path('dashboard/', central_dashboard_view, name='dashboard'),
@@ -59,6 +63,6 @@ urlpatterns = [
     path('claims/', include('claims.urls')),
     path('api/', include('hrms_modules.urls')),
 
-    # New Module API Endpoints (Assets, Performance, Training, Attendance Shifts)
+    # New Module API Endpoints
     path('api/', include(router.urls)),
 ]
