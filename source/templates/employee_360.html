@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block content %}
 
@@ -15,7 +15,7 @@
 
         <div class="d-flex gap-2">
             <a href="/employees/" class="btn btn-outline-secondary">
-                ← Employee Directory
+                â† Employee Directory
             </a>
 
             <span id="employeeBadge"
@@ -369,6 +369,202 @@
 
                         <tr>
                             <td colspan="7"
+                                class="text-muted text-center">
+                                Loading...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         COMPENSATION & PAYROLL
+    ====================================================== -->
+    <div class="row">
+
+        <!-- Salary -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Compensation
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Basic Salary</th>
+                                    <th>Allowances</th>
+                                    <th>Deductions</th>
+                                    <th>Updated</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="salaryTableBody">
+
+                                <tr>
+                                    <td colspan="4"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Payslips -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Payroll & Payslips
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Pay Period</th>
+                                    <th>Net Pay</th>
+                                    <th>Paid</th>
+                                    <th>Generated</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="payslipsTableBody">
+
+                                <tr>
+                                    <td colspan="4"
+                                        class="text-muted text-center">
+                                        Loading...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DOCUMENTS
+    ====================================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                Employee Documents
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Uploaded</th>
+                            <th>Expiration</th>
+                            <th>File</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="documentsTableBody">
+
+                        <tr>
+                            <td colspan="5"
+                                class="text-muted text-center">
+                                Loading...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         AUDIT HISTORY
+    ====================================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                Audit History
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Action</th>
+                            <th>Description</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="auditHistoryTableBody">
+
+                        <tr>
+                            <td colspan="4"
                                 class="text-muted text-center">
                                 Loading...
                             </td>
@@ -802,7 +998,8 @@ async function fetchEmployee360Data(userId) {
             {
                 headers: {
                     "Accept": "application/json"
-                }
+                },
+                credentials: "same-origin"
             }
         );
 
@@ -961,6 +1158,42 @@ async function fetchEmployee360Data(userId) {
 
 
         /* =================================================
+           COMPENSATION
+        ================================================= */
+
+        renderSalary(
+            data.salary
+        );
+
+
+        /* =================================================
+           PAYROLL
+        ================================================= */
+
+        renderPayslips(
+            data.payslips || []
+        );
+
+
+        /* =================================================
+           DOCUMENTS
+        ================================================= */
+
+        renderDocuments(
+            data.documents || []
+        );
+
+
+        /* =================================================
+           AUDIT HISTORY
+        ================================================= */
+
+        renderAuditHistory(
+            data.audit_history || []
+        );
+
+
+        /* =================================================
            CONTACTS
         ================================================= */
 
@@ -1076,6 +1309,26 @@ async function fetchEmployee360Data(userId) {
             "badge bg-danger fs-6 d-flex align-items-center";
 
         showTableError(
+            "salaryTableBody",
+            4
+        );
+
+        showTableError(
+            "payslipsTableBody",
+            4
+        );
+
+        showTableError(
+            "documentsTableBody",
+            5
+        );
+
+        showTableError(
+            "auditHistoryTableBody",
+            4
+        );
+
+        showTableError(
             "attendanceTableBody",
             3
         );
@@ -1131,6 +1384,164 @@ async function fetchEmployee360Data(userId) {
         );
 
     }
+
+}
+
+
+/* =========================================================
+   SALARY
+========================================================= */
+
+function renderSalary(salary) {
+
+    const body =
+        document.getElementById(
+            "salaryTableBody"
+        );
+
+    if (!salary) {
+
+        body.innerHTML = emptyRow(
+            4,
+            "No compensation record available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = `
+        <tr>
+            <td>${salary.basic_salary ?? "-"}</td>
+            <td>${salary.allowances ?? "-"}</td>
+            <td>${salary.deductions ?? "-"}</td>
+            <td>${salary.updated_at || "-"}</td>
+        </tr>
+    `;
+
+}
+
+
+/* =========================================================
+   PAYSLIPS
+========================================================= */
+
+function renderPayslips(payslips) {
+
+    const body =
+        document.getElementById(
+            "payslipsTableBody"
+        );
+
+    if (!payslips.length) {
+
+        body.innerHTML = emptyRow(
+            4,
+            "No payslips available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = payslips.map(
+        payslip => `
+            <tr>
+                <td>${payslip.pay_period || "-"}</td>
+
+                <td>${payslip.net_pay ?? "-"}</td>
+
+                <td>
+                    ${
+                        payslip.is_paid
+                            ? '<span class="badge bg-success">Paid</span>'
+                            : '<span class="badge bg-warning text-dark">Pending</span>'
+                    }
+                </td>
+
+                <td>${payslip.generated_at || "-"}</td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   DOCUMENTS
+========================================================= */
+
+function renderDocuments(documents) {
+
+    const body =
+        document.getElementById(
+            "documentsTableBody"
+        );
+
+    if (!documents.length) {
+
+        body.innerHTML = emptyRow(
+            5,
+            "No employee documents available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = documents.map(
+        document => `
+            <tr>
+                <td>${document.title || "-"}</td>
+                <td>${document.category || "-"}</td>
+                <td>${document.uploaded_at || "-"}</td>
+                <td>${document.expiration_date || "No expiration"}</td>
+                <td>
+                    ${
+                        document.file
+                            ? `<a href="${document.file}" target="_blank" rel="noopener">View</a>`
+                            : '<span class="text-muted">No file</span>'
+                    }
+                </td>
+            </tr>
+        `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   AUDIT HISTORY
+========================================================= */
+
+function renderAuditHistory(auditHistory) {
+
+    const body =
+        document.getElementById(
+            "auditHistoryTableBody"
+        );
+
+    if (!auditHistory.length) {
+
+        body.innerHTML = emptyRow(
+            4,
+            "No audit history available."
+        );
+
+        return;
+
+    }
+
+    body.innerHTML = auditHistory.map(
+        record => `
+            <tr>
+                <td>${record.timestamp || "-"}</td>
+                <td>${record.action || "-"}</td>
+                <td>${record.description || "-"}</td>
+                <td>${record.ip_address || "-"}</td>
+            </tr>
+        `
+    ).join("");
 
 }
 
