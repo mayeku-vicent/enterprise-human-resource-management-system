@@ -1,0 +1,1170 @@
+Below is the full structure I recommend.
+
+ENTERPRISE-HRMS — COMPLETE STRUCTURE
+ENTERPRISE-HRMS
+│
+├── 01. AUTHENTICATION & SECURITY
+│
+├── 02. EXECUTIVE DASHBOARD
+│
+├── 03. CORE HUMAN RESOURCES
+│
+├── 04. ORGANIZATION MANAGEMENT
+│
+├── 05. RECRUITMENT & APPLICANT TRACKING
+│
+├── 06. ONBOARDING & OFFBOARDING
+│
+├── 07. EMPLOYEE SELF-SERVICE
+│
+├── 08. MANAGER SELF-SERVICE
+│
+├── 09. ATTENDANCE & TIME MANAGEMENT
+│
+├── 10. LEAVE MANAGEMENT
+│
+├── 11. PAYROLL MANAGEMENT
+│
+├── 12. COMPENSATION & BENEFITS
+│
+├── 13. PERFORMANCE MANAGEMENT
+│
+├── 14. LEARNING & DEVELOPMENT
+│
+├── 15. CAREER & SUCCESSION MANAGEMENT
+│
+├── 16. TALENT MANAGEMENT
+│
+├── 17. WORKFORCE MANAGEMENT
+│
+├── 18. EXPENSE & CLAIMS MANAGEMENT
+│
+├── 19. DOCUMENT MANAGEMENT
+│
+├── 20. HR CASE / SERVICE MANAGEMENT
+│
+├── 21. WORKFLOW & APPROVALS
+│
+├── 22. COMMUNICATION & NOTIFICATIONS
+│
+├── 23. REPORTING & BUSINESS INTELLIGENCE
+│
+├── 24. HR ANALYTICS
+│
+├── 25. COMPLIANCE & AUDIT
+│
+├── 26. ASSET MANAGEMENT
+│
+├── 27. HEALTH, SAFETY & WELLBEING
+│
+├── 28. TRAVEL & BUSINESS REQUESTS
+│
+├── 29. ADMINISTRATION
+│
+├── 30. INTEGRATIONS & APIs
+│
+└── 31. SYSTEM OPERATIONS
+1. AUTHENTICATION & SECURITY
+
+This is the entrance to the entire system.
+
+Features
+Login
+Logout
+Forgot password
+Password reset
+Change password
+Multi-factor authentication
+Single Sign-On
+Session management
+Device/session management
+Account lockout
+Password policies
+Security alerts
+Role management
+SUPER ADMIN
+    ↓
+SYSTEM ADMIN
+    ↓
+HR ADMIN
+    ↓
+HR OFFICER
+    ↓
+MANAGER
+    ↓
+EMPLOYEE
+
+But don't hard-code these roles. Build a Role + Permission system.
+
+Example:
+
+Role: HR Officer
+
+Permissions:
+✓ View employees
+✓ Create employee
+✓ Edit employee
+✓ View documents
+✓ Approve leave
+✗ Run payroll
+✗ Manage system users
+2. EXECUTIVE DASHBOARD
+
+This is the first major screen after login.
+
+7
+Dashboard cards
+Total Employees
+Active Employees
+New Employees
+Employees on Leave
+Employees Absent
+Open Vacancies
+Pending Approvals
+Payroll Amount
+Charts
+Headcount by department
+Gender distribution
+Age distribution
+Employee turnover
+Attendance
+Leave utilization
+Recruitment pipeline
+Performance distribution
+Training completion
+Payroll trends
+Quick actions
++ Add Employee
++ Create Vacancy
++ Approve Leave
++ Run Payroll
++ Generate Report
+3. CORE HUMAN RESOURCES
+
+This is the heart of the HRMS.
+
+Employee Directory
+Employee ID
+Photo
+Name
+Department
+Position
+Grade
+Employment Type
+Status
+Manager
+Location
+Employee 360 Profile
+
+This is extremely important.
+
+When HR clicks an employee:
+
+EMPLOYEE 360
+│
+├── Personal Information
+├── Contact Information
+├── Employment
+├── Organization
+├── Compensation
+├── Attendance
+├── Leave
+├── Payroll
+├── Benefits
+├── Performance
+├── Training
+├── Documents
+├── Assets
+├── Claims
+├── Disciplinary Records
+├── Career History
+├── Emergency Contacts
+└── Audit History
+
+One employee should have one central record, rather than separate disconnected records.
+
+4. ORGANIZATION MANAGEMENT
+
+Manage the organization's structure.
+
+Organization
+│
+├── Companies
+├── Branches
+├── Locations
+├── Departments
+├── Divisions
+├── Sections
+├── Positions
+├── Job Titles
+├── Job Grades
+├── Cost Centers
+└── Organization Chart
+Example
+BANK / COMPANY
+│
+├── Information Technology
+│   ├── Software Development
+│   ├── Infrastructure
+│   └── Cybersecurity
+│
+├── Human Resources
+│
+├── Finance
+│
+└── Operations
+5. RECRUITMENT & APPLICANT TRACKING
+
+Complete recruitment pipeline:
+
+Workforce Request
+      ↓
+Job Requisition
+      ↓
+Approval
+      ↓
+Job Vacancy
+      ↓
+Applications
+      ↓
+CV Screening
+      ↓
+Shortlisting
+      ↓
+Interview
+      ↓
+Assessment
+      ↓
+Selection
+      ↓
+Offer
+      ↓
+Background Check
+      ↓
+Hire
+      ↓
+Onboarding
+Recruitment screens
+Job requisitions
+Vacancies
+Applicant database
+CV management
+Screening
+Interviews
+Assessments
+Interview scoring
+Candidate communication
+Offers
+Recruitment reports
+6. ONBOARDING & OFFBOARDING
+Onboarding
+New Employee
+     ↓
+Documents
+     ↓
+Contract
+     ↓
+Account Creation
+     ↓
+Equipment
+     ↓
+Orientation
+     ↓
+Training
+     ↓
+Manager Assignment
+     ↓
+Probation
+     ↓
+Confirmation
+Offboarding
+Resignation / Retirement / Termination
+             ↓
+Clearance
+             ↓
+Asset Return
+             ↓
+Final Payroll
+             ↓
+Benefits Settlement
+             ↓
+Exit Interview
+             ↓
+Account Deactivation
+             ↓
+Employee Archive
+7. EMPLOYEE SELF-SERVICE — ESS
+
+Employees should not need HR for every small request.
+
+Employee portal:
+
+My Profile
+My Documents
+My Payslips
+My Leave
+My Attendance
+My Benefits
+My Performance
+My Training
+My Expenses
+My Requests
+My Notifications
+Employee actions
+Update allowed personal details
+Apply for leave
+Download payslip
+Submit expense
+Request documents
+View attendance
+View performance goals
+Request training
+Submit HR cases
+8. MANAGER SELF-SERVICE — MSS
+
+Managers see their teams.
+
+My Team
+Team Attendance
+Team Leave
+Team Performance
+Team Goals
+Approvals
+Recruitment
+Training
+Reports
+
+Manager dashboard:
+
+Team Size: 42
+Present: 38
+On Leave: 3
+Absent: 1
+
+Pending Approvals: 7
+Performance Reviews: 12
+Open Positions: 2
+9. ATTENDANCE & TIME MANAGEMENT
+
+Support multiple attendance methods.
+
+Features
+Clock in/out
+Timesheets
+Shifts
+Rosters
+Overtime
+Late arrival
+Early departure
+Absence
+Work schedules
+Holidays
+Attendance corrections
+
+Possible integrations:
+
+Biometric
+   ↓
+HRMS
+   ↓
+Attendance
+   ↓
+Payroll
+10. LEAVE MANAGEMENT
+Leave types
+Annual leave
+Sick leave
+Maternity leave
+Paternity leave
+Compassionate leave
+Study leave
+Unpaid leave
+Special leave
+Workflow
+Employee
+   ↓
+Leave Request
+   ↓
+Manager
+   ↓
+HR
+   ↓
+Approved
+   ↓
+Leave Balance Updated
+
+The system should automatically calculate:
+
+Opening Balance
++ Accrued Leave
+- Used Leave
+= Remaining Leave
+11. PAYROLL MANAGEMENT
+
+This should be a major module, not just a payslip generator.
+
+Payroll
+│
+├── Payroll Calendar
+├── Payroll Periods
+├── Employee Salary
+├── Basic Salary
+├── Allowances
+├── Overtime
+├── Bonuses
+├── Deductions
+├── Taxes
+├── Loans
+├── Benefits
+├── Pension
+├── Payroll Processing
+├── Payroll Approval
+├── Payslips
+├── Payroll Reports
+└── Payroll Audit
+Payroll process
+Employee Data
+     ↓
+Attendance
+     ↓
+Leave
+     ↓
+Allowances
+     ↓
+Deductions
+     ↓
+Tax
+     ↓
+Payroll Calculation
+     ↓
+Payroll Review
+     ↓
+Approval
+     ↓
+Payment
+     ↓
+Payslip
+12. COMPENSATION & BENEFITS
+
+Manage:
+
+Salary structures
+Salary grades
+Salary bands
+Allowances
+Bonuses
+Incentives
+Medical benefits
+Insurance
+Pension
+Employee benefits
+Benefit enrollment
+13. PERFORMANCE MANAGEMENT
+
+Complete performance cycle:
+
+Set Goals
+    ↓
+Continuous Feedback
+    ↓
+Mid-Year Review
+    ↓
+Employee Self-Assessment
+    ↓
+Manager Assessment
+    ↓
+HR Review
+    ↓
+Final Rating
+    ↓
+Development Plan
+Features
+KPIs
+Objectives
+Competencies
+Appraisals
+Ratings
+360-degree feedback
+Performance improvement plans
+Goals
+Review history
+14. LEARNING & DEVELOPMENT
+Training Catalog
+     ↓
+Courses
+     ↓
+Training Requests
+     ↓
+Approval
+     ↓
+Enrollment
+     ↓
+Attendance
+     ↓
+Assessment
+     ↓
+Certificate
+
+Track:
+
+Skills
+Certifications
+Training history
+Training costs
+Expiring certifications
+15. CAREER & SUCCESSION
+
+This makes the system more enterprise-oriented.
+
+Career
+Employee
+ ↓
+Skills
+ ↓
+Career Path
+ ↓
+Development Plan
+ ↓
+Promotion
+Succession
+
+Identify:
+
+Critical positions
+Potential successors
+Readiness
+Required skills
+Development gaps
+16. TALENT MANAGEMENT
+
+Manage:
+
+High-potential employees
+Skills
+Competencies
+Talent pools
+Career paths
+Succession
+Development plans
+17. WORKFORCE MANAGEMENT
+
+Management can answer:
+
+How many employees do we have, where are they, what skills do they have, and where do we need more people?
+
+Features:
+
+Workforce planning
+Headcount planning
+Workforce forecasting
+Staffing requirements
+Skills inventory
+Position planning
+Workforce costs
+18. EXPENSE & CLAIMS MANAGEMENT
+
+Employees submit:
+
+Travel Claim
+Medical Claim
+Funeral Claim
+Training Claim
+Expense Claim
+Other Allowance
+
+Workflow:
+
+Employee
+ ↓
+Submit Claim
+ ↓
+Manager
+ ↓
+HR / Finance
+ ↓
+Verification
+ ↓
+Approval
+ ↓
+Payment
+ ↓
+Completed
+
+This is also where your FEMS experience can become useful: you already have experience thinking about claim registration, verification, approval, payment and closure.
+
+19. DOCUMENT MANAGEMENT
+
+Central employee document repository.
+
+Employee
+│
+├── Contract
+├── ID
+├── Certificates
+├── Academic Documents
+├── Tax Documents
+├── Medical Documents
+├── Performance Documents
+├── Disciplinary Documents
+└── Other Documents
+
+Features:
+
+Upload
+Download
+Version control
+Expiration dates
+Document categories
+Access control
+Document approval
+Audit trail
+20. HR CASE / SERVICE MANAGEMENT
+
+Employees can create HR requests.
+
+Employee
+ ↓
+HR Request
+ ↓
+Ticket Number
+ ↓
+Assigned HR Officer
+ ↓
+Investigation / Processing
+ ↓
+Resolution
+ ↓
+Closed
+
+Examples:
+
+Payroll issue
+Leave issue
+Contract request
+Employment letter
+Personal information correction
+Benefits issue
+21. WORKFLOW & APPROVAL ENGINE
+
+This should be a platform-level feature, not something hard-coded into every module.
+
+Example:
+
+LEAVE REQUEST
+      ↓
+Employee
+      ↓
+Manager Approval
+      ↓
+HR Approval
+      ↓
+Completed
+
+Another:
+
+SALARY CHANGE
+      ↓
+Manager
+      ↓
+HR
+      ↓
+Finance
+      ↓
+Executive
+      ↓
+Approved
+
+The workflow engine should support:
+
+Sequential approval
+Parallel approval
+Delegation
+Rejection
+Return for correction
+Escalation
+Approval deadlines
+22. COMMUNICATION & NOTIFICATIONS
+
+Central notification system.
+
+Channels
+In-app
+Email
+SMS
+Push notifications
+
+Examples:
+
+"Your leave request was approved."
+
+"Your performance review is due."
+
+"Your certification expires in 30 days."
+
+"Payroll has been processed."
+23. REPORTING & BUSINESS INTELLIGENCE
+
+Reports:
+
+HR
+Employee list
+Headcount
+Turnover
+New hires
+Departures
+Attendance
+Absenteeism
+Late arrivals
+Overtime
+Leave
+Leave utilization
+Leave balances
+Payroll
+Payroll summary
+Salary analysis
+Deduction report
+Recruitment
+Applications
+Hiring time
+Recruitment pipeline
+Performance
+Performance distribution
+Goal completion
+24. HR ANALYTICS
+
+This is different from ordinary reports.
+
+The system should provide:
+
+HR ANALYTICS
+│
+├── Workforce Analytics
+├── Turnover Analytics
+├── Recruitment Analytics
+├── Attendance Analytics
+├── Leave Analytics
+├── Payroll Analytics
+├── Performance Analytics
+├── Training Analytics
+└── Diversity / Demographic Analytics
+
+Eventually:
+
+DATA
+ ↓
+ANALYTICS
+ ↓
+TRENDS
+ ↓
+INSIGHTS
+ ↓
+MANAGEMENT DECISION
+25. COMPLIANCE & AUDIT
+
+Every important action should be traceable.
+
+Example:
+
+Who?
+Mayeku Vicent
+
+What?
+Changed employee salary
+
+When?
+19 Sept 2026 10:42
+
+Old Value:
+UGX X
+
+New Value:
+UGX Y
+
+IP:
+...
+
+Action:
+UPDATE
+
+Audit:
+
+Login history
+Data changes
+Approval history
+Payroll changes
+Permission changes
+Document access
+System configuration changes
+26. ASSET MANAGEMENT
+
+Track company property assigned to employees.
+
+Employee
+ ↓
+Laptop
+ ↓
+Serial Number
+ ↓
+Issue Date
+ ↓
+Condition
+ ↓
+Return Date
+
+Assets:
+
+Computers
+Phones
+Vehicles
+ID cards
+Office equipment
+Access cards
+27. HEALTH, SAFETY & WELLBEING
+
+Depending on organizational requirements:
+
+Workplace incidents
+Safety records
+Wellness programs
+Medical/benefit administration
+Occupational health records
+Emergency contacts
+
+Sensitive information must have strict access controls.
+
+28. TRAVEL & BUSINESS REQUESTS
+Travel Request
+ ↓
+Manager
+ ↓
+HR / Finance
+ ↓
+Approval
+ ↓
+Travel
+ ↓
+Expense Claim
+
+Manage:
+
+Travel requests
+Travel authorization
+Advances
+Accommodation
+Transport
+Travel expenses
+29. ADMINISTRATION
+
+This is where administrators control the platform.
+
+Administration
+│
+├── Users
+├── Roles
+├── Permissions
+├── Departments
+├── Locations
+├── Job Grades
+├── Leave Types
+├── Payroll Configuration
+├── Workflow Configuration
+├── Notification Configuration
+├── System Settings
+├── Reference Data
+└── Security Settings
+30. INTEGRATIONS & APIs
+
+An international-level HRMS shouldn't operate as an isolated application.
+
+                  ENTERPRISE HRMS
+                        │
+       ┌────────────────┼────────────────┐
+       │                │                │
+      BANK             TAX            EMAIL
+       │                │                │
+       └────────────────┼────────────────┘
+                        │
+       ┌────────────────┼────────────────┐
+       │                │                │
+   BIOMETRIC          ERP             SSO
+
+Potential integrations:
+
+Banking
+Tax systems
+Pension systems
+Email
+SMS
+Active Directory / Entra ID
+Biometric devices
+Accounting/ERP
+Microsoft 365
+External recruitment platforms
+31. SYSTEM OPERATIONS
+
+For the technical administrators:
+
+System Health
+Database
+Backups
+Logs
+Error Monitoring
+API Monitoring
+Background Jobs
+Email Queue
+Notifications
+Storage
+Security Monitoring
+THE COMPLETE USER TYPES
+
+I would design the system around these users:
+
+SUPER ADMIN
+      │
+SYSTEM ADMIN
+      │
+HR ADMIN
+      │
+HR OFFICER
+      │
+RECRUITMENT OFFICER
+      │
+PAYROLL OFFICER
+      │
+FINANCE OFFICER
+      │
+TRAINING OFFICER
+      │
+MANAGER
+      │
+EMPLOYEE
+      │
+EXECUTIVE
+      │
+AUDITOR
+
+Each gets a different dashboard and permission set.
+
+THE DATABASE SHOULD ALSO BE ENTERPRISE-LEVEL
+
+At a high level:
+
+USERS
+ROLES
+PERMISSIONS
+USER_ROLES
+
+EMPLOYEES
+EMPLOYMENT_HISTORY
+EMPLOYEE_CONTACTS
+EMERGENCY_CONTACTS
+EMPLOYEE_DOCUMENTS
+
+ORGANIZATIONS
+COMPANIES
+BRANCHES
+DEPARTMENTS
+POSITIONS
+JOB_GRADES
+
+RECRUITMENT
+JOB_REQUISITIONS
+VACANCIES
+APPLICANTS
+INTERVIEWS
+OFFERS
+
+ONBOARDING
+OFFBOARDING
+
+ATTENDANCE
+SHIFTS
+TIMESHEETS
+OVERTIME
+
+LEAVE
+LEAVE_TYPES
+LEAVE_REQUESTS
+LEAVE_BALANCES
+
+PAYROLL
+SALARIES
+ALLOWANCES
+DEDUCTIONS
+TAXES
+PAYROLL_RUNS
+PAYSLIPS
+
+BENEFITS
+PERFORMANCE
+GOALS
+APPRAISALS
+
+TRAINING
+COURSES
+ENROLLMENTS
+CERTIFICATIONS
+
+CLAIMS
+EXPENSES
+
+WORKFLOWS
+APPROVALS
+
+NOTIFICATIONS
+
+AUDIT_LOGS
+
+REPORTS
+
+SYSTEM_CONFIGURATION
+THE MOST IMPORTANT PART
+
+I would not build all 31 areas immediately.
+
+I'd divide development into 5 major releases:
+
+V1 — CORE HR
+Authentication
+Dashboard
+Employees
+Employee 360
+Organization
+Departments
+Positions
+Documents
+Roles & Permissions
+Audit
+V2 — WORKFORCE
+Attendance
+Leave
+ESS
+MSS
+Notifications
+Workflows
+V3 — TALENT
+Recruitment
+Onboarding
+Performance
+Training
+Career
+Succession
+V4 — FINANCE
+Payroll
+Compensation
+Benefits
+Expenses
+Claims
+V5 — ENTERPRISE
+Advanced Analytics
+BI
+Integrations
+APIs
+Mobile
+Advanced Security
+Compliance
+System Monitoring
+
+This gives us a real development roadmap, rather than trying to build an enormous application in one step.
+
+And visually, the target should be something closer to this:
+
+5
+
+If we follow this structure, the project becomes a genuine Enterprise-HRMS architecture rather than a basic student CRUD application.
+
+
+
+Our workflow from this point
+
+We will build an audit like this:
+
+#	Master requirement	Existing implementation	Status	Action
+01	Authentication & Security	accounts, authorization, JWT, lockout fields, etc.	🟡 Partial	Audit missing pieces
+02	Executive Dashboard	Existing dashboard views	🟡 Partial	Verify against requirements
+03	Core HR	EmployeeProfile, history, contacts, etc.	🟢 Substantial	Verify gaps
+04	Organization	Departments, Positions	🟢/🟡	Verify
+05	Recruitment & ATS	Existing recruitment app	❓	Audit
+06	Onboarding & Offboarding	Existing code if present	❓	Audit
+07	ESS	Existing employee portal functionality	❓	Audit
+08	MSS	Manager functionality	❓	Audit
+09	Attendance & Time	attendance_shifts, hrms_modules.Attendance	🟡	Audit
+10	Leave	leave app	🟡/❓	Audit
+11	Payroll	payroll app	❓	Audit
+...	...	...	...	...
+31	System Operations	Existing configuration/ope
+
+
+We will classify every requirement as:
+
+🟢 COMPLETE — existing implementation satisfies the requirement sufficiently.
+🟡 PARTIAL — something exists, but important functionality is missing.
+🔴 MISSING — no meaningful implementation found.
+🔵 DUPLICATE/LEGACY — old implementation exists but should not be rebuilt.
+⚪ NOT YET AUDITED — we haven't inspected enough evidence yet.
+
+And we won't implement anything until we know its status.
+
+Current evidence map
+
+Based on everything we've inspected so far:
+
+Master area	Current evidence	Preliminary status
+01 Authentication & Security	accounts, authorization	🟡
+02 Executive Dashboard	hrms_modules/dashboard_views.py	🟡
+03 Core HR	accounts.EmployeeProfile, history, contacts	🟢/🟡
+04 Organization	organization	🟢/🟡
+05 Recruitment & ATS	recruitment	⚪
+06 Onboarding & Offboarding	no dedicated app visible	⚪
+07 ESS	hrms_modules / accounts functionality	⚪
+08 MSS	hrms_modules / manager functionality	⚪
+09 Attendance & Time	attendance_shifts, hrms_modules.Attendance	🟡
+10 Leave	leave	⚪
+11 Payroll	payroll	⚪
+12 Compensation & Benefits	no dedicated app visible	⚪
+13 Performance	performance	⚪
+14 Learning & Development	training	⚪
+15 Career & Succession	no dedicated app visible	⚪
+16 Talent	recruitment, performance, training potentially	⚪
+17 Workforce	existing HR/attendance components	⚪
+18 Expense & Claims	claims, hrms_modules.ExpenseClaim	🟡
+19 Documents	documents, employee_docs	🟡
+20 HR Case/Service	no dedicated app visible	⚪
+21 Workflow & Approvals	existing functionality may exist	⚪
+22 Communication & Notifications	⚪	⚪
+23 Reporting/BI	⚪	⚪
+24 HR Analytics	⚪	⚪
+25 Compliance & Audit	compliance	⚪
+26 Asset	assets	⚪
+27 Health/Safety/Wellbeing	⚪	⚪
+28 Travel/Business Requests	⚪	⚪
+29 Administration	accounts, authorization, config	🟡
+30 Integrations/APIs	DRF/JWT/API code exists	🟡
+31 System Operations	config + Django infrastructure	⚪
+
+These are preliminary statuses, not final conclusions. We need to inspect the actual code before marking things complete.
+
+
+MASTER REQUIREMENT
+       ↓
+SEARCH CURRENT PROJECT
+       ↓
+FOUND?
+  ↓          ↓
+ YES         NO
+ ↓           ↓
+AUDIT        BUILD
+EXISTING     FOUNDATION
+CODE         ↓
+ ↓        TEST
+GAP?          ↓
+ ↓         MARK COMPLETE
+YES
+ ↓
+IMPLEMENT ONLY GAP
+ ↓
+TEST
+ ↓
+MARK COMPLETE
+ ↓
+NEXT REQUIREMENT
