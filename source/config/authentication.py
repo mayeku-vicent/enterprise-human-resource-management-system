@@ -1,0 +1,395 @@
+from datetime import timedelta
+
+from django.contrib.auth import authenticate, get_user_model
+from django.utils import timezone
+
+from rest_framework.exceptions import AuthenticationFailed
+
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer,
+)
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+from compliance.models import AuditLog
+from config.security import get_client_ip
+from accounts.mfa_services import create_mfa_challenge, get_totp_device, is_mfa_required
+
+
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION = timedelta(minutes=15)
+
+
+class SecureTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Secure JWT login serializer.
+
+    Security controls:
+    - Adds token_version to issued JWTs.
+    - Records successful logins.
+    - Records failed login attempts.
+    - Records the source IP address.
+    - Implements account-level brute-force protection.
+    - Never records passwords or JWT tokens.
+    """
+
+    def get_token(self, user):
+        token = super().get_token(user)
+
+        token["token_version"] = user.token_version
+
+        return token
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        username = attrs.get("username")
+        password = attrs.get("password")
+
+        User = get_user_model()
+
+        attempted_user = User.objects.filter(
+            username=username
+        ).first()
+
+        now = timezone.now()
+
+        # ---------------------------------------------------------
+        # ACCOUNT LOCKOUT CHECK
+        # ---------------------------------------------------------
+
+        if attempted_user and attempted_user.locked_until:
+            if attempted_user.locked_until > now:
+                AuditLog.objects.create(
+                    user=attempted_user,
+                    action="LOGIN_BLOCKED_LOCKOUT",
+                    ip_address=get_client_ip(request),
+                    description=(
+                        "Authentication attempt blocked because the "
+                        f"account '{attempted_user.username}' is temporarily "
+                        "locked after repeated failed login attempts."
+                    ),
+                )
+
+                raise AuthenticationFailed(
+                    "This account is temporarily locked due to repeated "
+                    "failed login attempts. Please try again later.",
+                    code="account_locked",
+                )
+
+            attempted_user.failed_login_attempts = 0
+            attempted_user.locked_until = None
+
+            attempted_user.save(
+                update_fields=[
+                    "failed_login_attempts",
+                    "locked_until",
+                ]
+            )
+
+        # ---------------------------------------------------------
+        # PASSWORD AUTHENTICATION
+        # ---------------------------------------------------------
+
+        authenticated_user = authenticate(
+            request=request,
+            username=username,
+            password=password,
+        )
+
+        if authenticated_user is None:
+            if attempted_user:
+                attempted_user.failed_login_attempts += 1
+
+                if attempted_user.failed_login_attempts >= MAX_LOGIN_ATTEMPTS:
+                    attempted_user.failed_login_attempts = MAX_LOGIN_ATTEMPTS
+                    attempted_user.locked_until = (
+                        now + LOCKOUT_DURATION
+                    )
+
+                    attempted_user.save(
+                        update_fields=[
+                            "failed_login_attempts",
+                            "locked_until",
+                        ]
+                    )
+
+                    AuditLog.objects.create(
+                        user=attempted_user,
+                        action="ACCOUNT_LOCKED",
+                        ip_address=get_client_ip(request),
+                        description=(
+                            f"Account '{attempted_user.username}' was "
+                            f"temporarily locked after "
+                            f"{MAX_LOGIN_ATTEMPTS} consecutive failed "
+                            "authentication attempts. "
+                            f"Lockout duration: "
+                            f"{int(LOCKOUT_DURATION.total_seconds() / 60)} "
+                            "minutes."
+                        ),
+                    )
+
+                else:
+                    attempted_user.save(
+                        update_fields=[
+                            "failed_login_attempts",
+                        ]
+                    )
+
+                AuditLog.objects.create(
+                    user=attempted_user,
+                    action="LOGIN_FAILED",
+                    ip_address=get_client_ip(request),
+                    description=(
+                        "Failed authentication attempt for the account "
+                        f"'{attempted_user.username}'. "
+                        f"Consecutive failed attempts: "
+                        f"{attempted_user.failed_login_attempts}."
+                    ),
+                )
+
+            else:
+                AuditLog.objects.create(
+                    user=None,
+                    action="LOGIN_FAILED",
+                    ip_address=get_client_ip(request),
+                    description=(
+                        "Failed authentication attempt for an unknown "
+                        f"username '{username}'."
+                    ),
+                )
+
+            raise AuthenticationFailed(
+                "No active account found with the given credentials.",
+                code="invalid_credentials",
+            )
+
+        self.user = authenticated_user
+
+        # ---------------------------------------------------------
+        # RESET PASSWORD-FAILURE COUNTERS
+        # ---------------------------------------------------------
+
+        self.user.failed_login_attempts = 0
+        self.user.locked_until = None
+
+        self.user.save(
+            update_fields=[
+                "failed_login_attempts",
+                "locked_until",
+            ]
+        )
+
+        # ---------------------------------------------------------
+        # MFA ENFORCEMENT
+        # ---------------------------------------------------------
+
+        if is_mfa_required(self.user):
+            device = get_totp_device(self.user)
+
+            if device is None:
+                AuditLog.objects.create(
+                    user=self.user,
+                    action="MFA_ENROLLMENT_REQUIRED",
+                    ip_address=get_client_ip(request),
+                    description=(
+                        "Password authentication succeeded, but final "
+                        "JWT issuance was blocked because MFA is required "
+                        "and the user has no confirmed TOTP device."
+                    ),
+                )
+
+                raise AuthenticationFailed(
+                    "MFA enrollment is required before you can complete login.",
+                    code="mfa_enrollment_required",
+                )
+
+            challenge, challenge_record = create_mfa_challenge(
+                self.user
+            )
+
+            AuditLog.objects.create(
+                user=self.user,
+                action="LOGIN_PASSWORD_VERIFIED_MFA_PENDING",
+                ip_address=get_client_ip(request),
+                description=(
+                    "Password authentication succeeded. Final JWT issuance "
+                    "was withheld pending MFA verification."
+                ),
+            )
+
+            return {
+                "mfa_required": True,
+                "mfa_challenge": challenge,
+                "mfa_expires_at": challenge_record.expires_at.isoformat(),
+            }
+
+        # ---------------------------------------------------------
+        # NORMAL JWT LOGIN WHEN MFA IS NOT REQUIRED
+        # ---------------------------------------------------------
+
+        refresh = self.get_token(self.user)
+
+        data = {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "mfa_required": False,
+        }
+
+        AuditLog.objects.create(
+            user=self.user,
+            action="LOGIN_SUCCESS",
+            ip_address=get_client_ip(request),
+            description=(
+                "User authenticated successfully and a new JWT "
+                "authentication session was issued."
+            ),
+        )
+
+        return data
+
+
+class SecureTokenObtainPairView(TokenObtainPairView):
+    serializer_class = SecureTokenObtainPairSerializer
+    throttle_scope = "login"
+
+
+class SecureTokenRefreshSerializer(TokenRefreshSerializer):
+    def validate(self, attrs):
+        request = self.context.get("request")
+
+        try:
+            refresh = RefreshToken(attrs["refresh"])
+
+        except TokenError as exc:
+            try:
+                unverified_refresh = RefreshToken(
+                    attrs["refresh"],
+                    verify=False,
+                )
+
+                token_jti = unverified_refresh.get("jti")
+
+                if token_jti:
+                    blacklisted_token = (
+                        BlacklistedToken.objects
+                        .select_related("token__user")
+                        .filter(token__jti=token_jti)
+                        .first()
+                    )
+
+                    if blacklisted_token:
+                        audit_user = blacklisted_token.token.user
+
+                        AuditLog.objects.create(
+                            user=audit_user,
+                            action="REFRESH_TOKEN_REUSE_DETECTED",
+                            ip_address=get_client_ip(request),
+                            description=(
+                                f"Previously used refresh token reuse "
+                                f"detected for user "
+                                f"'{audit_user.username}'. "
+                                f"Refresh token JTI: {token_jti}. "
+                                "The refresh attempt was rejected because "
+                                "the token has already been blacklisted."
+                            ),
+                        )
+
+                        raise AuthenticationFailed(
+                            "This refresh token has already been used and is no longer valid.",
+                            code="refresh_token_reuse_detected",
+                        )
+
+            except AuthenticationFailed:
+                raise
+
+            except TokenError:
+                raise exc
+
+            raise exc
+
+        user_id = refresh.get("user_id")
+        token_version = refresh.get("token_version")
+        token_jti = refresh.get("jti")
+
+        if user_id is None:
+            raise AuthenticationFailed(
+                "Refresh token user identification is missing.",
+                code="refresh_user_missing",
+            )
+
+        if token_version is None:
+            raise AuthenticationFailed(
+                "Refresh token security version is missing.",
+                code="refresh_token_version_missing",
+            )
+
+        if token_jti is None:
+            raise AuthenticationFailed(
+                "Refresh token identifier is missing.",
+                code="refresh_token_jti_missing",
+            )
+
+        User = get_user_model()
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise AuthenticationFailed(
+                "The user associated with this refresh token no longer exists.",
+                code="refresh_user_invalid",
+            )
+
+        if not user.is_active:
+            raise AuthenticationFailed(
+                "The user account is inactive.",
+                code="refresh_user_inactive",
+            )
+
+        if token_version != user.token_version:
+            raise AuthenticationFailed(
+                "This session is no longer valid. Please authenticate again.",
+                code="refresh_token_version_invalid",
+            )
+
+        if BlacklistedToken.objects.filter(
+            token__jti=token_jti
+        ).exists():
+            AuditLog.objects.create(
+                user=user,
+                action="REFRESH_TOKEN_REUSE_DETECTED",
+                ip_address=get_client_ip(request),
+                description=(
+                    f"Previously used refresh token reuse detected "
+                    f"for user '{user.username}'. "
+                    f"Refresh token JTI: {token_jti}. "
+                    "The refresh attempt was rejected because the "
+                    "token has already been blacklisted."
+                ),
+            )
+
+            raise AuthenticationFailed(
+                "This refresh token has already been used and is no longer valid.",
+                code="refresh_token_reuse_detected",
+            )
+
+        return super().validate(attrs)
+
+
+class SecureTokenRefreshView(TokenRefreshView):
+    serializer_class = SecureTokenRefreshSerializer
+    throttle_scope = "token_refresh"
+
+
+
+
+
+
+
+
+

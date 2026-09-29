@@ -1,0 +1,17 @@
+DJANGO APPS / MODULES
+================================================================================
+
+accounts
+assets
+attendance_shifts
+authorization
+claims
+compliance
+documents
+hrms_modules
+leave
+organization
+payroll
+performance
+recruitment
+training

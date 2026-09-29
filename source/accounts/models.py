@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from django.db import models
-from organization.models import Department, Position
+from organization.models import Department, Location, Position
 
 
 class User(AbstractUser):
@@ -9,7 +10,21 @@ class User(AbstractUser):
         ADMIN = 'ADMIN', 'Administrator'
         MANAGER = 'MANAGER', 'Manager'
         EMPLOYEE = 'EMPLOYEE', 'Employee'
+    token_version = models.PositiveIntegerField(
+        default=1,
+        help_text="Security version used to invalidate previously issued JWT tokens."
+    )
 
+    failed_login_attempts = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of consecutive failed authentication attempts."
+    )
+
+    locked_until = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Time until which authentication is blocked because of repeated failed attempts."
+    )
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
@@ -111,6 +126,15 @@ class EmployeeProfile(models.Model):
         null=True,
         blank=True,
         related_name='direct_reports'
+    )
+
+    organization_location = models.ForeignKey(
+        Location,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="employees",
+        help_text="Authoritative organization location for this employee.",
     )
 
     location = models.CharField(
@@ -316,3 +340,155 @@ class EmergencyContact(models.Model):
             f"{self.employee.employee_id} - "
             f"{self.full_name} ({self.relationship})"
         )
+
+class MFAPolicy(models.Model):
+    """
+    Global MFA enforcement policy for the HRMS.
+    """
+
+    OPTIONAL = "OPTIONAL"
+    REQUIRED = "REQUIRED"
+
+    ENFORCEMENT_CHOICES = [
+        (OPTIONAL, "MFA Optional"),
+        (REQUIRED, "MFA Required"),
+    ]
+
+    enforcement_mode = models.CharField(
+        max_length=20,
+        choices=ENFORCEMENT_CHOICES,
+        default=OPTIONAL,
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "MFA Policy"
+        verbose_name_plural = "MFA Policy"
+
+    def __str__(self):
+        return f"MFA Policy: {self.get_enforcement_mode_display()}"
+
+
+class MFARecoveryCode(models.Model):
+    """
+    One-time recovery code for MFA account recovery.
+
+    Only a hash of the recovery code is stored.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mfa_recovery_codes",
+    )
+
+    code_hash = models.CharField(max_length=128)
+
+    used_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        status = "used" if self.used_at else "unused"
+        return f"{self.user.username} - MFA recovery code ({status})"
+
+
+class MFAChallenge(models.Model):
+    """
+    Short-lived, single-use challenge created after successful
+    username/password authentication when MFA is required.
+
+    Only a hash of the challenge token is stored.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mfa_challenges",
+    )
+
+    challenge_hash = models.CharField(max_length=128)
+
+    expires_at = models.DateTimeField()
+
+    used_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        status = "used" if self.used_at else "active"
+        return f"{self.user.username} - MFA challenge ({status})"
+
+class ExternalIdentity(models.Model):
+    """
+    Links an external identity-provider account to an authoritative HRMS User.
+
+    The issuer + subject pair is the stable external identity key.
+    Email is stored only as provider metadata and is not used as the
+    authoritative identity key.
+    """
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="external_identities",
+    )
+
+    provider = models.CharField(
+        max_length=50,
+        help_text="Identity provider identifier, e.g. microsoft_entra_id.",
+    )
+
+    issuer = models.URLField(
+        max_length=500,
+        help_text="OIDC issuer URL identifying the identity provider/tenant.",
+    )
+
+    subject = models.CharField(
+        max_length=255,
+        help_text="OIDC subject (sub) claim identifying the external account.",
+    )
+
+    email = models.EmailField(
+        blank=True,
+        help_text="Email supplied by the identity provider for reference only.",
+    )
+
+    display_name = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["issuer", "subject"],
+                name="unique_external_identity_issuer_subject",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=["provider", "issuer"],
+                name="extid_provider_issuer_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.provider}: {self.subject}"

@@ -1,0 +1,131 @@
+import secrets
+from hmac import compare_digest
+
+from django.shortcuts import redirect
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from accounts.mfa_services import (
+    create_mfa_challenge,
+    get_totp_device,
+    is_mfa_required,
+)
+from config.authentication import SecureTokenObtainPairSerializer
+
+from .sso_services import (
+    build_entra_authorization_url,
+    exchange_entra_authorization_code,
+    resolve_entra_user,
+)
+
+
+class EntraLoginView(APIView):
+    """
+    Start the Microsoft Entra ID OpenID Connect authorization flow.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        state = secrets.token_urlsafe(32)
+
+        request.session["entra_sso_state"] = state
+
+        authorization_url = build_entra_authorization_url(state)
+
+        return redirect(authorization_url)
+
+
+class EntraCallbackView(APIView):
+    """
+    Complete the Microsoft Entra ID OpenID Connect authorization flow.
+
+    After the external identity is resolved to an existing HRMS user,
+    the normal HRMS MFA policy is enforced before JWT issuance.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        returned_state = request.query_params.get("state", "")
+        authorization_code = request.query_params.get("code", "")
+
+        expected_state = request.session.pop("entra_sso_state", None)
+
+        if (
+            not expected_state
+            or not returned_state
+            or not compare_digest(expected_state, returned_state)
+        ):
+            return Response(
+                {"detail": "Invalid or expired SSO state."},
+                status=400,
+            )
+
+        if not authorization_code:
+            return Response(
+                {"detail": "Microsoft Entra authorization code is missing."},
+                status=400,
+            )
+
+        try:
+            token_result = exchange_entra_authorization_code(
+                authorization_code
+            )
+
+            claims = token_result.get("id_token_claims") or {}
+
+            user = resolve_entra_user(claims)
+
+        except ValueError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=403,
+            )
+
+        # ---------------------------------------------------------
+        # MFA ENFORCEMENT
+        # ---------------------------------------------------------
+        if is_mfa_required(user):
+            device = get_totp_device(user)
+
+            if device is None:
+                return Response(
+                    {
+                        "detail": (
+                            "MFA enrollment is required before you can "
+                            "complete SSO login."
+                        ),
+                        "mfa_required": True,
+                        "mfa_enrollment_required": True,
+                        "sso_provider": "microsoft_entra_id",
+                    },
+                    status=403,
+                )
+
+            challenge = create_mfa_challenge(user)
+
+            return Response(
+                {
+                    "mfa_required": True,
+                    "mfa_challenge": challenge,
+                    "sso_provider": "microsoft_entra_id",
+                },
+                status=200,
+            )
+
+        # ---------------------------------------------------------
+        # NORMAL JWT ISSUANCE WHEN MFA IS NOT REQUIRED
+        # ---------------------------------------------------------
+        refresh = SecureTokenObtainPairSerializer().get_token(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "mfa_required": False,
+                "sso_provider": "microsoft_entra_id",
+            },
+            status=200,
+        )

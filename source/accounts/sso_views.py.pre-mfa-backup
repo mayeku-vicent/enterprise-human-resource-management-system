@@ -1,0 +1,89 @@
+import secrets
+from hmac import compare_digest
+
+from django.shortcuts import redirect
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from config.authentication import SecureTokenObtainPairSerializer
+
+from .sso_services import (
+    build_entra_authorization_url,
+    exchange_entra_authorization_code,
+    resolve_entra_user,
+)
+
+
+class EntraLoginView(APIView):
+    """
+    Start the Microsoft Entra ID OpenID Connect authorization flow.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        state = secrets.token_urlsafe(32)
+
+        request.session["entra_sso_state"] = state
+
+        authorization_url = build_entra_authorization_url(state)
+
+        return redirect(authorization_url)
+
+
+class EntraCallbackView(APIView):
+    """
+    Complete the Microsoft Entra ID OpenID Connect authorization flow.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        returned_state = request.query_params.get("state", "")
+        authorization_code = request.query_params.get("code", "")
+
+        expected_state = request.session.pop("entra_sso_state", None)
+
+        if (
+            not expected_state
+            or not returned_state
+            or not compare_digest(expected_state, returned_state)
+        ):
+            return Response(
+                {"detail": "Invalid or expired SSO state."},
+                status=400,
+            )
+
+        if not authorization_code:
+            return Response(
+                {"detail": "Microsoft Entra authorization code is missing."},
+                status=400,
+            )
+
+        try:
+            token_result = exchange_entra_authorization_code(
+                authorization_code
+            )
+
+            claims = token_result.get("id_token_claims") or {}
+
+            user = resolve_entra_user(claims)
+
+        except ValueError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=403,
+            )
+
+        refresh = SecureTokenObtainPairSerializer().get_token(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "mfa_required": False,
+                "sso_provider": "microsoft_entra_id",
+            },
+            status=200,
+        )

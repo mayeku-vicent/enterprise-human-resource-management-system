@@ -1,0 +1,397 @@
+AUTHORIZATION / SECURITY AUDIT
+================================================================================
+
+PATTERN: user\.role\s*==
+--------------------------------------------------------------------------------
+accounts\views.py:82: if user.role == "ADMIN":
+accounts\views.py:85: if user.role == "MANAGER":
+assets\views.py:30: if user.role == "ADMIN":
+assets\views.py:33: if user.role == "MANAGER":
+attendance_shifts\views.py:36: if user.role == "ADMIN":
+attendance_shifts\views.py:121: if user.role == "ADMIN":
+attendance_shifts\views.py:126: if user.role == "MANAGER":
+attendance_shifts\views.py:174: if user.role == "ADMIN":
+attendance_shifts\views.py:177: elif user.role == "MANAGER":
+attendance_shifts\views.py:214: if user.role == "ADMIN":
+attendance_shifts\views.py:227: if user.role == "MANAGER":
+attendance_shifts\views.py:257: if user.role == "ADMIN":
+attendance_shifts\views.py:271: if user.role == "MANAGER":
+attendance_shifts\views.py:302: if user.role == "ADMIN":
+attendance_shifts\views.py:308: if user.role == "MANAGER":
+authorization\services.py:16: and user.role == "ADMIN"
+authorization\services.py:24: and user.role == "MANAGER"
+authorization\services.py:32: and user.role == "EMPLOYEE"
+hrms_modules\views.py:91: if user.role == "ADMIN":
+hrms_modules\views.py:100: if user.role == "MANAGER":
+hrms_modules\views.py:135: if request.user.role == "ADMIN":
+hrms_modules\views.py:181: if user.role == "ADMIN":
+hrms_modules\views.py:184: if user.role == "MANAGER":
+hrms_modules\views.py:199: if request.user.role == "ADMIN":
+hrms_modules\views.py:202: if request.user.role == "MANAGER":
+hrms_modules\views.py:230: if request.user.role == "ADMIN":
+hrms_modules\views.py:251: if user.role == "ADMIN":
+hrms_modules\views.py:254: if user.role == "MANAGER":
+hrms_modules\views.py:269: if request.user.role == "ADMIN":
+hrms_modules\views.py:272: if request.user.role == "MANAGER":
+hrms_modules\views.py:306: if request.user.role == "ADMIN":
+hrms_modules\views.py:327: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:333: if request.user.role == "MANAGER":
+hrms_modules\views.py:386: if user.role == "ADMIN":
+hrms_modules\views.py:393: if user.role == "MANAGER":
+hrms_modules\views.py:419: if request.user.role == "ADMIN":
+hrms_modules\views.py:423: if request.user.role == "MANAGER":
+hrms_modules\views.py:493: if request.user.role == "ADMIN":
+hrms_modules\views.py:531: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:543: if request.user.role == "MANAGER":
+hrms_modules\views.py:602: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:614: if request.user.role == "MANAGER":
+hrms_modules\views.py:688: if user.role == "ADMIN":
+hrms_modules\views.py:694: if user.role == "MANAGER":
+hrms_modules\views.py:790: if user.role == "ADMIN":
+hrms_modules\views.py:793: elif user.role == "MANAGER":
+hrms_modules\views.py:828: user.role == "ADMIN"
+hrms_modules\views.py:995: and user.role == "MANAGER"
+hrms_modules\views.py:1015: if user.role == "MANAGER" and target_user != user
+hrms_modules\views.py:1180: if user.role == "ADMIN":
+hrms_modules\views.py:1183: elif user.role == "MANAGER":
+hrms_modules\views.py:1338: if user.role == "ADMIN":
+hrms_modules\views.py:1341: elif user.role == "MANAGER":
+performance\views.py:35: if user.role == "ADMIN":
+performance\views.py:40: if user.role == "MANAGER":
+performance\views.py:98: if user.role == "ADMIN":
+performance\views.py:101: elif user.role == "MANAGER":
+performance\views.py:154: if request.user.role == "ADMIN":
+performance\views.py:174: if request.user.role == "MANAGER":
+performance\views.py:208: if request.user.role == "ADMIN":
+performance\views.py:231: if request.user.role == "MANAGER":
+performance\views.py:266: if request.user.role == "ADMIN":
+performance\views.py:280: if request.user.role == "MANAGER":
+performance\views.py:327: if user.role == "ADMIN":
+performance\views.py:332: if user.role == "MANAGER":
+performance\views.py:379: if user.role == "ADMIN":
+performance\views.py:381: elif user.role == "MANAGER":
+performance\views.py:420: if user.role == "ADMIN":
+performance\views.py:423: if user.role == "MANAGER":
+performance\views.py:466: if user.role == "ADMIN":
+performance\views.py:469: if user.role == "MANAGER":
+performance\views.py:513: if user.role == "ADMIN":
+performance\views.py:516: if user.role == "MANAGER":
+training\views.py:31: if user.role == "ADMIN":
+training\views.py:117: if user.role == "ADMIN":
+training\views.py:122: if user.role == "MANAGER":
+training\views.py:174: if user.role == "ADMIN":
+training\views.py:177: elif user.role == "MANAGER":
+training\views.py:214: if user.role == "ADMIN":
+training\views.py:227: if user.role == "MANAGER":
+training\views.py:257: if user.role == "ADMIN":
+training\views.py:271: if user.role == "MANAGER":
+training\views.py:302: if user.role == "ADMIN":
+training\views.py:308: if user.role == "MANAGER":
+
+PATTERN: user\.role\s*!=
+--------------------------------------------------------------------------------
+assets\views.py:46: if request.user.role != "ADMIN":
+assets\views.py:60: if request.user.role != "ADMIN":
+assets\views.py:74: if request.user.role != "ADMIN":
+assets\views.py:88: if request.user.role != "ADMIN":
+attendance_shifts\views.py:42: if request.user.role != "ADMIN":
+attendance_shifts\views.py:56: if request.user.role != "ADMIN":
+attendance_shifts\views.py:70: if request.user.role != "ADMIN":
+attendance_shifts\views.py:84: if request.user.role != "ADMIN":
+authorization\services.py:61: if manager_user.role != "MANAGER":
+hrms_modules\views.py:119: if request.user.role != "ADMIN":
+hrms_modules\views.py:156: if request.user.role != "ADMIN":
+hrms_modules\views.py:355: if request.user.role != "ADMIN":
+hrms_modules\views.py:711: if request.user.role != "ADMIN":
+hrms_modules\views.py:729: if request.user.role != "ADMIN":
+hrms_modules\views.py:755: if request.user.role != "ADMIN":
+training\views.py:39: if request.user.role != "ADMIN":
+training\views.py:53: if request.user.role != "ADMIN":
+training\views.py:67: if request.user.role != "ADMIN":
+training\views.py:81: if request.user.role != "ADMIN":
+
+PATTERN: request\.user\.role
+--------------------------------------------------------------------------------
+assets\views.py:46: if request.user.role != "ADMIN":
+assets\views.py:60: if request.user.role != "ADMIN":
+assets\views.py:74: if request.user.role != "ADMIN":
+assets\views.py:88: if request.user.role != "ADMIN":
+attendance_shifts\views.py:42: if request.user.role != "ADMIN":
+attendance_shifts\views.py:56: if request.user.role != "ADMIN":
+attendance_shifts\views.py:70: if request.user.role != "ADMIN":
+attendance_shifts\views.py:84: if request.user.role != "ADMIN":
+hrms_modules\views.py:119: if request.user.role != "ADMIN":
+hrms_modules\views.py:135: if request.user.role == "ADMIN":
+hrms_modules\views.py:156: if request.user.role != "ADMIN":
+hrms_modules\views.py:199: if request.user.role == "ADMIN":
+hrms_modules\views.py:202: if request.user.role == "MANAGER":
+hrms_modules\views.py:230: if request.user.role == "ADMIN":
+hrms_modules\views.py:269: if request.user.role == "ADMIN":
+hrms_modules\views.py:272: if request.user.role == "MANAGER":
+hrms_modules\views.py:306: if request.user.role == "ADMIN":
+hrms_modules\views.py:327: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:333: if request.user.role == "MANAGER":
+hrms_modules\views.py:355: if request.user.role != "ADMIN":
+hrms_modules\views.py:419: if request.user.role == "ADMIN":
+hrms_modules\views.py:423: if request.user.role == "MANAGER":
+hrms_modules\views.py:493: if request.user.role == "ADMIN":
+hrms_modules\views.py:531: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:543: if request.user.role == "MANAGER":
+hrms_modules\views.py:602: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:614: if request.user.role == "MANAGER":
+hrms_modules\views.py:711: if request.user.role != "ADMIN":
+hrms_modules\views.py:729: if request.user.role != "ADMIN":
+hrms_modules\views.py:755: if request.user.role != "ADMIN":
+performance\views.py:142: if request.user.role not in {
+performance\views.py:154: if request.user.role == "ADMIN":
+performance\views.py:174: if request.user.role == "MANAGER":
+performance\views.py:208: if request.user.role == "ADMIN":
+performance\views.py:231: if request.user.role == "MANAGER":
+performance\views.py:266: if request.user.role == "ADMIN":
+performance\views.py:280: if request.user.role == "MANAGER":
+training\views.py:39: if request.user.role != "ADMIN":
+training\views.py:53: if request.user.role != "ADMIN":
+training\views.py:67: if request.user.role != "ADMIN":
+training\views.py:81: if request.user.role != "ADMIN":
+
+PATTERN: IsAuthenticated
+--------------------------------------------------------------------------------
+project_audit.py:341: r"IsAuthenticated",
+accounts\views.py:482: permission_classes = [permissions.IsAuthenticated]
+assets\views.py:25: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:31: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:116: permission_classes = [permissions.IsAuthenticated]
+authorization\permissions.py:138: class IsAuthenticatedEmployee(permissions.BasePermission):
+config\settings.py:131: 'rest_framework.permissions.IsAuthenticated',
+hrms_modules\views.py:83: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:176: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:246: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:378: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:680: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:773: permission_classes = [permissions.IsAuthenticated]
+performance\views.py:30: permission_classes = [permissions.IsAuthenticated]
+performance\views.py:322: permission_classes = [permissions.IsAuthenticated]
+training\views.py:26: permission_classes = [permissions.IsAuthenticated]
+training\views.py:112: permission_classes = [permissions.IsAuthenticated]
+
+PATTERN: AllowAny
+--------------------------------------------------------------------------------
+project_audit.py:342: r"AllowAny",
+claims\views.py:14: permission_classes = [permissions.AllowAny]
+config\views.py:2: from rest_framework.permissions import AllowAny
+config\views.py:7: @permission_classes([AllowAny])
+leave\views.py:11: permission_classes = [permissions.AllowAny]
+
+PATTERN: IsAdmin
+--------------------------------------------------------------------------------
+project_audit.py:343: r"IsAdmin",
+authorization\permissions.py:92: class IsAdmin(permissions.BasePermission):
+
+PATTERN: HasPermission
+--------------------------------------------------------------------------------
+project_audit.py:344: r"HasPermission",
+accounts\views.py:18: from authorization.permissions import HasPermission
+accounts\views.py:58: permission_classes = [HasPermission]
+authorization\permissions.py:10: class HasPermission(permissions.BasePermission):
+organization\views.py:3: from authorization.permissions import HasPermission
+organization\views.py:20: permission_classes = [HasPermission]
+organization\views.py:31: if isinstance(permission_instance, HasPermission):
+
+PATTERN: HasRole
+--------------------------------------------------------------------------------
+project_audit.py:345: r"HasRole",
+authorization\permissions.py:66: class HasRole(permissions.BasePermission):
+
+PATTERN: permission_classes
+--------------------------------------------------------------------------------
+project_audit.py:280: or "permission_classes" in stripped
+project_audit.py:346: r"permission_classes",
+accounts\views.py:58: permission_classes = [HasPermission]
+accounts\views.py:482: permission_classes = [permissions.IsAuthenticated]
+assets\views.py:25: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:31: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:116: permission_classes = [permissions.IsAuthenticated]
+claims\views.py:14: permission_classes = [permissions.AllowAny]
+config\settings.py:130: 'DEFAULT_PERMISSION_CLASSES': (
+config\views.py:1: from rest_framework.decorators import api_view, permission_classes
+config\views.py:7: @permission_classes([AllowAny])
+hrms_modules\views.py:83: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:176: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:246: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:378: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:680: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:773: permission_classes = [permissions.IsAuthenticated]
+leave\views.py:11: permission_classes = [permissions.AllowAny]
+organization\views.py:20: permission_classes = [HasPermission]
+performance\views.py:30: permission_classes = [permissions.IsAuthenticated]
+performance\views.py:322: permission_classes = [permissions.IsAuthenticated]
+training\views.py:26: permission_classes = [permissions.IsAuthenticated]
+training\views.py:112: permission_classes = [permissions.IsAuthenticated]
+
+PATTERN: authentication_classes
+--------------------------------------------------------------------------------
+project_audit.py:281: or "authentication_classes" in stripped
+project_audit.py:347: r"authentication_classes",
+config\settings.py:126: 'DEFAULT_AUTHENTICATION_CLASSES': (
+
+PATTERN: token_version
+--------------------------------------------------------------------------------
+project_audit.py:348: r"token_version",
+accounts\models.py:12: token_version = models.PositiveIntegerField(
+accounts\views.py:53: Every activation-status change rotates token_version,
+accounts\views.py:118: Every status change increments token_version, which
+accounts\views.py:181: target_user.token_version += 1
+accounts\views.py:186: "token_version",
+accounts\views.py:228: "token_version": target_user.token_version,
+accounts\views.py:247: Incrementing token_version immediately invalidates
+accounts\views.py:273: previous_token_version = target_user.token_version
+accounts\views.py:275: target_user.token_version += 1
+accounts\views.py:279: "token_version",
+accounts\views.py:298: f"{previous_token_version} to "
+accounts\views.py:299: f"{target_user.token_version}. "
+accounts\views.py:313: "token_version": target_user.token_version,
+accounts\views.py:540: user.token_version += 1
+accounts\views.py:546: "token_version",
+accounts\migrations\0008_user_token_version.py:15: name='token_version',
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:9: ('accounts', '0008_user_token_version'),
+config\authentication.py:33: - Adds token_version to issued JWTs.
+config\authentication.py:44: token["token_version"] = user.token_version
+config\authentication.py:249: token_version = refresh.get("token_version")
+config\authentication.py:258: if token_version is None:
+config\authentication.py:261: code="refresh_token_version_missing",
+config\authentication.py:286: if token_version != user.token_version:
+config\authentication.py:289: code="refresh_token_version_invalid",
+config\jwt_authentication.py:9: A token becomes invalid when the user's token_version changes.
+config\jwt_authentication.py:15: token_version = validated_token.get("token_version")
+config\jwt_authentication.py:17: if token_version is None:
+config\jwt_authentication.py:20: code="token_version_missing",
+config\jwt_authentication.py:23: if token_version != user.token_version:
+config\jwt_authentication.py:26: code="token_version_invalid",
+
+PATTERN: locked_until
+--------------------------------------------------------------------------------
+project_audit.py:349: r"locked_until",
+accounts\models.py:22: locked_until = models.DateTimeField(
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:20: name='locked_until',
+config\authentication.py:64: if attempted_user and attempted_user.locked_until:
+config\authentication.py:65: if attempted_user.locked_until > now:
+config\authentication.py:85: attempted_user.locked_until = None
+config\authentication.py:90: "locked_until",
+config\authentication.py:104: attempted_user.locked_until = (
+config\authentication.py:111: "locked_until",
+config\authentication.py:167: self.user.locked_until = None
+config\authentication.py:172: "locked_until",
+
+PATTERN: failed_login_attempts
+--------------------------------------------------------------------------------
+project_audit.py:350: r"failed_login_attempts",
+accounts\models.py:17: failed_login_attempts = models.PositiveIntegerField(
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:15: name='failed_login_attempts',
+config\authentication.py:84: attempted_user.failed_login_attempts = 0
+config\authentication.py:89: "failed_login_attempts",
+config\authentication.py:100: attempted_user.failed_login_attempts += 1
+config\authentication.py:102: if attempted_user.failed_login_attempts >= MAX_LOGIN_ATTEMPTS:
+config\authentication.py:103: attempted_user.failed_login_attempts = MAX_LOGIN_ATTEMPTS
+config\authentication.py:110: "failed_login_attempts",
+config\authentication.py:133: "failed_login_attempts",
+config\authentication.py:145: f"{attempted_user.failed_login_attempts}."
+config\authentication.py:166: self.user.failed_login_attempts = 0
+config\authentication.py:171: "failed_login_attempts",
+
+PATTERN: password
+--------------------------------------------------------------------------------
+project_audit.py:351: r"password",
+accounts\urls.py:4: from .views import UserViewSet, PasswordChangeView
+accounts\urls.py:19: "password/change/",
+accounts\urls.py:20: PasswordChangeView.as_view(),
+accounts\urls.py:21: name="password-change",
+accounts\views.py:1: from django.contrib.auth.password_validation import validate_password
+accounts\views.py:470: class PasswordChangeView(APIView):
+accounts\views.py:472: Secure authenticated-user password change.
+accounts\views.py:476: - Current password must be verified.
+accounts\views.py:477: - New password must match confirmation.
+accounts\views.py:478: - New password must differ from current password.
+accounts\views.py:479: - Django's configured password validators are enforced.
+accounts\views.py:487: current_password = request.data.get("current_password")
+accounts\views.py:488: new_password = request.data.get("new_password")
+accounts\views.py:489: confirm_password = request.data.get("confirm_password")
+accounts\views.py:491: if not current_password or not new_password or not confirm_password:
+accounts\views.py:495: "current_password, new_password, and "
+accounts\views.py:496: "confirm_password are required."
+accounts\views.py:502: if not user.check_password(current_password):
+accounts\views.py:504: {"detail": "The current password is incorrect."},
+accounts\views.py:508: if new_password != confirm_password:
+accounts\views.py:510: {"detail": "The new passwords do not match."},
+accounts\views.py:514: if current_password == new_password:
+accounts\views.py:518: "The new password must be different from "
+accounts\views.py:519: "the current password."
+accounts\views.py:526: validate_password(new_password, user)
+accounts\views.py:541: user.set_password(new_password)
+accounts\views.py:545: "password",
+accounts\views.py:558: action="PASSWORD_CHANGED",
+accounts\views.py:561: "User password changed successfully. "
+accounts\views.py:568: {"detail": "Password changed successfully."},
+accounts\migrations\0001_initial.py:24: ('password', models.CharField(max_length=128, verbose_name='password')),
+attendance_shifts\tests.py:30: self.user = User.objects.create_user(username="hr_admin", password="password123")
+authorization\tests.py:21: password="TestPassword123!",
+authorization\tests.py:26: password="TestPassword123!",
+config\authentication.py:38: - Never records passwords or JWT tokens.
+config\settings.py:91: AUTH_PASSWORD_VALIDATORS = [
+config\settings.py:93: 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+config\settings.py:96: 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+config\settings.py:99: 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+config\settings.py:102: 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+organization\tests.py:20: password="TestPassword123!",
+organization\tests.py:25: password="TestPassword123!",
+organization\tests.py:124: password="TestPassword123!",
+
+PATTERN: JWT
+--------------------------------------------------------------------------------
+project_audit.py:352: r"JWT",
+accounts\models.py:14: help_text="Security version used to invalidate previously issued JWT tokens."
+accounts\views.py:13: from rest_framework_simplejwt.token_blacklist.models import (
+accounts\views.py:54: invalidating all previously issued JWT sessions.
+accounts\views.py:119: immediately invalidates previously issued JWT sessions.
+accounts\views.py:248: previously issued JWT access and refresh tokens while
+accounts\views.py:300: "All previously issued JWT authentication sessions "
+accounts\views.py:324: Return security metadata for a user's outstanding JWT sessions.
+accounts\migrations\0008_user_token_version.py:16: field=models.PositiveIntegerField(default=1, help_text='Security version used to invalidate previously issued JWT tokens.'),
+compliance\management\commands\audit_expired_sessions.py:6: from rest_framework_simplejwt.token_blacklist.models import (
+compliance\management\commands\audit_expired_sessions.py:14: "Audit expired JWT session records using a retention period. "
+compliance\management\commands\audit_expired_sessions.py:63: "JWT SESSION CLEANUP AUDIT - DRY RUN"
+compliance\management\commands\cleanup_expired_sessions.py:7: from rest_framework_simplejwt.token_blacklist.models import (
+compliance\management\commands\cleanup_expired_sessions.py:14: "Safely remove expired JWT session records beyond the "
+compliance\management\commands\cleanup_expired_sessions.py:69: "JWT SESSION CLEANUP"
+compliance\management\commands\cleanup_expired_sessions.py:155: "Deleting eligible expired JWT session records..."
+config\authentication.py:8: from rest_framework_simplejwt.serializers import (
+config\authentication.py:12: from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+config\authentication.py:13: from rest_framework_simplejwt.tokens import RefreshToken
+config\authentication.py:14: from rest_framework_simplejwt.exceptions import TokenError
+config\authentication.py:15: from rest_framework_simplejwt.views import (
+config\authentication.py:30: Secure JWT login serializer.
+config\authentication.py:33: - Adds token_version to issued JWTs.
+config\authentication.py:38: - Never records passwords or JWT tokens.
+config\authentication.py:181: "User authenticated successfully and a new JWT "
+config\jwt_authentication.py:2: from rest_framework_simplejwt.authentication import JWTAuthentication
+config\jwt_authentication.py:5: class SecureJWTAuthentication(JWTAuthentication):
+config\jwt_authentication.py:7: JWT authentication with per-user token-version validation.
+config\settings.py:37: 'rest_framework_simplejwt.token_blacklist',
+config\settings.py:127: 'config.jwt_authentication.SecureJWTAuthentication',
+config\settings.py:146: # JWT SECURITY CONFIGURATION
+config\settings.py:151: SIMPLE_JWT = {
+config\settings.py:169: 'rest_framework_simplejwt.tokens.AccessToken',
+config\urls.py:94: # JWT Authentication APIs
+
+PATTERN: MFA
+--------------------------------------------------------------------------------
+project_audit.py:353: r"MFA",
+
+PATTERN: SSO
+--------------------------------------------------------------------------------
+project_audit.py:354: r"SSO",
+accounts\views.py:439: "The associated refresh token was blacklisted."
+config\authentication.py:276: "The user associated with this refresh token no longer exists.",
+config\settings.py:73: 'context_processors': [
+config\settings.py:74: 'django.template.context_processors.request',
+config\settings.py:75: 'django.contrib.auth.context_processors.auth',
+config\settings.py:76: 'django.contrib.messages.context_processors.messages',

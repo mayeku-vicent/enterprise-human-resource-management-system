@@ -1,0 +1,179 @@
+VIEWS / VIEWSETS
+================================================================================
+
+[accounts\views.py]
+--------------------------------------------------------------------------------
+21: class UserViewSet(viewsets.ModelViewSet):
+58:     permission_classes = [HasPermission]
+73:     def get_permissions(self):
+79:     def get_queryset(self):
+95:     def create(self, request, *args, **kwargs):
+98:     def update(self, request, *args, **kwargs):
+101:     def partial_update(self, request, *args, **kwargs):
+104:     def destroy(self, request, *args, **kwargs):
+112:     def set_active(self, request, pk=None):
+240:     def revoke_sessions(self, request, pk=None):
+322:     def sessions(self, request, pk=None):
+394:     def revoke_session(self, request, pk=None, jti=None):
+470: class PasswordChangeView(APIView):
+482:     permission_classes = [permissions.IsAuthenticated]
+484:     def post(self, request):
+
+[assets\views.py]
+--------------------------------------------------------------------------------
+11: class CompanyAssetViewSet(viewsets.ModelViewSet):
+25:     permission_classes = [permissions.IsAuthenticated]
+27:     def get_queryset(self):
+45:     def create(self, request, *args, **kwargs):
+59:     def update(self, request, *args, **kwargs):
+73:     def partial_update(self, request, *args, **kwargs):
+87:     def destroy(self, request, *args, **kwargs):
+
+[attendance_shifts\views.py]
+--------------------------------------------------------------------------------
+15: class WorkShiftViewSet(viewsets.ModelViewSet):
+31:     permission_classes = [permissions.IsAuthenticated]
+33:     def get_queryset(self):
+41:     def create(self, request, *args, **kwargs):
+55:     def update(self, request, *args, **kwargs):
+69:     def partial_update(self, request, *args, **kwargs):
+83:     def destroy(self, request, *args, **kwargs):
+98: class EmployeeShiftAssignmentViewSet(viewsets.ModelViewSet):
+116:     permission_classes = [permissions.IsAuthenticated]
+118:     def get_queryset(self):
+138:     def create(self, request, *args, **kwargs):
+210:     def update(self, request, *args, **kwargs):
+253:     def partial_update(self, request, *args, **kwargs):
+298:     def destroy(self, request, *args, **kwargs):
+
+[authorization\views.py]
+--------------------------------------------------------------------------------
+
+[claims\views.py]
+--------------------------------------------------------------------------------
+8: def dashboard_view(request):
+11: class ExpenseClaimViewSet(viewsets.ModelViewSet):
+14:     permission_classes = [permissions.AllowAny]
+17:     def perform_create(self, serializer):
+24:     def approve(self, request, pk=None):
+31:     def reject(self, request, pk=None):
+
+[compliance\views.py]
+--------------------------------------------------------------------------------
+
+[config\views.py]
+--------------------------------------------------------------------------------
+1: from rest_framework.decorators import api_view, permission_classes
+7: @permission_classes([AllowAny])
+8: def api_root(request, format=None):
+
+[documents\views.py]
+--------------------------------------------------------------------------------
+
+[hrms_modules\views.py]
+--------------------------------------------------------------------------------
+67: class EmployeeProfileViewSet(viewsets.ModelViewSet):
+83:     permission_classes = [permissions.IsAuthenticated]
+85:     def get_queryset(self):
+118:     def create(self, request, *args, **kwargs):
+132:     def update(self, request, *args, **kwargs):
+151:     def partial_update(self, request, *args, **kwargs):
+155:     def destroy(self, request, *args, **kwargs):
+173: class AttendanceViewSet(viewsets.ModelViewSet):
+176:     permission_classes = [permissions.IsAuthenticated]
+178:     def get_queryset(self):
+193:     def perform_create(self, serializer):
+196:     def update(self, request, *args, **kwargs):
+223:     def partial_update(self, request, *args, **kwargs):
+227:     def destroy(self, request, *args, **kwargs):
+243: class ExpenseClaimViewSet(viewsets.ModelViewSet):
+246:     permission_classes = [permissions.IsAuthenticated]
+248:     def get_queryset(self):
+263:     def perform_create(self, serializer):
+266:     def update(self, request, *args, **kwargs):
+299:     def partial_update(self, request, *args, **kwargs):
+303:     def destroy(self, request, *args, **kwargs):
+324:     def approve(self, request, pk=None):
+354:     def mark_paid(self, request, pk=None):
+375: class LeaveRequestViewSet(viewsets.ModelViewSet):
+378:     permission_classes = [permissions.IsAuthenticated]
+380:     def get_queryset(self):
+406:     def perform_create(self, serializer):
+415:     def update(self, request, *args, **kwargs):
+481:     def partial_update(self, request, *args, **kwargs):
+489:     def destroy(self, request, *args, **kwargs):
+527:     def approve(self, request, pk=None):
+598:     def reject(self, request, pk=None):
+668: class PayrollViewSet(viewsets.ModelViewSet):
+680:     permission_classes = [permissions.IsAuthenticated]
+682:     def get_queryset(self):
+710:     def create(self, request, *args, **kwargs):
+728:     def update(self, request, *args, **kwargs):
+746:     def partial_update(self, request, *args, **kwargs):
+754:     def destroy(self, request, *args, **kwargs):
+772: class Employee360DetailView(APIView):
+773:     permission_classes = [permissions.IsAuthenticated]
+775:     def get(self, request, user_id):
+1151: def secure_employee_document_view(request, document_id):
+1266: def employee_portal_dashboard(request):
+1295: def attendance_dashboard_view(request):
+1303: def claims_dashboard_view(request):
+1311: def employee_directory_view(request):
+1317: def employee_360_view(request, user_id):
+
+[leave\views.py]
+--------------------------------------------------------------------------------
+8: class LeaveRequestViewSet(viewsets.ModelViewSet):
+11:     permission_classes = [permissions.AllowAny]
+13:     def perform_create(self, serializer):
+20:     def approve(self, request, pk=None):
+27:     def reject(self, request, pk=None):
+33: def leave_dashboard_view(request):
+
+[organization\views.py]
+--------------------------------------------------------------------------------
+9: class OrganizationPermissionMixin:
+20:     permission_classes = [HasPermission]
+22:     def get_permissions(self):
+37: class DepartmentViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+52: class PositionViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+
+[payroll\views.py]
+--------------------------------------------------------------------------------
+
+[performance\views.py]
+--------------------------------------------------------------------------------
+12: class PerformanceGoalViewSet(viewsets.ModelViewSet):
+30:     permission_classes = [permissions.IsAuthenticated]
+32:     def get_queryset(self):
+56:     def create(self, request, *args, **kwargs):
+139:     def update(self, request, *args, **kwargs):
+205:     def partial_update(self, request, *args, **kwargs):
+263:     def destroy(self, request, *args, **kwargs):
+303: class AppraisalViewSet(viewsets.ModelViewSet):
+322:     permission_classes = [permissions.IsAuthenticated]
+324:     def get_queryset(self):
+348:     def create(self, request, *args, **kwargs):
+416:     def update(self, request, *args, **kwargs):
+462:     def partial_update(self, request, *args, **kwargs):
+509:     def destroy(self, request, *args, **kwargs):
+
+[recruitment\views.py]
+--------------------------------------------------------------------------------
+
+[training\views.py]
+--------------------------------------------------------------------------------
+10: class TrainingCourseViewSet(viewsets.ModelViewSet):
+26:     permission_classes = [permissions.IsAuthenticated]
+28:     def get_queryset(self):
+38:     def create(self, request, *args, **kwargs):
+52:     def update(self, request, *args, **kwargs):
+66:     def partial_update(self, request, *args, **kwargs):
+80:     def destroy(self, request, *args, **kwargs):
+93: class EmployeeCertificationViewSet(viewsets.ModelViewSet):
+112:     permission_classes = [permissions.IsAuthenticated]
+114:     def get_queryset(self):
+138:     def create(self, request, *args, **kwargs):
+210:     def update(self, request, *args, **kwargs):
+253:     def partial_update(self, request, *args, **kwargs):
+298:     def destroy(self, request, *args, **kwargs):

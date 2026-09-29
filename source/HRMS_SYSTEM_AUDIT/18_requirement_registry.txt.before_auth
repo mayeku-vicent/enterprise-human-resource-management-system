@@ -1,0 +1,127 @@
+ENTERPRISE-HRMS REQUIREMENT REGISTRY
+========================================================================================================================
+
+These entries are based on requirements already inspected and verified.
+They are not generated solely from keyword matching.
+
+ID              AREA               TYPE           STATUS         REQUIREMENT
+------------------------------------------------------------------------------------------------------------------------
+CORE-001        Core HR            Functional     COMPLETE       Employee Directory
+    Evidence: source/templates/employee_directory.html; /api/employees/
+    Gap:      [NONE IDENTIFIED]
+
+CORE-002        Core HR            Functional     COMPLETE       Employee ID
+    Evidence: accounts.EmployeeProfile.employee_id; EmployeeProfileSerializer; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-003        Core HR            Functional     PARTIAL        Photo
+    Evidence: accounts.EmployeeProfile.photo; hrms_modules.serializers.EmployeeProfileSerializer
+    Gap:      Employee directory does not currently display the employee photo.
+
+CORE-004        Core HR            Functional     COMPLETE       Name
+    Evidence: accounts.User.first_name/last_name; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-005        Core HR            Functional     COMPLETE       Department
+    Evidence: accounts.EmployeeProfile.department; department_name serializer field; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-006        Core HR            Functional     COMPLETE       Position
+    Evidence: accounts.EmployeeProfile.position; position_title serializer field; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-007        Core HR            Functional     COMPLETE       Grade
+    Evidence: organization.Position.grade; hrms_modules.serializers.EmployeeProfileSerializer; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-008        Core HR            Functional     COMPLETE       Employment Type
+    Evidence: accounts.EmployeeProfile.employment_type; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-009        Core HR            Functional     COMPLETE       Employment Status
+    Evidence: accounts.EmployeeProfile.employment_status; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-010        Core HR            Functional     COMPLETE       Manager
+    Evidence: accounts.EmployeeProfile.manager; ManagerSummarySerializer; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-011        Core HR            Functional     COMPLETE       Location
+    Evidence: accounts.EmployeeProfile.location; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-012        Core HR            Architecture   COMPLETE       One employee should have one central employee record
+    Evidence: accounts.EmployeeProfile is the authoritative EmployeeProfile model; no duplicate EmployeeProfile model found in hrms_modules
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-001     Employee 360       Functional     COMPLETE       Personal Information
+    Evidence: Employee 360 template/header and employee profile data
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-002     Employee 360       Functional     COMPLETE       Contact Information
+    Evidence: EmployeeContact model; Employee 360 contacts section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-003     Employee 360       Functional     COMPLETE       Employment
+    Evidence: EmployeeProfile employment fields; EmploymentHistory; Employee 360 employment section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-004     Employee 360       Functional     COMPLETE       Organization
+    Evidence: EmployeeProfile department/position/manager/location; Employee 360
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-005     Employee 360       Functional     COMPLETE       Compensation
+    Evidence: payroll.EmployeeSalary; Employee 360 compensation section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-006     Employee 360       Functional     COMPLETE       Attendance
+    Evidence: attendance models/API; Employee 360 attendance history
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-007     Employee 360       Functional     COMPLETE       Leave
+    Evidence: leave.LeaveRequest; Employee 360 leave requests
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-008     Employee 360       Functional     COMPLETE       Payroll
+    Evidence: payroll.EmployeeSalary/Payslip; Employee 360 payroll section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-009     Employee 360       Functional     MISSING        Benefits
+    Evidence: No Benefits model, API, serializer, or business implementation found
+    Gap:      Benefits domain and Employee 360 benefits section are not implemented.
+
+CORE360-010     Employee 360       Functional     COMPLETE       Performance
+    Evidence: performance.PerformanceGoal/Appraisal; Employee 360 performance sections
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-011     Employee 360       Functional     PARTIAL        Training
+    Evidence: training.TrainingCourse/EmployeeCertification; Employee 360 certifications section
+    Gap:      Broader learning/training functionality such as enrollment, attendance, assessment, and completion evidence is not yet verified.
+
+CORE360-012     Employee 360       Functional     COMPLETE       Documents
+    Evidence: documents.EmployeeDocument; Employee 360 documents section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-013     Employee 360       Functional     COMPLETE       Assets
+    Evidence: assets.CompanyAsset; Employee 360 assigned assets section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-014     Employee 360       Functional     COMPLETE       Claims
+    Evidence: claims.ExpenseClaim; Employee 360 expense claims section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-015     Employee 360       Functional     MISSING        Disciplinary Records
+    Evidence: No disciplinary model, API, serializer, or business implementation found
+    Gap:      Disciplinary records domain and Employee 360 section are not implemented.
+
+CORE360-016     Employee 360       Functional     PARTIAL        Career History
+    Evidence: accounts.EmploymentHistory; no dedicated career/promotion/transfer/career-path implementation found
+    Gap:      Employment history exists, but dedicated career history/career progression functionality is not implemented.
+
+CORE360-017     Employee 360       Functional     COMPLETE       Emergency Contacts
+    Evidence: accounts.EmergencyContact; Employee 360 emergency contacts section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-018     Employee 360       Functional     COMPLETE       Audit History
+    Evidence: compliance.AuditLog; Employee 360 audit history section
+    Gap:      [NONE IDENTIFIED]

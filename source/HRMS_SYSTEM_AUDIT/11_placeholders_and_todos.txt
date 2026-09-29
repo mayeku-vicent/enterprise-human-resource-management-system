@@ -1,0 +1,44 @@
+TODO / PLACEHOLDER / INCOMPLETE IMPLEMENTATIONS
+================================================================================
+
+PATTERN: #\s*TODO
+--------------------------------------------------------------------------------
+[NO MATCHES]
+
+PATTERN: #\s*FIXME
+--------------------------------------------------------------------------------
+[NO MATCHES]
+
+PATTERN: pass\s*$
+--------------------------------------------------------------------------------
+AI_DEVELOPMENT_RULES.md:331: * tests pass
+AI_DEVELOPMENT_RULES.md:332: * system checks pass
+PROJECT_PROGRESS.md:174: * Django checks: PASS
+PROJECT_PROGRESS.md:175: * Existing tests: PASS
+PROJECT_PROGRESS.md:176: * Migrations check: PASS
+PROJECT_PROGRESS.md:189: PASS
+PROJECT_PROGRESS.md:192: PASS
+PROJECT_PROGRESS.md:196: PASS
+
+PATTERN: NotImplementedError
+--------------------------------------------------------------------------------
+project_audit.py:464: r"NotImplementedError",
+
+PATTERN: Create your tests here
+--------------------------------------------------------------------------------
+project_audit.py:465: r"Create your tests here",
+accounts\tests.py:3: # Create your tests here.
+assets\tests.py:3: # Create your tests here.
+claims\tests.py:3: # Create your tests here.
+compliance\tests.py:3: # Create your tests here.
+documents\tests.py:3: # Create your tests here.
+hrms_modules\tests.py:3: # Create your tests here.
+leave\tests.py:3: # Create your tests here.
+payroll\tests.py:3: # Create your tests here.
+performance\tests.py:3: # Create your tests here.
+recruitment\tests.py:3: # Create your tests here.
+training\tests.py:3: # Create your tests here.
+
+PATTERN: Create your models here
+--------------------------------------------------------------------------------
+project_audit.py:466: r"Create your models here",

@@ -1,0 +1,201 @@
+ENTERPRISE-HRMS PROJECT STRUCTURE
+================================================================================
+Project root: C:\Users\mayek\projects\enterprise-human-resource-management-system\source
+
+FILE  .env
+DIR   accounts
+FILE  AI_DEVELOPMENT_RULES.md
+DIR   assets
+DIR   attendance_shifts
+DIR   authorization
+DIR   claims
+DIR   compliance
+DIR   config
+FILE  db.sqlite3
+FILE  db.sqlite3.backup
+DIR   documents
+DIR   employee_docs
+DIR   hrms_modules
+FILE  INITIAL_ARCHITECTURE_AUDIT.md
+DIR   leave
+FILE  manage.py
+DIR   media
+DIR   organization
+DIR   payroll
+DIR   performance
+FILE  Procfile
+FILE  project_audit.py
+FILE  project_audit.py.before_detailed_parser_fix
+FILE  project_audit.py.before_master_structure
+FILE  project_audit.py.before_requirement_registry
+FILE  project_audit.py.before_roadmap_fix
+FILE  PROJECT_PROGRESS.md
+FILE  PROJECT_REQUIREMENTS.md
+DIR   recruitment
+FILE  requirements.txt
+DIR   templates
+FILE  test_employee_document.txt
+DIR   training
+
+DJANGO / PYTHON FILES
+--------------------------------------------------------------------------------
+accounts\__init__.py
+accounts\admin.py
+accounts\apps.py
+accounts\migrations\0001_initial.py
+accounts\migrations\0002_alter_employeeprofile_department_and_more.py
+accounts\migrations\0003_employeeprofile_job_title.py
+accounts\migrations\0004_migrate_employee_profiles.py
+accounts\migrations\0005_employeeprofile_employment_status_and_more.py
+accounts\migrations\0006_employmenthistory.py
+accounts\migrations\0007_emergencycontact_employeecontact.py
+accounts\migrations\0008_user_token_version.py
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py
+accounts\migrations\__init__.py
+accounts\models.py
+accounts\serializers.py
+accounts\tests.py
+accounts\urls.py
+accounts\views.py
+assets\__init__.py
+assets\admin.py
+assets\apps.py
+assets\migrations\0001_initial.py
+assets\migrations\__init__.py
+assets\models.py
+assets\serializers.py
+assets\tests.py
+assets\views.py
+attendance_shifts\__init__.py
+attendance_shifts\admin.py
+attendance_shifts\apps.py
+attendance_shifts\migrations\0001_initial.py
+attendance_shifts\migrations\__init__.py
+attendance_shifts\models.py
+attendance_shifts\serializers.py
+attendance_shifts\tests.py
+attendance_shifts\views.py
+authorization\__init__.py
+authorization\admin.py
+authorization\apps.py
+authorization\management\__init__.py
+authorization\management\commands\__init__.py
+authorization\management\commands\seed_authorization.py
+authorization\migrations\0001_initial.py
+authorization\migrations\__init__.py
+authorization\models.py
+authorization\permissions.py
+authorization\services.py
+authorization\tests.py
+authorization\views.py
+claims\__init__.py
+claims\admin.py
+claims\apps.py
+claims\migrations\0001_initial.py
+claims\migrations\0002_remove_expenseclaim_approved_by_and_more.py
+claims\migrations\0003_alter_expenseclaim_employee_and_more.py
+claims\migrations\__init__.py
+claims\models.py
+claims\serializers.py
+claims\tests.py
+claims\urls.py
+claims\views.py
+compliance\__init__.py
+compliance\admin.py
+compliance\apps.py
+compliance\management\__init__.py
+compliance\management\commands\__init__.py
+compliance\management\commands\audit_expired_sessions.py
+compliance\management\commands\cleanup_expired_sessions.py
+compliance\migrations\0001_initial.py
+compliance\migrations\__init__.py
+compliance\models.py
+compliance\tests.py
+compliance\views.py
+config\__init__.py
+config\asgi.py
+config\authentication.py
+config\jwt_authentication.py
+config\security.py
+config\settings.py
+config\urls.py
+config\views.py
+config\wsgi.py
+documents\__init__.py
+documents\admin.py
+documents\apps.py
+documents\migrations\0001_initial.py
+documents\migrations\__init__.py
+documents\models.py
+documents\tests.py
+documents\views.py
+hrms_modules\__init__.py
+hrms_modules\admin.py
+hrms_modules\apps.py
+hrms_modules\dashboard_views.py
+hrms_modules\migrations\0001_initial.py
+hrms_modules\migrations\0002_remove_expenseclaim_title_employeeprofile_position_and_more.py
+hrms_modules\migrations\0003_delete_employeeprofile.py
+hrms_modules\migrations\__init__.py
+hrms_modules\models.py
+hrms_modules\serializers.py
+hrms_modules\tests.py
+hrms_modules\urls.py
+hrms_modules\views.py
+leave\__init__.py
+leave\admin.py
+leave\apps.py
+leave\migrations\0001_initial.py
+leave\migrations\0002_remove_leaverequest_approved_by_and_more.py
+leave\migrations\__init__.py
+leave\models.py
+leave\serializers.py
+leave\tests.py
+leave\urls.py
+leave\views.py
+manage.py
+organization\__init__.py
+organization\admin.py
+organization\apps.py
+organization\migrations\0001_initial.py
+organization\migrations\__init__.py
+organization\models.py
+organization\serializers.py
+organization\tests.py
+organization\urls.py
+organization\views.py
+payroll\__init__.py
+payroll\admin.py
+payroll\apps.py
+payroll\migrations\0001_initial.py
+payroll\migrations\__init__.py
+payroll\models.py
+payroll\tests.py
+payroll\views.py
+performance\__init__.py
+performance\admin.py
+performance\apps.py
+performance\migrations\0001_initial.py
+performance\migrations\__init__.py
+performance\models.py
+performance\serializers.py
+performance\tests.py
+performance\views.py
+project_audit.py
+recruitment\__init__.py
+recruitment\admin.py
+recruitment\apps.py
+recruitment\migrations\0001_initial.py
+recruitment\migrations\__init__.py
+recruitment\models.py
+recruitment\tests.py
+recruitment\views.py
+training\__init__.py
+training\admin.py
+training\apps.py
+training\migrations\0001_initial.py
+training\migrations\__init__.py
+training\models.py
+training\serializers.py
+training\tests.py
+training\views.py

@@ -1,0 +1,304 @@
+REQUIREMENT-RELATED CODE SEARCH
+================================================================================
+
+EMPLOYEE -> 1075 occurrence(s)
+AI_DEVELOPMENT_RULES.md:108: # 6. MASTER EMPLOYEE PRINCIPLE
+AI_DEVELOPMENT_RULES.md:110: Enterprise-HRMS must maintain one authoritative employee master record.
+AI_DEVELOPMENT_RULES.md:112: The system must avoid creating multiple independent employee profile models representing the same employee.
+AI_DEVELOPMENT_RULES.md:112: The system must avoid creating multiple independent employee profile models representing the same employee.
+AI_DEVELOPMENT_RULES.md:114: Employee 360 should integrate information from the authoritative employee record and related modules.
+AI_DEVELOPMENT_RULES.md:114: Employee 360 should integrate information from the authoritative employee record and related modules.
+AI_DEVELOPMENT_RULES.md:133: * Employee 360
+AI_DEVELOPMENT_RULES.md:169: Approval, payroll, employee-management, document-management, and administrative operations must not rely only on generic authentication.
+
+EMPLOYEEPROFILE -> 132 occurrence(s)
+AI_DEVELOPMENT_RULES.md:399: `accounts.EmployeeProfile`
+AI_DEVELOPMENT_RULES.md:403: `hrms_modules.EmployeeProfile`
+INITIAL_ARCHITECTURE_AUDIT.md:67: `accounts.EmployeeProfile`
+INITIAL_ARCHITECTURE_AUDIT.md:69: `hrms_modules.EmployeeProfile`
+INITIAL_ARCHITECTURE_AUDIT.md:73: `accounts.EmployeeProfile = 0`
+INITIAL_ARCHITECTURE_AUDIT.md:75: `hrms_modules.EmployeeProfile = 1`
+project_audit.py:537: "employeeprofile",
+project_audit.py:1266: "evidence": "accounts.EmployeeProfile.employee_id; EmployeeProfileSerializer; employee directory",
+
+EMPLOYEE 360 -> 72 occurrence(s)
+AI_DEVELOPMENT_RULES.md:114: Employee 360 should integrate information from the authoritative employee record and related modules.
+AI_DEVELOPMENT_RULES.md:133: * Employee 360
+AI_DEVELOPMENT_RULES.md:414: 6. Employee 360
+INITIAL_ARCHITECTURE_AUDIT.md:284: * Employee 360 integration
+INITIAL_ARCHITECTURE_AUDIT.md:327: * Employee 360 integration
+INITIAL_ARCHITECTURE_AUDIT.md:405: * Employee 360
+project_audit.py:538: "employee 360",
+project_audit.py:904: "Employee 360 Profile",
+
+ORGANIZATION -> 93 occurrence(s)
+AI_DEVELOPMENT_RULES.md:124: * organization
+AI_DEVELOPMENT_RULES.md:412: 4. Organization expansion
+INITIAL_ARCHITECTURE_AUDIT.md:16: * organization
+INITIAL_ARCHITECTURE_AUDIT.md:153: ## Organization
+INITIAL_ARCHITECTURE_AUDIT.md:166: Extend existing organization architecture rather than creating another organization app.
+INITIAL_ARCHITECTURE_AUDIT.md:166: Extend existing organization architecture rather than creating another organization app.
+INITIAL_ARCHITECTURE_AUDIT.md:406: * organization
+project_audit.py:539: "organization",
+
+DEPARTMENT -> 117 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:157: * Department
+project_audit.py:540: "department",
+project_audit.py:1130: "DEPARTMENTS",
+project_audit.py:1290: "requirement": "Department",
+project_audit.py:1293: "evidence": "accounts.EmployeeProfile.department; department_name serializer field; employee directory",
+project_audit.py:1293: "evidence": "accounts.EmployeeProfile.department; department_name serializer field; employee directory",
+project_audit.py:1393: "evidence": "EmployeeProfile department/position/manager/location; Employee 360",
+PROJECT_PROGRESS.md:41: | V1.05 | Organization        | 🟡 Partial    | Department and Position models exist                                           |
+
+POSITION -> 82 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:158: * Position
+project_audit.py:541: "position",
+project_audit.py:1066: # Open Positions: 2
+project_audit.py:1069: r"Performance Reviews|Open Positions):\s*\d+$",
+project_audit.py:1131: "POSITIONS",
+project_audit.py:1299: "requirement": "Position",
+project_audit.py:1302: "evidence": "accounts.EmployeeProfile.position; position_title serializer field; employee directory",
+project_audit.py:1302: "evidence": "accounts.EmployeeProfile.position; position_title serializer field; employee directory",
+
+DOCUMENT -> 244 occurrence(s)
+AI_DEVELOPMENT_RULES.md:5: This document controls how AI assistants and developers must work on the Enterprise-HRMS project.
+AI_DEVELOPMENT_RULES.md:131: * documents
+AI_DEVELOPMENT_RULES.md:169: Approval, payroll, employee-management, document-management, and administrative operations must not rely only on generic authentication.
+AI_DEVELOPMENT_RULES.md:413: 5. Documents
+INITIAL_ARCHITECTURE_AUDIT.md:25: * documents
+INITIAL_ARCHITECTURE_AUDIT.md:170: ## Documents
+INITIAL_ARCHITECTURE_AUDIT.md:174: `documents.EmployeeDocument`
+INITIAL_ARCHITECTURE_AUDIT.md:174: `documents.EmployeeDocument`
+
+ROLE -> 413 occurrence(s)
+AI_DEVELOPMENT_RULES.md:163: * role
+AI_DEVELOPMENT_RULES.md:175: # 10. ROLE AND PERMISSION ARCHITECTURE
+AI_DEVELOPMENT_RULES.md:184: The target architecture is a configurable Role + Permission system.
+AI_DEVELOPMENT_RULES.md:186: The master structure defines roles including:
+AI_DEVELOPMENT_RULES.md:236: * important user roles
+INITIAL_ARCHITECTURE_AUDIT.md:341: Current User roles:
+INITIAL_ARCHITECTURE_AUDIT.md:349: The role field exists but comprehensive role-to-permission enforcement is not established.
+INITIAL_ARCHITECTURE_AUDIT.md:349: The role field exists but comprehensive role-to-permission enforcement is not established.
+
+PERMISSION -> 336 occurrence(s)
+AI_DEVELOPMENT_RULES.md:150: 7. Check permissions.
+AI_DEVELOPMENT_RULES.md:164: * permission
+AI_DEVELOPMENT_RULES.md:175: # 10. ROLE AND PERMISSION ARCHITECTURE
+AI_DEVELOPMENT_RULES.md:184: The target architecture is a configurable Role + Permission system.
+AI_DEVELOPMENT_RULES.md:201: These must eventually be implemented through permissions rather than hard-coded assumptions.
+AI_DEVELOPMENT_RULES.md:232: * permissions
+AI_DEVELOPMENT_RULES.md:409: 1. RBAC and permissions
+INITIAL_ARCHITECTURE_AUDIT.md:349: The role field exists but comprehensive role-to-permission enforcement is not established.
+
+AUDIT -> 137 occurrence(s)
+AI_DEVELOPMENT_RULES.md:199: * AUDITOR
+AI_DEVELOPMENT_RULES.md:410: 2. Audit infrastructure
+INITIAL_ARCHITECTURE_AUDIT.md:1: # ENTERPRISE-HRMS — INITIAL ARCHITECTURE AUDIT
+INITIAL_ARCHITECTURE_AUDIT.md:3: ## Audit Purpose
+INITIAL_ARCHITECTURE_AUDIT.md:5: This audit compares the existing Enterprise-HRMS repository with the master architecture defined in `STRUCTURE.txt`.
+INITIAL_ARCHITECTURE_AUDIT.md:7: The audit was performed before major new feature development to prevent duplication and unnecessary rebuilding.
+INITIAL_ARCHITECTURE_AUDIT.md:188: * audit integration
+INITIAL_ARCHITECTURE_AUDIT.md:196: ## Compliance / Audit
+
+ATTENDANCE -> 114 occurrence(s)
+AI_DEVELOPMENT_RULES.md:132: * attendance
+INITIAL_ARCHITECTURE_AUDIT.md:23: * attendance_shifts
+INITIAL_ARCHITECTURE_AUDIT.md:133: ## Attendance
+INITIAL_ARCHITECTURE_AUDIT.md:135: Attendance exists in:
+INITIAL_ARCHITECTURE_AUDIT.md:137: `hrms_modules.Attendance`
+INITIAL_ARCHITECTURE_AUDIT.md:141: `attendance_shifts`
+INITIAL_ARCHITECTURE_AUDIT.md:382: * `/api/attendance/`
+INITIAL_ARCHITECTURE_AUDIT.md:383: * `/api/attendance/check_out/`
+
+LEAVE -> 267 occurrence(s)
+AI_DEVELOPMENT_RULES.md:125: * leave
+AI_DEVELOPMENT_RULES.md:211: Leave:
+INITIAL_ARCHITECTURE_AUDIT.md:17: * leave
+INITIAL_ARCHITECTURE_AUDIT.md:115: ## Leave
+INITIAL_ARCHITECTURE_AUDIT.md:119: `leave.LeaveRequest`
+INITIAL_ARCHITECTURE_AUDIT.md:119: `leave.LeaveRequest`
+INITIAL_ARCHITECTURE_AUDIT.md:129: Consolidate API architecture without deleting the underlying LeaveRequest model.
+INITIAL_ARCHITECTURE_AUDIT.md:354: * Leave uses AllowAny
+
+PAYROLL -> 75 occurrence(s)
+AI_DEVELOPMENT_RULES.md:127: * payroll
+AI_DEVELOPMENT_RULES.md:169: Approval, payroll, employee-management, document-management, and administrative operations must not rely only on generic authentication.
+AI_DEVELOPMENT_RULES.md:193: * PAYROLL OFFICER
+INITIAL_ARCHITECTURE_AUDIT.md:19: * payroll
+INITIAL_ARCHITECTURE_AUDIT.md:218: ## Payroll
+INITIAL_ARCHITECTURE_AUDIT.md:231: * payroll engine
+INITIAL_ARCHITECTURE_AUDIT.md:244: Extend existing payroll application.
+INITIAL_ARCHITECTURE_AUDIT.md:411: * payroll
+
+RECRUITMENT -> 28 occurrence(s)
+AI_DEVELOPMENT_RULES.md:192: * RECRUITMENT OFFICER
+INITIAL_ARCHITECTURE_AUDIT.md:20: * recruitment
+INITIAL_ARCHITECTURE_AUDIT.md:248: ## Recruitment
+INITIAL_ARCHITECTURE_AUDIT.md:273: Extend existing recruitment application.
+INITIAL_ARCHITECTURE_AUDIT.md:412: * recruitment
+project_audit.py:549: "recruitment",
+project_audit.py:894: "Recruitment screens",
+project_audit.py:919: "Recruitment",
+
+ONBOARDING -> 6 occurrence(s)
+project_audit.py:550: "onboarding",
+project_audit.py:899: "Onboarding",
+project_audit.py:1139: "ONBOARDING",
+PROJECT_PROGRESS.md:67: | Onboarding  | 🔴 Missing       | Not implemented                          |
+PROJECT_REQUIREMENTS.md:220: → Onboarding
+PROJECT_REQUIREMENTS.md:224: * Onboarding
+
+OFFBOARDING -> 3 occurrence(s)
+project_audit.py:551: "offboarding",
+project_audit.py:900: "Offboarding",
+project_audit.py:1140: "OFFBOARDING",
+
+PERFORMANCE -> 76 occurrence(s)
+AI_DEVELOPMENT_RULES.md:128: * performance
+INITIAL_ARCHITECTURE_AUDIT.md:21: * performance
+INITIAL_ARCHITECTURE_AUDIT.md:277: ## Performance
+INITIAL_ARCHITECTURE_AUDIT.md:281: * PerformanceGoal
+INITIAL_ARCHITECTURE_AUDIT.md:413: * performance
+project_audit.py:552: "performance",
+project_audit.py:920: "Performance",
+project_audit.py:1065: # Performance Reviews: 12
+
+TRAINING -> 59 occurrence(s)
+AI_DEVELOPMENT_RULES.md:129: * training
+AI_DEVELOPMENT_RULES.md:195: * TRAINING OFFICER
+INITIAL_ARCHITECTURE_AUDIT.md:22: * training
+INITIAL_ARCHITECTURE_AUDIT.md:296: ## Training
+INITIAL_ARCHITECTURE_AUDIT.md:300: * TrainingCourse
+INITIAL_ARCHITECTURE_AUDIT.md:414: * training
+project_audit.py:553: "training",
+project_audit.py:921: "Training",
+
+CAREER -> 9 occurrence(s)
+project_audit.py:554: "career",
+project_audit.py:1498: "requirement": "Career History",
+project_audit.py:1501: "evidence": "accounts.EmploymentHistory; no dedicated career/promotion/transfer/career-path implementation found",
+project_audit.py:1501: "evidence": "accounts.EmploymentHistory; no dedicated career/promotion/transfer/career-path implementation found",
+project_audit.py:1502: "gap": "Employment history exists, but dedicated career history/career progression functionality is not implemented.",
+project_audit.py:1502: "gap": "Employment history exists, but dedicated career history/career progression functionality is not implemented.",
+PROJECT_PROGRESS.md:70: | Career      | 🔴 Missing       | Not implemented                          |
+PROJECT_REQUIREMENTS.md:116: * Career information
+
+SUCCESSION -> 3 occurrence(s)
+project_audit.py:555: "succession",
+PROJECT_PROGRESS.md:71: | Succession  | 🔴 Missing       | Not implemented                          |
+PROJECT_REQUIREMENTS.md:228: * Succession Planning
+
+BENEFIT -> 10 occurrence(s)
+project_audit.py:556: "benefit",
+project_audit.py:1156: "BENEFITS",
+project_audit.py:1435: "requirement": "Benefits",
+project_audit.py:1438: "evidence": "No Benefits model, API, serializer, or business implementation found",
+project_audit.py:1439: "gap": "Benefits domain and Employee 360 benefits section are not implemented.",
+project_audit.py:1439: "gap": "Benefits domain and Employee 360 benefits section are not implemented.",
+PROJECT_PROGRESS.md:81: | Benefits     | 🔴 Missing    | Not implemented                                   |
+PROJECT_REQUIREMENTS.md:109: * Benefits
+
+CLAIM -> 287 occurrence(s)
+AI_DEVELOPMENT_RULES.md:126: * claims
+INITIAL_ARCHITECTURE_AUDIT.md:18: * claims
+INITIAL_ARCHITECTURE_AUDIT.md:89: ## Expense Claims
+INITIAL_ARCHITECTURE_AUDIT.md:93: `claims.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:93: `claims.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:95: `hrms_modules.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:99: `claims.ExpenseClaim = 4`
+INITIAL_ARCHITECTURE_AUDIT.md:99: `claims.ExpenseClaim = 4`
+
+EXPENSE -> 100 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:89: ## Expense Claims
+INITIAL_ARCHITECTURE_AUDIT.md:93: `claims.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:95: `hrms_modules.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:99: `claims.ExpenseClaim = 4`
+INITIAL_ARCHITECTURE_AUDIT.md:101: `hrms_modules.ExpenseClaim = 0`
+project_audit.py:558: "expense",
+project_audit.py:1165: "EXPENSES",
+project_audit.py:1483: "evidence": "claims.ExpenseClaim; Employee 360 expense claims section",
+
+WORKFLOW -> 26 occurrence(s)
+AI_DEVELOPMENT_RULES.md:205: # 11. WORKFLOW RULES
+AI_DEVELOPMENT_RULES.md:207: Approval processes must be treated as business workflows.
+AI_DEVELOPMENT_RULES.md:219: The AI must not implement approval logic independently in many unrelated views if the requirement calls for a reusable workflow engine.
+AI_DEVELOPMENT_RULES.md:233: * workflow transitions
+INITIAL_ARCHITECTURE_AUDIT.md:111: Preserve existing claim records and consolidate API/workflow architecture.
+INITIAL_ARCHITECTURE_AUDIT.md:182: * complete document management workflow
+INITIAL_ARCHITECTURE_AUDIT.md:269: * hiring workflow
+INITIAL_ARCHITECTURE_AUDIT.md:416: * workflows
+
+NOTIFICATION -> 5 occurrence(s)
+project_audit.py:560: "notification",
+project_audit.py:1168: "NOTIFICATIONS",
+PROJECT_PROGRESS.md:57: | Notifications         | 🔴 Missing    | Not implemented as a complete subsystem     |
+PROJECT_REQUIREMENTS.md:184: * Notifications
+PROJECT_REQUIREMENTS.md:383: * Notification where applicable
+
+REPORT -> 97 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:239: * reports
+project_audit.py:8: REPORT_DIR = BASE_DIR / "HRMS_SYSTEM_AUDIT"
+project_audit.py:24: REPORT_DIR.mkdir(exist_ok=True)
+project_audit.py:38: def write_report(filename, content):
+project_audit.py:39: path = REPORT_DIR / filename
+project_audit.py:108: write_report(
+project_audit.py:126: write_report(
+project_audit.py:173: write_report(
+
+ANALYTICS -> 7 occurrence(s)
+project_audit.py:562: "analytics",
+project_audit.py:923: "Analytics",
+PROJECT_PROGRESS.md:91: | Advanced Analytics    | 🔴 Missing       | Not implemented                                                   |
+PROJECT_REQUIREMENTS.md:28: * Analytics
+PROJECT_REQUIREMENTS.md:272: * Advanced Analytics
+hrms_modules\dashboard_views.py:152: # Analytics
+templates\hrms_dashboard.html:217: ANALYTICS
+
+COMPLIANCE -> 18 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:26: * compliance
+INITIAL_ARCHITECTURE_AUDIT.md:196: ## Compliance / Audit
+INITIAL_ARCHITECTURE_AUDIT.md:200: `compliance.AuditLog`
+project_audit.py:563: "compliance",
+project_audit.py:1519: "evidence": "compliance.AuditLog; Employee 360 audit history section",
+PROJECT_PROGRESS.md:97: | Compliance            | 🟡 Foundation    | AuditLog model exists; implementation incomplete                  |
+PROJECT_PROGRESS.md:312: * Compliance audit
+PROJECT_REQUIREMENTS.md:27: * Compliance
+
+ASSET -> 94 occurrence(s)
+AI_DEVELOPMENT_RULES.md:130: * assets
+INITIAL_ARCHITECTURE_AUDIT.md:24: * assets
+INITIAL_ARCHITECTURE_AUDIT.md:315: ## Assets
+INITIAL_ARCHITECTURE_AUDIT.md:319: * CompanyAsset
+INITIAL_ARCHITECTURE_AUDIT.md:415: * assets
+project_audit.py:564: "asset",
+project_audit.py:1471: "requirement": "Assets",
+project_audit.py:1474: "evidence": "assets.CompanyAsset; Employee 360 assigned assets section",
+
+TRAVEL -> 6 occurrence(s)
+project_audit.py:565: "travel",
+claims\models.py:6: TRANSPORT = 'TRANSPORT', 'Travel & Transport'
+claims\migrations\0001_initial.py:21: ('claim_type', models.CharField(choices=[('MEDICAL', 'Medical Expenses'), ('TRAVEL', 'Travel & Transport'), ('FUNERAL', 'Funeral & Welfare Support'), ('OTHER', 'Other Operational Expenses')], default='OTHER', max_length=20)),
+claims\migrations\0001_initial.py:21: ('claim_type', models.CharField(choices=[('MEDICAL', 'Medical Expenses'), ('TRAVEL', 'Travel & Transport'), ('FUNERAL', 'Funeral & Welfare Support'), ('OTHER', 'Other Operational Expenses')], default='OTHER', max_length=20)),
+claims\migrations\0002_remove_expenseclaim_approved_by_and_more.py:28: field=models.CharField(choices=[('MEDICAL', 'Medical Expenses'), ('TRANSPORT', 'Travel & Transport'), ('FUNERAL', 'Funeral & Welfare Support'), ('OTHER', 'Other Operational Expenses')], default='OTHER', max_length=20),
+templates\dashboard.html:18: <option value="TRANSPORT">Travel & Transport</option>
+
+INTEGRATION -> 16 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:188: * audit integration
+INITIAL_ARCHITECTURE_AUDIT.md:209: * integration with important operations
+INITIAL_ARCHITECTURE_AUDIT.md:284: * Employee 360 integration
+INITIAL_ARCHITECTURE_AUDIT.md:303: * Employee portal integration
+INITIAL_ARCHITECTURE_AUDIT.md:327: * Employee 360 integration
+project_audit.py:566: "integration",
+project_audit.py:888: "Potential integrations:",
+project_audit.py:889: "Possible integrations:",
+
+API -> 117 occurrence(s)
+AI_DEVELOPMENT_RULES.md:41: The AI must never create a new model, application, API, serializer, view, template, or service merely because a requirement exists.
+AI_DEVELOPMENT_RULES.md:120: Before changing a shared model or API, identify dependent modules.
+AI_DEVELOPMENT_RULES.md:140: # 8. API RULES
+AI_DEVELOPMENT_RULES.md:142: Before creating an API endpoint:
+AI_DEVELOPMENT_RULES.md:231: * API behavior
+AI_DEVELOPMENT_RULES.md:295: * identify API calls
+AI_DEVELOPMENT_RULES.md:353: Which files, models, APIs, templates, migrations, or tests prove it?
+INITIAL_ARCHITECTURE_AUDIT.md:111: Preserve existing claim records and consolidate API/workflow architecture.

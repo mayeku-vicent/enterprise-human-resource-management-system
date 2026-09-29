@@ -1,0 +1,41 @@
+TEST FILES
+================================================================================
+accounts\tests.py
+assets\tests.py
+attendance_shifts\tests.py
+authorization\tests.py
+claims\tests.py
+compliance\tests.py
+documents\tests.py
+hrms_modules\tests.py
+leave\tests.py
+organization\tests.py
+payroll\tests.py
+performance\tests.py
+recruitment\tests.py
+training\tests.py
+
+TEST CLASSES / TEST METHODS
+--------------------------------------------------------------------------------
+attendance_shifts\tests.py:13:     def test_work_shift_creation(self):
+attendance_shifts\tests.py:40:     def test_list_work_shifts(self):
+attendance_shifts\tests.py:50:     def test_create_work_shift(self):
+authorization\tests.py:60:     def test_user_without_role_is_denied(self):
+authorization\tests.py:65:     def test_user_with_active_role_is_allowed(self):
+authorization\tests.py:76:     def test_inactive_user_role_is_denied(self):
+authorization\tests.py:87:     def test_inactive_role_is_denied(self):
+authorization\tests.py:101:     def test_superuser_has_role_access(self):
+authorization\tests.py:106:     def test_user_with_permission_is_allowed(self):
+authorization\tests.py:120:     def test_user_without_permission_is_denied(self):
+authorization\tests.py:134:     def test_inactive_permission_is_denied(self):
+authorization\tests.py:151:     def test_superuser_has_any_permission(self):
+authorization\tests.py:159:     def test_has_any_permission(self):
+authorization\tests.py:174:     def test_has_any_permission_returns_false_when_none_exist(self):
+authorization\tests.py:189:     def test_has_all_permissions(self):
+authorization\tests.py:204:     def test_has_all_permissions_returns_false_when_missing(self):
+authorization\tests.py:220:     def test_superuser_has_all_permissions(self):
+organization\tests.py:82:     def test_user_with_view_permission_can_list_departments(self):
+organization\tests.py:91:     def test_user_with_view_permission_cannot_create_department(self):
+organization\tests.py:106:     def test_user_with_manage_permission_can_create_department(self):
+organization\tests.py:121:     def test_user_without_organization_permission_is_denied(self):
+organization\tests.py:135:     def test_manage_permission_does_not_automatically_grant_view_permission(self):

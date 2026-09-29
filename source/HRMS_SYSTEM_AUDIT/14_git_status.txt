@@ -1,0 +1,49 @@
+GIT STATUS
+================================================================================
+## main...origin/main [ahead 1]
+ M accounts/models.py
+ M accounts/serializers.py
+ M accounts/urls.py
+ M accounts/views.py
+ M assets/views.py
+ M attendance_shifts/views.py
+ M config/settings.py
+ M config/urls.py
+ M db.sqlite3
+ M hrms_modules/serializers.py
+ M hrms_modules/views.py
+ M organization/tests.py
+ M organization/views.py
+ M performance/views.py
+ M templates/employee_360.html
+ M training/views.py
+?? HRMS_SYSTEM_AUDIT/
+?? accounts/migrations/0008_user_token_version.py
+?? accounts/migrations/0009_user_failed_login_attempts_user_locked_until.py
+?? accounts/views.py.backup
+?? accounts/views.py.before_audit_transaction_password_change
+?? accounts/views.py.before_audit_transaction_revoke_sessions
+?? accounts/views.py.before_audit_transaction_set_active
+?? accounts/views.py.before_audit_transaction_set_active_final
+?? accounts/views.py.before_individual_session_revoke
+?? accounts/views.py.before_password_lock_hardening
+?? accounts/views.py.before_password_lock_hardening_v2
+?? accounts/views.py.before_safe_destroy
+?? accounts/views.py.before_session_management
+?? accounts/views.py.before_token_version_atomic
+?? authorization/
+?? compliance/management/
+?? config/authentication.py
+?? config/authentication.py.backup
+?? config/authentication.py.before_refresh_reuse
+?? config/jwt_authentication.py
+?? config/security.py
+?? db.sqlite3.backup
+?? employee_docs/
+?? project_audit.py
+?? project_audit.py.before_detailed_parser_fix
+?? project_audit.py.before_master_structure
+?? project_audit.py.before_requirement_registry
+?? project_audit.py.before_roadmap_fix
+?? templates/employee_360.html.backup
+?? test_employee_document.txt

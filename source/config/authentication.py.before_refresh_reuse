@@ -1,0 +1,253 @@
+﻿from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+
+from rest_framework.exceptions import AuthenticationFailed
+
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer,
+)
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+from compliance.models import AuditLog
+
+
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION = timedelta(minutes=15)
+
+
+def get_client_ip(request):
+    """
+    Safely determine the client IP address used for security auditing.
+    """
+
+    if not request:
+        return None
+
+    forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+
+    return request.META.get("REMOTE_ADDR")
+
+
+class SecureTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Secure JWT login serializer.
+
+    Security controls:
+    - Adds token_version to issued JWTs.
+    - Records successful logins.
+    - Records failed login attempts.
+    - Records the source IP address.
+    - Implements account-level brute-force protection.
+    - Never records passwords or JWT tokens.
+    """
+
+    def get_token(self, user):
+        token = super().get_token(user)
+
+        token["token_version"] = user.token_version
+
+        return token
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        username = attrs.get("username")
+
+        User = get_user_model()
+
+        attempted_user = User.objects.filter(
+            username=username
+        ).first()
+
+        now = timezone.now()
+
+        # ---------------------------------------------------------
+        # ACCOUNT LOCKOUT CHECK
+        # ---------------------------------------------------------
+
+        if attempted_user and attempted_user.locked_until:
+            if attempted_user.locked_until > now:
+                AuditLog.objects.create(
+                    user=attempted_user,
+                    action="LOGIN_BLOCKED_LOCKOUT",
+                    ip_address=get_client_ip(request),
+                    description=(
+                        "Authentication attempt blocked because the "
+                        f"account '{attempted_user.username}' is temporarily "
+                        "locked after repeated failed login attempts."
+                    ),
+                )
+
+                raise AuthenticationFailed(
+                    "This account is temporarily locked due to repeated "
+                    "failed login attempts. Please try again later.",
+                    code="account_locked",
+                )
+
+            # Lockout period has expired.
+            attempted_user.failed_login_attempts = 0
+            attempted_user.locked_until = None
+
+            attempted_user.save(
+                update_fields=[
+                    "failed_login_attempts",
+                    "locked_until",
+                ]
+            )
+
+        try:
+            data = super().validate(attrs)
+
+        except AuthenticationFailed:
+
+            if attempted_user:
+                attempted_user.failed_login_attempts += 1
+
+                if attempted_user.failed_login_attempts >= MAX_LOGIN_ATTEMPTS:
+                    attempted_user.failed_login_attempts = MAX_LOGIN_ATTEMPTS
+                    attempted_user.locked_until = (
+                        now + LOCKOUT_DURATION
+                    )
+
+                    attempted_user.save(
+                        update_fields=[
+                            "failed_login_attempts",
+                            "locked_until",
+                        ]
+                    )
+
+                    AuditLog.objects.create(
+                        user=attempted_user,
+                        action="ACCOUNT_LOCKED",
+                        ip_address=get_client_ip(request),
+                        description=(
+                            f"Account '{attempted_user.username}' was "
+                            f"temporarily locked after "
+                            f"{MAX_LOGIN_ATTEMPTS} consecutive failed "
+                            "authentication attempts. "
+                            f"Lockout duration: "
+                            f"{int(LOCKOUT_DURATION.total_seconds() / 60)} "
+                            "minutes."
+                        ),
+                    )
+
+                else:
+                    attempted_user.save(
+                        update_fields=[
+                            "failed_login_attempts",
+                        ]
+                    )
+
+                AuditLog.objects.create(
+                    user=attempted_user,
+                    action="LOGIN_FAILED",
+                    ip_address=get_client_ip(request),
+                    description=(
+                        "Failed authentication attempt for the account "
+                        f"'{attempted_user.username}'. "
+                        f"Consecutive failed attempts: "
+                        f"{attempted_user.failed_login_attempts}."
+                    ),
+                )
+
+            else:
+                AuditLog.objects.create(
+                    user=None,
+                    action="LOGIN_FAILED",
+                    ip_address=get_client_ip(request),
+                    description=(
+                        "Failed authentication attempt for an unknown "
+                        f"username '{username}'."
+                    ),
+                )
+
+            raise
+
+        # ---------------------------------------------------------
+        # SUCCESSFUL LOGIN
+        # ---------------------------------------------------------
+
+        self.user.failed_login_attempts = 0
+        self.user.locked_until = None
+
+        self.user.save(
+            update_fields=[
+                "failed_login_attempts",
+                "locked_until",
+            ]
+        )
+
+        AuditLog.objects.create(
+            user=self.user,
+            action="LOGIN_SUCCESS",
+            ip_address=get_client_ip(request),
+            description=(
+                "User authenticated successfully and a new JWT "
+                "authentication session was issued."
+            ),
+        )
+
+        return data
+
+
+class SecureTokenObtainPairView(TokenObtainPairView):
+    serializer_class = SecureTokenObtainPairSerializer
+    throttle_scope = "login"
+
+
+class SecureTokenRefreshSerializer(TokenRefreshSerializer):
+    def validate(self, attrs):
+        refresh = RefreshToken(attrs["refresh"])
+
+        user_id = refresh.get("user_id")
+        token_version = refresh.get("token_version")
+
+        if user_id is None:
+            raise AuthenticationFailed(
+                "Refresh token user identification is missing.",
+                code="refresh_user_missing",
+            )
+
+        if token_version is None:
+            raise AuthenticationFailed(
+                "Refresh token security version is missing.",
+                code="refresh_token_version_missing",
+            )
+
+        User = get_user_model()
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise AuthenticationFailed(
+                "The user associated with this refresh token no longer exists.",
+                code="refresh_user_invalid",
+            )
+
+        if not user.is_active:
+            raise AuthenticationFailed(
+                "The user account is inactive.",
+                code="refresh_user_inactive",
+            )
+
+        if token_version != user.token_version:
+            raise AuthenticationFailed(
+                "This session is no longer valid. Please authenticate again.",
+                code="refresh_token_version_invalid",
+            )
+
+        return super().validate(attrs)
+
+
+class SecureTokenRefreshView(TokenRefreshView):
+    serializer_class = SecureTokenRefreshSerializer
+    throttle_scope = "token_refresh"

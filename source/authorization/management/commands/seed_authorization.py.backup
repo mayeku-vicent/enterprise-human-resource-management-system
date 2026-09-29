@@ -1,0 +1,445 @@
+from django.core.management.base import BaseCommand
+from django.db import transaction
+
+from authorization.models import Permission, Role, RolePermission
+
+
+class Command(BaseCommand):
+    help = (
+        "Create and synchronize the HRMS authorization roles, permissions, "
+        "and role-permission mappings without modifying existing users."
+    )
+
+    ROLES = {
+        "SUPER_ADMIN": {
+            "name": "Super Administrator",
+            "description": "Highest-level HRMS administration role.",
+            "is_system_role": True,
+        },
+        "SYSTEM_ADMIN": {
+            "name": "System Administrator",
+            "description": "Manages system configuration, security, users, and access.",
+            "is_system_role": True,
+        },
+        "HR_ADMIN": {
+            "name": "HR Administrator",
+            "description": "Manages core HR operations and employee administration.",
+            "is_system_role": True,
+        },
+        "HR_OFFICER": {
+            "name": "HR Officer",
+            "description": "Performs assigned HR operational activities.",
+            "is_system_role": True,
+        },
+        "RECRUITMENT_OFFICER": {
+            "name": "Recruitment Officer",
+            "description": "Manages recruitment and applicant processes.",
+            "is_system_role": True,
+        },
+        "PAYROLL_OFFICER": {
+            "name": "Payroll Officer",
+            "description": "Manages payroll-related operations.",
+            "is_system_role": True,
+        },
+        "FINANCE_OFFICER": {
+            "name": "Finance Officer",
+            "description": "Manages finance-related HR transactions and claims.",
+            "is_system_role": True,
+        },
+        "TRAINING_OFFICER": {
+            "name": "Training Officer",
+            "description": "Manages learning and development activities.",
+            "is_system_role": True,
+        },
+        "MANAGER": {
+            "name": "Manager",
+            "description": "Manages authorized activities for direct reports.",
+            "is_system_role": True,
+        },
+        "EMPLOYEE": {
+            "name": "Employee",
+            "description": "Standard employee self-service access.",
+            "is_system_role": True,
+        },
+        "EXECUTIVE": {
+            "name": "Executive",
+            "description": "Executive-level reporting and authorized organizational visibility.",
+            "is_system_role": True,
+        },
+        "AUDITOR": {
+            "name": "Auditor",
+            "description": "Read-only access to authorized audit and compliance information.",
+            "is_system_role": True,
+        },
+    }
+
+    PERMISSIONS = {
+        "dashboard.view": (
+            "View Dashboard",
+            "View the HRMS dashboard and authorized dashboard information.",
+            "dashboard",
+        ),
+        "employee.view": (
+            "View Employees",
+            "View authorized employee records.",
+            "employee",
+        ),
+        "employee.create": (
+            "Create Employee",
+            "Create an employee master record.",
+            "employee",
+        ),
+        "employee.edit": (
+            "Edit Employee",
+            "Edit an authorized employee master record.",
+            "employee",
+        ),
+        "employee.delete": (
+            "Delete Employee",
+            "Delete an employee record where permitted by policy.",
+            "employee",
+        ),
+        "employee_360.view": (
+            "View Employee 360",
+            "View the authorized consolidated employee 360 record.",
+            "employee_360",
+        ),
+        "employee_contact.view": (
+            "View Employee Contacts",
+            "View employee contact information.",
+            "employee_contact",
+        ),
+        "employee_contact.manage": (
+            "Manage Employee Contacts",
+            "Create, edit, and manage employee contact information.",
+            "employee_contact",
+        ),
+        "emergency_contact.view": (
+            "View Emergency Contacts",
+            "View employee emergency contact information.",
+            "emergency_contact",
+        ),
+        "emergency_contact.manage": (
+            "Manage Emergency Contacts",
+            "Create, edit, and manage emergency contact information.",
+            "emergency_contact",
+        ),
+        "employment_history.view": (
+            "View Employment History",
+            "View employee employment history.",
+            "employment_history",
+        ),
+        "employment_history.manage": (
+            "Manage Employment History",
+            "Create, edit, and manage employee employment history.",
+            "employment_history",
+        ),
+        "organization.view": (
+            "View Organization",
+            "View organizational structures, departments, and positions.",
+            "organization",
+        ),
+        "organization.manage": (
+            "Manage Organization",
+            "Create, edit, and manage organizational structures.",
+            "organization",
+        ),
+        "document.view": (
+            "View Documents",
+            "View authorized employee documents.",
+            "document",
+        ),
+        "document.upload": (
+            "Upload Documents",
+            "Upload authorized employee documents.",
+            "document",
+        ),
+        "document.edit": (
+            "Edit Documents",
+            "Edit authorized employee document metadata.",
+            "document",
+        ),
+        "document.delete": (
+            "Delete Documents",
+            "Delete authorized employee documents.",
+            "document",
+        ),
+        "audit.view": (
+            "View Audit Records",
+            "View authorized audit and activity records.",
+            "audit",
+        ),
+        "user.view": (
+            "View Users",
+            "View system user accounts.",
+            "user",
+        ),
+        "user.create": (
+            "Create Users",
+            "Create system user accounts.",
+            "user",
+        ),
+        "user.edit": (
+            "Edit Users",
+            "Edit system user accounts.",
+            "user",
+        ),
+        "user.delete": (
+            "Delete Users",
+            "Delete system user accounts where permitted.",
+            "user",
+        ),
+        "role.view": (
+            "View Roles",
+            "View HRMS roles.",
+            "authorization",
+        ),
+        "role.manage": (
+            "Manage Roles",
+            "Create, edit, activate, and manage HRMS roles.",
+            "authorization",
+        ),
+        "permission.view": (
+            "View Permissions",
+            "View HRMS permissions.",
+            "authorization",
+        ),
+        "permission.manage": (
+            "Manage Permissions",
+            "Create, edit, activate, and manage HRMS permissions.",
+            "authorization",
+        ),
+        "manager.access": (
+            "Manager Access",
+            "Access manager-level functionality.",
+            "authorization",
+        ),
+        "admin.access": (
+            "Administrator Access",
+            "Access administrator-level functionality.",
+            "authorization",
+        ),
+    }
+
+    ROLE_PERMISSIONS = {
+        "SUPER_ADMIN": {"*"},
+        "SYSTEM_ADMIN": {
+            "dashboard.view",
+            "user.view",
+            "user.create",
+            "user.edit",
+            "user.delete",
+            "role.view",
+            "role.manage",
+            "permission.view",
+            "permission.manage",
+            "audit.view",
+            "organization.view",
+            "organization.manage",
+        },
+        "HR_ADMIN": {
+            "dashboard.view",
+            "employee.view",
+            "employee.create",
+            "employee.edit",
+            "employee.delete",
+            "employee_360.view",
+            "employee_contact.view",
+            "employee_contact.manage",
+            "emergency_contact.view",
+            "emergency_contact.manage",
+            "employment_history.view",
+            "employment_history.manage",
+            "organization.view",
+            "organization.manage",
+            "document.view",
+            "document.upload",
+            "document.edit",
+            "document.delete",
+            "audit.view",
+            "user.view",
+            "user.create",
+            "user.edit",
+            "manager.access",
+        },
+        "HR_OFFICER": {
+            "dashboard.view",
+            "employee.view",
+            "employee.create",
+            "employee.edit",
+            "employee_360.view",
+            "employee_contact.view",
+            "employee_contact.manage",
+            "emergency_contact.view",
+            "emergency_contact.manage",
+            "employment_history.view",
+            "employment_history.manage",
+            "organization.view",
+            "document.view",
+            "document.upload",
+            "document.edit",
+            "manager.access",
+        },
+        "RECRUITMENT_OFFICER": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "organization.view",
+        },
+        "PAYROLL_OFFICER": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "organization.view",
+        },
+        "FINANCE_OFFICER": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "organization.view",
+        },
+        "TRAINING_OFFICER": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "organization.view",
+        },
+        "MANAGER": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "employee_contact.view",
+            "emergency_contact.view",
+            "employment_history.view",
+            "organization.view",
+            "document.view",
+            "manager.access",
+        },
+        "EMPLOYEE": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "employee_contact.view",
+            "employee_contact.manage",
+            "emergency_contact.view",
+            "emergency_contact.manage",
+            "employment_history.view",
+            "document.view",
+        },
+        "EXECUTIVE": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "organization.view",
+        },
+        "AUDITOR": {
+            "dashboard.view",
+            "employee.view",
+            "employee_360.view",
+            "organization.view",
+            "document.view",
+            "audit.view",
+        },
+    }
+
+    def handle(self, *args, **options):
+        self.stdout.write(self.style.NOTICE("HRMS AUTHORIZATION SEED"))
+        self.stdout.write("")
+
+        with transaction.atomic():
+            roles_created = 0
+            roles_updated = 0
+            permissions_created = 0
+            permissions_updated = 0
+            mappings_created = 0
+
+            roles = {}
+
+            for code, data in self.ROLES.items():
+                role, created = Role.objects.update_or_create(
+                    code=code,
+                    defaults={
+                        "name": data["name"],
+                        "description": data["description"],
+                        "is_system_role": data["is_system_role"],
+                        "is_active": True,
+                    },
+                )
+
+                roles[code] = role
+
+                if created:
+                    roles_created += 1
+                else:
+                    roles_updated += 1
+
+            permissions = {}
+
+            for code, (name, description, module) in self.PERMISSIONS.items():
+                permission, created = Permission.objects.update_or_create(
+                    code=code,
+                    defaults={
+                        "name": name,
+                        "description": description,
+                        "module": module,
+                        "is_active": True,
+                    },
+                )
+
+                permissions[code] = permission
+
+                if created:
+                    permissions_created += 1
+                else:
+                    permissions_updated += 1
+
+            for role_code, permission_codes in self.ROLE_PERMISSIONS.items():
+                role = roles[role_code]
+
+                if "*" in permission_codes:
+                    selected_permissions = permissions.values()
+                else:
+                    selected_permissions = (
+                        permissions[code]
+                        for code in permission_codes
+                    )
+
+                for permission in selected_permissions:
+                    _, created = RolePermission.objects.get_or_create(
+                        role=role,
+                        permission=permission,
+                    )
+
+                    if created:
+                        mappings_created += 1
+
+        self.stdout.write("")
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Authorization catalogue synchronized successfully."
+            )
+        )
+        self.stdout.write(
+            f"Roles created: {roles_created}"
+        )
+        self.stdout.write(
+            f"Roles updated: {roles_updated}"
+        )
+        self.stdout.write(
+            f"Permissions created: {permissions_created}"
+        )
+        self.stdout.write(
+            f"Permissions updated: {permissions_updated}"
+        )
+        self.stdout.write(
+            f"Role-permission mappings created: {mappings_created}"
+        )
+        self.stdout.write("")
+        self.stdout.write(
+            self.style.WARNING(
+                "Existing users and UserRole assignments were NOT modified."
+            )
+        )
+        self.stdout.write(
+            "The legacy User.role field remains untouched for compatibility."
+        )

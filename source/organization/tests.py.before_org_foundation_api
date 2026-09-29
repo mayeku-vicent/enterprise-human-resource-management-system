@@ -1,0 +1,142 @@
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from rest_framework.test import APIClient
+
+from authorization.models import Permission, Role, RolePermission, UserRole
+
+from .models import Department
+
+
+User = get_user_model()
+
+
+class OrganizationAuthorizationTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+
+        self.employee = User.objects.create_user(
+            username="organization_employee",
+            password="TestPassword123!",
+        )
+
+        self.manager = User.objects.create_user(
+            username="organization_manager",
+            password="TestPassword123!",
+        )
+
+        self.view_permission = Permission.objects.create(
+            code="organization.view",
+            name="View Organization",
+            description="Allows viewing departments and positions.",
+            module="Organization",
+        )
+
+        self.manage_permission = Permission.objects.create(
+            code="organization.manage",
+            name="Manage Organization",
+            description="Allows creating, updating and deleting organization data.",
+            module="Organization",
+        )
+
+        self.view_role = Role.objects.create(
+            code="ORGANIZATION_VIEW_TEST",
+            name="Organization View Test Role",
+            is_system_role=False,
+        )
+
+        self.manage_role = Role.objects.create(
+            code="ORGANIZATION_MANAGE_TEST",
+            name="Organization Manage Test Role",
+            is_system_role=False,
+        )
+
+        RolePermission.objects.create(
+            role=self.view_role,
+            permission=self.view_permission,
+        )
+
+        RolePermission.objects.create(
+            role=self.manage_role,
+            permission=self.manage_permission,
+        )
+
+        UserRole.objects.create(
+            user=self.employee,
+            role=self.view_role,
+            is_active=True,
+        )
+
+        UserRole.objects.create(
+            user=self.manager,
+            role=self.manage_role,
+            is_active=True,
+        )
+
+        self.department = Department.objects.create(
+            name="Human Resources",
+            code="HR",
+            description="Human Resources Department",
+        )
+
+    def test_user_with_view_permission_can_list_departments(self):
+        self.client.force_authenticate(user=self.employee)
+
+        response = self.client.get(
+            "/api/organization/departments/"
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_with_view_permission_cannot_create_department(self):
+        self.client.force_authenticate(user=self.employee)
+
+        response = self.client.post(
+            "/api/organization/departments/",
+            {
+                "name": "Finance",
+                "code": "FIN",
+                "description": "Finance Department",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_user_with_manage_permission_can_create_department(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/departments/",
+            {
+                "name": "Finance",
+                "code": "FIN",
+                "description": "Finance Department",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_user_without_organization_permission_is_denied(self):
+        user = User.objects.create_user(
+            username="no_organization_permission",
+            password="TestPassword123!",
+        )
+
+        self.client.force_authenticate(user=user)
+
+        response = self.client.get(
+            "/api/organization/departments/"
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_manage_permission_does_not_automatically_grant_view_permission(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.get(
+            "/api/organization/departments/"
+        )
+
+        self.assertEqual(response.status_code, 403)

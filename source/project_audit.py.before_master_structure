@@ -1,0 +1,840 @@
+﻿import os
+import re
+import subprocess
+from pathlib import Path
+from collections import defaultdict
+
+BASE_DIR = Path(__file__).resolve().parent
+REPORT_DIR = BASE_DIR / "HRMS_SYSTEM_AUDIT"
+
+EXCLUDED_DIRS = {
+    ".git",
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    "HRMS_SYSTEM_AUDIT",
+    "staticfiles",
+}
+
+TEXT_EXTENSIONS = {
+    ".py", ".html", ".htm", ".js", ".css", ".txt",
+    ".md", ".json", ".yml", ".yaml", ".ini", ".env.example"
+}
+
+REPORT_DIR.mkdir(exist_ok=True)
+
+def read_text(path):
+    try:
+        return path.read_text(encoding="utf-8", errors="ignore")
+    except Exception as exc:
+        return f"[READ ERROR: {exc}]"
+
+def relative(path):
+    try:
+        return str(path.relative_to(BASE_DIR))
+    except ValueError:
+        return str(path)
+
+def write_report(filename, content):
+    path = REPORT_DIR / filename
+    path.write_text(content, encoding="utf-8")
+    return path
+
+def all_files():
+    for root, dirs, files in os.walk(BASE_DIR):
+        dirs[:] = [
+            d for d in dirs
+            if d not in EXCLUDED_DIRS
+        ]
+
+        for filename in files:
+            path = Path(root) / filename
+
+            if path.suffix.lower() in TEXT_EXTENSIONS:
+                yield path
+
+def python_files():
+    return [
+        p for p in all_files()
+        if p.suffix.lower() == ".py"
+    ]
+
+def find_pattern(pattern, files=None, flags=re.IGNORECASE):
+    results = []
+
+    if files is None:
+        files = all_files()
+
+    regex = re.compile(pattern, flags)
+
+    for path in files:
+        text = read_text(path)
+
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            if regex.search(line):
+                results.append(
+                    f"{relative(path)}:{line_no}: {line.strip()}"
+                )
+
+    return results
+
+# ---------------------------------------------------------
+# 1. PROJECT STRUCTURE
+# ---------------------------------------------------------
+
+structure_lines = [
+    "ENTERPRISE-HRMS PROJECT STRUCTURE",
+    "=" * 80,
+    f"Project root: {BASE_DIR}",
+    "",
+]
+
+for path in sorted(BASE_DIR.iterdir(), key=lambda p: p.name.lower()):
+    if path.name in EXCLUDED_DIRS:
+        continue
+
+    kind = "DIR " if path.is_dir() else "FILE"
+    structure_lines.append(f"{kind}  {path.name}")
+
+structure_lines.extend([
+    "",
+    "DJANGO / PYTHON FILES",
+    "-" * 80,
+])
+
+for path in sorted(python_files()):
+    structure_lines.append(relative(path))
+
+write_report(
+    "01_project_structure.txt",
+    "\n".join(structure_lines)
+)
+
+# ---------------------------------------------------------
+# 2. DJANGO APPS / MODULES
+# ---------------------------------------------------------
+
+apps = []
+
+for path in sorted(BASE_DIR.iterdir(), key=lambda p: p.name.lower()):
+    if not path.is_dir() or path.name in EXCLUDED_DIRS:
+        continue
+
+    if (path / "apps.py").exists() or (path / "models.py").exists():
+        apps.append(path.name)
+
+write_report(
+    "02_apps_modules.txt",
+    "\n".join([
+        "DJANGO APPS / MODULES",
+        "=" * 80,
+        "",
+        *apps
+    ])
+)
+
+# ---------------------------------------------------------
+# 3. MODELS
+# ---------------------------------------------------------
+
+model_files = [
+    p for p in python_files()
+    if p.name == "models.py"
+]
+
+model_lines = [
+    "MODELS AND MODEL DEFINITIONS",
+    "=" * 80,
+]
+
+for path in sorted(model_files):
+    text = read_text(path)
+
+    model_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class ")
+            or "models." in stripped
+            or "OneToOneField(" in stripped
+            or "ForeignKey(" in stripped
+            or "ManyToManyField(" in stripped
+        ):
+            model_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "03_models_and_relationships.txt",
+    "\n".join(model_lines)
+)
+
+# ---------------------------------------------------------
+# 4. MIGRATIONS
+# ---------------------------------------------------------
+
+migration_lines = [
+    "MIGRATIONS",
+    "=" * 80,
+]
+
+for path in sorted(BASE_DIR.rglob("migrations")):
+    if not path.is_dir():
+        continue
+
+    if any(part in EXCLUDED_DIRS for part in path.parts):
+        continue
+
+    migration_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for migration in sorted(path.glob("*.py")):
+        migration_lines.append(relative(migration))
+
+write_report(
+    "04_migrations.txt",
+    "\n".join(migration_lines)
+)
+
+# ---------------------------------------------------------
+# 5. SERIALIZERS
+# ---------------------------------------------------------
+
+serializer_files = [
+    p for p in python_files()
+    if p.name == "serializers.py"
+]
+
+serializer_lines = [
+    "SERIALIZERS",
+    "=" * 80,
+]
+
+for path in sorted(serializer_files):
+    text = read_text(path)
+
+    serializer_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class ")
+            or "fields =" in stripped
+            or "read_only_fields" in stripped
+            or "create(" in stripped
+            or "update(" in stripped
+        ):
+            serializer_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "05_serializers.txt",
+    "\n".join(serializer_lines)
+)
+
+# ---------------------------------------------------------
+# 6. VIEWS / VIEWSETS
+# ---------------------------------------------------------
+
+view_files = [
+    p for p in python_files()
+    if p.name in {"views.py", "viewsets.py"}
+]
+
+view_lines = [
+    "VIEWS / VIEWSETS",
+    "=" * 80,
+]
+
+for path in sorted(view_files):
+    text = read_text(path)
+
+    view_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class ")
+            or stripped.startswith("def ")
+            or stripped.startswith("async def ")
+            or "permission_classes" in stripped
+            or "authentication_classes" in stripped
+            or "get_queryset" in stripped
+        ):
+            view_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "06_views_and_permissions.txt",
+    "\n".join(view_lines)
+)
+
+# ---------------------------------------------------------
+# 7. URLS / API ROUTES
+# ---------------------------------------------------------
+
+url_files = [
+    p for p in python_files()
+    if p.name == "urls.py"
+]
+
+url_lines = [
+    "URLS AND API ROUTES",
+    "=" * 80,
+]
+
+for path in sorted(url_files):
+    text = read_text(path)
+
+    url_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            "path(" in stripped
+            or "router.register" in stripped
+            or "include(" in stripped
+        ):
+            url_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "07_urls_and_api_routes.txt",
+    "\n".join(url_lines)
+)
+
+# ---------------------------------------------------------
+# 8. AUTHORIZATION / SECURITY
+# ---------------------------------------------------------
+
+security_patterns = [
+    r"user\.role\s*==",
+    r"user\.role\s*!=",
+    r"request\.user\.role",
+    r"IsAuthenticated",
+    r"AllowAny",
+    r"IsAdmin",
+    r"HasPermission",
+    r"HasRole",
+    r"permission_classes",
+    r"authentication_classes",
+    r"token_version",
+    r"locked_until",
+    r"failed_login_attempts",
+    r"password",
+    r"JWT",
+    r"MFA",
+    r"SSO",
+]
+
+security_lines = [
+    "AUTHORIZATION / SECURITY AUDIT",
+    "=" * 80,
+]
+
+for pattern in security_patterns:
+    matches = find_pattern(pattern, python_files())
+
+    security_lines.extend([
+        "",
+        f"PATTERN: {pattern}",
+        "-" * 80,
+    ])
+
+    if matches:
+        security_lines.extend(matches)
+    else:
+        security_lines.append("[NO MATCHES]")
+
+write_report(
+    "08_security_and_authorization.txt",
+    "\n".join(security_lines)
+)
+
+# ---------------------------------------------------------
+# 9. TESTS
+# ---------------------------------------------------------
+
+test_lines = [
+    "TEST FILES",
+    "=" * 80,
+]
+
+for path in sorted(BASE_DIR.rglob("test*.py")):
+    if any(part in EXCLUDED_DIRS for part in path.parts):
+        continue
+
+    test_lines.append(relative(path))
+
+for path in sorted(BASE_DIR.rglob("*_tests.py")):
+    if any(part in EXCLUDED_DIRS for part in path.parts):
+        continue
+
+    if path not in [Path(x) for x in []]:
+        test_lines.append(relative(path))
+
+test_lines.extend([
+    "",
+    "TEST CLASSES / TEST METHODS",
+    "-" * 80,
+])
+
+for path in sorted(python_files()):
+    if "test" not in path.name.lower():
+        continue
+
+    text = read_text(path)
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class Test")
+            or stripped.startswith("def test_")
+            or stripped.startswith("def test")
+        ):
+            test_lines.append(
+                f"{relative(path)}:{line_no}: {line}"
+            )
+
+write_report(
+    "09_tests.txt",
+    "\n".join(test_lines)
+)
+
+# ---------------------------------------------------------
+# 10. TEMPLATES / JAVASCRIPT
+# ---------------------------------------------------------
+
+frontend_lines = [
+    "TEMPLATES / JAVASCRIPT / CSS",
+    "=" * 80,
+]
+
+for path in sorted(all_files()):
+    lower = str(path).lower()
+
+    if (
+        path.suffix.lower() in {".html", ".htm", ".js", ".css"}
+        or "templates" in lower
+        or "static" in lower
+    ):
+        frontend_lines.append(relative(path))
+
+write_report(
+    "10_frontend_files.txt",
+    "\n".join(frontend_lines)
+)
+
+# ---------------------------------------------------------
+# 11. TODO / PLACEHOLDER / EMPTY IMPLEMENTATIONS
+# ---------------------------------------------------------
+
+placeholder_patterns = [
+    r"#\s*TODO",
+    r"#\s*FIXME",
+    r"pass\s*$",
+    r"NotImplementedError",
+    r"Create your tests here",
+    r"Create your models here",
+]
+
+placeholder_lines = [
+    "TODO / PLACEHOLDER / INCOMPLETE IMPLEMENTATIONS",
+    "=" * 80,
+]
+
+for pattern in placeholder_patterns:
+    matches = find_pattern(pattern)
+
+    placeholder_lines.extend([
+        "",
+        f"PATTERN: {pattern}",
+        "-" * 80,
+    ])
+
+    if matches:
+        placeholder_lines.extend(matches)
+    else:
+        placeholder_lines.append("[NO MATCHES]")
+
+write_report(
+    "11_placeholders_and_todos.txt",
+    "\n".join(placeholder_lines)
+)
+
+# ---------------------------------------------------------
+# 12. POTENTIAL DUPLICATES
+# ---------------------------------------------------------
+
+duplicate_lines = [
+    "POTENTIAL DUPLICATE / OVERLAPPING DEFINITIONS",
+    "=" * 80,
+]
+
+class_locations = defaultdict(list)
+
+for path in python_files():
+    text = read_text(path)
+
+    for match in re.finditer(
+        r"^\s*class\s+([A-Za-z_][A-Za-z0-9_]*)",
+        text,
+        re.MULTILINE
+    ):
+        class_name = match.group(1)
+        line_no = text[:match.start()].count("\n") + 1
+        class_locations[class_name].append(
+            f"{relative(path)}:{line_no}"
+        )
+
+for class_name, locations in sorted(class_locations.items()):
+    if len(locations) > 1:
+        duplicate_lines.extend([
+            "",
+            f"{class_name}",
+            *[f"  - {location}" for location in locations]
+        ])
+
+write_report(
+    "12_potential_duplicates.txt",
+    "\n".join(duplicate_lines)
+)
+
+# ---------------------------------------------------------
+# 13. REQUIREMENT KEYWORDS
+# ---------------------------------------------------------
+
+requirement_keywords = [
+    "employee",
+    "employeeprofile",
+    "employee 360",
+    "organization",
+    "department",
+    "position",
+    "document",
+    "role",
+    "permission",
+    "audit",
+    "attendance",
+    "leave",
+    "payroll",
+    "recruitment",
+    "onboarding",
+    "offboarding",
+    "performance",
+    "training",
+    "career",
+    "succession",
+    "benefit",
+    "claim",
+    "expense",
+    "workflow",
+    "notification",
+    "report",
+    "analytics",
+    "compliance",
+    "asset",
+    "travel",
+    "integration",
+    "api",
+]
+
+keyword_lines = [
+    "REQUIREMENT-RELATED CODE SEARCH",
+    "=" * 80,
+]
+
+all_text_files = list(all_files())
+
+for keyword in requirement_keywords:
+    regex = re.compile(re.escape(keyword), re.IGNORECASE)
+    count = 0
+    examples = []
+
+    for path in all_text_files:
+        text = read_text(path)
+        matches = list(regex.finditer(text))
+
+        if matches:
+            count += len(matches)
+
+            if len(examples) < 8:
+                for match in matches[:8 - len(examples)]:
+                    line_no = text[:match.start()].count("\n") + 1
+                    line = text.splitlines()[line_no - 1].strip()
+                    examples.append(
+                        f"{relative(path)}:{line_no}: {line}"
+                    )
+
+    keyword_lines.extend([
+        "",
+        f"{keyword.upper()} -> {count} occurrence(s)",
+        *examples,
+    ])
+
+write_report(
+    "13_requirement_keyword_audit.txt",
+    "\n".join(keyword_lines)
+)
+
+# ---------------------------------------------------------
+# 14. GIT STATUS
+# ---------------------------------------------------------
+
+git_lines = [
+    "GIT STATUS",
+    "=" * 80,
+]
+
+try:
+    result = subprocess.run(
+        ["git", "status", "--short", "--branch"],
+        cwd=BASE_DIR,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+
+    git_lines.append(result.stdout.strip() or "[CLEAN / NO OUTPUT]")
+
+    if result.stderr.strip():
+        git_lines.extend([
+            "",
+            "STDERR:",
+            result.stderr.strip()
+        ])
+
+except Exception as exc:
+    git_lines.append(f"[GIT ERROR: {exc}]")
+
+write_report(
+    "14_git_status.txt",
+    "\n".join(git_lines)
+)
+
+# ---------------------------------------------------------
+# 15. DJANGO CHECK
+# ---------------------------------------------------------
+
+django_lines = [
+    "DJANGO SYSTEM CHECK",
+    "=" * 80,
+]
+
+manage_py = BASE_DIR / "manage.py"
+
+if manage_py.exists():
+    try:
+        result = subprocess.run(
+            [os.fspath(Path(os.sys.executable)), "manage.py", "check"],
+            cwd=BASE_DIR,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        django_lines.extend([
+            "RETURN CODE:",
+            str(result.returncode),
+            "",
+            "STDOUT:",
+            result.stdout.strip(),
+            "",
+            "STDERR:",
+            result.stderr.strip(),
+        ])
+
+    except Exception as exc:
+        django_lines.append(f"[DJANGO CHECK ERROR: {exc}]")
+else:
+    django_lines.append(
+        "manage.py not found in audit directory."
+    )
+
+write_report(
+    "15_django_check.txt",
+    "\n".join(django_lines)
+)
+
+# ---------------------------------------------------------
+# 16. MASTER REPORT
+# ---------------------------------------------------------
+
+master = [
+    "ENTERPRISE-HRMS SYSTEM AUDIT",
+    "=" * 80,
+    f"Generated from: {BASE_DIR}",
+    "",
+    "This is a READ-ONLY static/code audit.",
+    "It does not modify application source code or database data.",
+    "",
+    "REPORTS GENERATED:",
+    "-" * 80,
+]
+
+for report in sorted(REPORT_DIR.glob("*.txt")):
+    master.append(report.name)
+
+master.extend([
+    "",
+    "IMPORTANT:",
+    "-" * 80,
+    "This report is evidence for requirements analysis.",
+    "It does not automatically declare a requirement complete.",
+    "Each requirement must still be classified as:",
+    "COMPLETE / PARTIAL / MISSING / DUPLICATED / BROKEN / NEEDS VERIFICATION.",
+])
+
+write_report(
+    "MASTER_AUDIT_REPORT.txt",
+    "\n".join(master)
+)
+
+print()
+print("=" * 80)
+print("ENTERPRISE-HRMS AUDIT COMPLETE")
+print("=" * 80)
+print()
+print(f"Audit directory: {REPORT_DIR}")
+print()
+print("Generated reports:")
+for report in sorted(REPORT_DIR.glob("*.txt")):
+    print(f"  - {report.name}")
+print()
+print("No application source files were modified.")
+print("No database records were modified.")
+print("=" * 80)
+# ---------------------------------------------------------
+# 16. MASTER REQUIREMENTS FROM STRUCTURE.TXT
+# ---------------------------------------------------------
+
+MASTER_STRUCTURE_FILE = BASE_DIR.parent / "STRUCTURE.txt"
+
+master_requirement_lines = [
+    "ENTERPRISE-HRMS MASTER REQUIREMENTS",
+    "=" * 80,
+    "",
+    f"Source: {MASTER_STRUCTURE_FILE}",
+    "",
+]
+
+if MASTER_STRUCTURE_FILE.exists():
+    master_text = read_text(MASTER_STRUCTURE_FILE)
+
+    master_requirement_lines.extend([
+        "MASTER STRUCTURE FOUND: YES",
+        "",
+        "31 MASTER AREAS",
+        "-" * 80,
+    ])
+
+    master_area_pattern = re.compile(
+        r"(?m)^\s*(\d{1,2})\.\s+(.+?)\s*$"
+    )
+
+    master_areas = []
+
+    for match in master_area_pattern.finditer(master_text):
+        number = int(match.group(1))
+        name = match.group(2).strip()
+
+        if 1 <= number <= 31:
+            master_areas.append((number, name))
+
+    seen_numbers = set()
+
+    for number, name in master_areas:
+        if number in seen_numbers:
+            continue
+
+        seen_numbers.add(number)
+        master_requirement_lines.append(
+            f"{number:02d}. {name}"
+        )
+
+    master_requirement_lines.extend([
+        "",
+        "DEVELOPMENT ROADMAP",
+        "-" * 80,
+    ])
+
+    roadmap_pattern = re.compile(
+        r"(?ms)^V([1-5])\s*[—-]\s*([^\n]+)\n(.*?)(?=^V[1-5]\s*[—-]|^This gives us\b|\Z)"
+    )
+
+    roadmap_matches = roadmap_pattern.findall(master_text)
+
+    for version, title, contents in roadmap_matches:
+        master_requirement_lines.extend([
+            "",
+            f"V{version} — {title.strip()}",
+        ])
+
+        for line in contents.splitlines():
+            cleaned = line.strip()
+
+            if cleaned:
+                master_requirement_lines.append(
+                    f"  - {cleaned}"
+                )
+
+    master_requirement_lines.extend([
+        "",
+        "STATUS CLASSIFICATION",
+        "-" * 80,
+        "COMPLETE — existing implementation satisfies the requirement sufficiently.",
+        "PARTIAL — something exists, but important functionality is missing.",
+        "MISSING — no meaningful implementation found.",
+        "DUPLICATE/LEGACY — old implementation exists but should not be rebuilt.",
+        "NOT YET AUDITED — insufficient evidence has been inspected.",
+        "",
+        "IMPORTANT:",
+        "This report records the repository master specification.",
+        "It does not automatically declare requirements complete.",
+        "Existing implementation must be inspected before any new work is started.",
+    ])
+
+else:
+    master_requirement_lines.extend([
+        "MASTER STRUCTURE FOUND: NO",
+        "",
+        "ERROR: STRUCTURE.txt was not found at:",
+        str(MASTER_STRUCTURE_FILE),
+        "",
+        "The requirements audit cannot safely continue without the master structure.",
+    ])
+
+write_report(
+    "16_master_requirements.txt",
+    "\n".join(master_requirement_lines)
+)
+
+

@@ -1,0 +1,12 @@
+TEMPLATES / JAVASCRIPT / CSS
+================================================================================
+hrms_modules\templates\hrms_modules\employee_portal.html
+templates\attendance_dashboard.html
+templates\base.html
+templates\claims_dashboard.html
+templates\dashboard.html
+templates\employee_360.html
+templates\employee_directory.html
+templates\hrms_dashboard.html
+templates\leave_dashboard.html
+templates\registration\login.html

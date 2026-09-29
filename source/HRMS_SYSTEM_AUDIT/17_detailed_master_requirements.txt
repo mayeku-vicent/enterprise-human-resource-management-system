@@ -1,0 +1,468 @@
+DETAILED MASTER REQUIREMENT ITEMS
+================================================================================
+
+Source: STRUCTURE.txt
+
+This report extracts functional requirement candidates from the
+31 master areas. Structural examples, diagrams, database tables,
+roadmap text, audit workflow instructions, and explanatory prose
+are excluded.
+
+
+01. AUTHENTICATION & SECURITY
+--------------------------------------------------------------------------------
+01.01 Login
+01.02 Logout
+01.03 Forgot password
+01.04 Password reset
+01.05 Change password
+01.06 Multi-factor authentication
+01.07 Single Sign-On
+01.08 Session management
+01.09 Device/session management
+01.10 Account lockout
+01.11 Password policies
+01.12 Security alerts
+01.13 Role management
+01.14 ✓ View employees
+01.15 ✓ Create employee
+01.16 ✓ Edit employee
+01.17 ✓ View documents
+01.18 ✓ Approve leave
+01.19 ✗ Run payroll
+01.20 ✗ Manage system users
+
+02. EXECUTIVE DASHBOARD
+--------------------------------------------------------------------------------
+02.01 7
+02.02 Total Employees
+02.03 Active Employees
+02.04 New Employees
+02.05 Employees on Leave
+02.06 Employees Absent
+02.07 Open Vacancies
+02.08 Pending Approvals
+02.09 Payroll Amount
+02.10 Headcount by department
+02.11 Gender distribution
+02.12 Age distribution
+02.13 Employee turnover
+02.14 Leave utilization
+02.15 Recruitment pipeline
+02.16 Performance distribution
+02.17 Training completion
+02.18 Payroll trends
+02.19 + Add Employee
+02.20 + Create Vacancy
+02.21 + Approve Leave
+02.22 + Run Payroll
+02.23 + Generate Report
+
+03. CORE HUMAN RESOURCES
+--------------------------------------------------------------------------------
+03.01 Employee ID
+03.02 Photo
+03.03 Name
+03.04 Department
+03.05 Position
+03.06 Grade
+03.07 Employment Type
+03.08 Status
+03.09 Location
+03.10 One employee should have one central record, rather than separate disconnected records.
+
+04. ORGANIZATION MANAGEMENT
+--------------------------------------------------------------------------------
+04.01 Manage the organization's structure.
+04.02 BANK / COMPANY
+
+05. RECRUITMENT & APPLICANT TRACKING
+--------------------------------------------------------------------------------
+05.01 Workforce Request
+05.02 Job Requisition
+05.03 Approval
+05.04 Job Vacancy
+05.05 Applications
+05.06 CV Screening
+05.07 Shortlisting
+05.08 Interview
+05.09 Assessment
+05.10 Selection
+05.11 Offer
+05.12 Background Check
+05.13 Hire
+05.14 Job requisitions
+05.15 Applicant database
+05.16 CV management
+05.17 Screening
+05.18 Assessments
+05.19 Interview scoring
+05.20 Candidate communication
+05.21 Recruitment reports
+
+06. ONBOARDING & OFFBOARDING
+--------------------------------------------------------------------------------
+06.01 New Employee
+06.02 Documents
+06.03 Contract
+06.04 Account Creation
+06.05 Equipment
+06.06 Orientation
+06.07 Manager Assignment
+06.08 Probation
+06.09 Confirmation
+06.10 Resignation / Retirement / Termination
+06.11 Clearance
+06.12 Asset Return
+06.13 Final Payroll
+06.14 Benefits Settlement
+06.15 Exit Interview
+06.16 Account Deactivation
+06.17 Employee Archive
+
+07. EMPLOYEE SELF-SERVICE — ESS
+--------------------------------------------------------------------------------
+07.01 My Profile
+07.02 My Documents
+07.03 My Payslips
+07.04 My Leave
+07.05 My Attendance
+07.06 My Benefits
+07.07 My Performance
+07.08 My Training
+07.09 My Expenses
+07.10 My Requests
+07.11 My Notifications
+07.12 Update allowed personal details
+07.13 Apply for leave
+07.14 Download payslip
+07.15 Submit expense
+07.16 Request documents
+07.17 View attendance
+07.18 View performance goals
+07.19 Request training
+07.20 Submit HR cases
+
+08. MANAGER SELF-SERVICE — MSS
+--------------------------------------------------------------------------------
+08.01 Team Attendance
+08.02 Team Leave
+08.03 Team Performance
+08.04 Team Goals
+
+09. ATTENDANCE & TIME MANAGEMENT
+--------------------------------------------------------------------------------
+09.01 Clock in/out
+09.02 Rosters
+09.03 Late arrival
+09.04 Early departure
+09.05 Absence
+09.06 Work schedules
+09.07 Holidays
+09.08 Attendance corrections
+09.09 Biometric
+09.10 HRMS
+
+10. LEAVE MANAGEMENT
+--------------------------------------------------------------------------------
+10.01 Annual leave
+10.02 Sick leave
+10.03 Maternity leave
+10.04 Paternity leave
+10.05 Compassionate leave
+10.06 Study leave
+10.07 Unpaid leave
+10.08 Special leave
+10.09 Leave Request
+10.10 Approved
+10.11 Leave Balance Updated
+10.12 Opening Balance
+10.13 + Accrued Leave
+10.14 - Used Leave
+10.15 = Remaining Leave
+
+11. PAYROLL MANAGEMENT
+--------------------------------------------------------------------------------
+11.01 Employee Data
+11.02 Tax
+11.03 Payroll Calculation
+11.04 Payroll Review
+11.05 Approval
+11.06 Payment
+11.07 Payslip
+
+12. COMPENSATION & BENEFITS
+--------------------------------------------------------------------------------
+12.01 Salary structures
+12.02 Salary grades
+12.03 Salary bands
+12.04 Bonuses
+12.05 Incentives
+12.06 Medical benefits
+12.07 Insurance
+12.08 Pension
+12.09 Employee benefits
+12.10 Benefit enrollment
+
+13. PERFORMANCE MANAGEMENT
+--------------------------------------------------------------------------------
+13.01 Set Goals
+13.02 Continuous Feedback
+13.03 Mid-Year Review
+13.04 Employee Self-Assessment
+13.05 Manager Assessment
+13.06 HR Review
+13.07 Final Rating
+13.08 Development Plan
+13.09 KPIs
+13.10 Objectives
+13.11 Competencies
+13.12 Ratings
+13.13 360-degree feedback
+13.14 Performance improvement plans
+13.15 Review history
+
+14. LEARNING & DEVELOPMENT
+--------------------------------------------------------------------------------
+14.01 Training Catalog
+14.02 Training Requests
+14.03 Approval
+14.04 Enrollment
+14.05 Assessment
+14.06 Certificate
+14.07 Skills
+14.08 Training history
+14.09 Training costs
+14.10 Expiring certifications
+
+15. CAREER & SUCCESSION
+--------------------------------------------------------------------------------
+15.01 Career
+15.02 Skills
+15.03 Career Path
+15.04 Development Plan
+15.05 Promotion
+15.06 Succession
+15.07 Identify:
+15.08 Critical positions
+15.09 Potential successors
+15.10 Readiness
+15.11 Required skills
+15.12 Development gaps
+
+16. TALENT MANAGEMENT
+--------------------------------------------------------------------------------
+16.01 High-potential employees
+16.02 Skills
+16.03 Competencies
+16.04 Talent pools
+16.05 Career paths
+16.06 Succession
+16.07 Development plans
+
+17. WORKFORCE MANAGEMENT
+--------------------------------------------------------------------------------
+17.01 How many employees do we have, where are they, what skills do they have, and where do we need more people?
+17.02 Workforce planning
+17.03 Headcount planning
+17.04 Workforce forecasting
+17.05 Staffing requirements
+17.06 Skills inventory
+17.07 Position planning
+17.08 Workforce costs
+
+18. EXPENSE & CLAIMS MANAGEMENT
+--------------------------------------------------------------------------------
+18.01 Employees submit:
+18.02 Travel Claim
+18.03 Medical Claim
+18.04 Funeral Claim
+18.05 Training Claim
+18.06 Expense Claim
+18.07 Other Allowance
+18.08 Workflow:
+18.09 Submit Claim
+18.10 HR / Finance
+18.11 Verification
+18.12 Approval
+18.13 Payment
+18.14 Completed
+
+19. DOCUMENT MANAGEMENT
+--------------------------------------------------------------------------------
+19.01 Upload
+19.02 Download
+19.03 Version control
+19.04 Expiration dates
+19.05 Document categories
+19.06 Access control
+19.07 Document approval
+19.08 Audit trail
+
+20. HR CASE / SERVICE MANAGEMENT
+--------------------------------------------------------------------------------
+20.01 Employees can create HR requests.
+20.02 HR Request
+20.03 Ticket Number
+20.04 Assigned HR Officer
+20.05 Investigation / Processing
+20.06 Resolution
+20.07 Closed
+20.08 Examples:
+20.09 Payroll issue
+20.10 Leave issue
+20.11 Contract request
+20.12 Employment letter
+20.13 Personal information correction
+20.14 Benefits issue
+
+21. WORKFLOW & APPROVAL ENGINE
+--------------------------------------------------------------------------------
+21.01 LEAVE REQUEST
+21.02 Manager Approval
+21.03 HR Approval
+21.04 Completed
+21.05 Another:
+21.06 SALARY CHANGE
+21.07 Finance
+21.08 Approved
+21.09 The workflow engine should support:
+21.10 Sequential approval
+21.11 Parallel approval
+21.12 Delegation
+21.13 Rejection
+21.14 Return for correction
+21.15 Escalation
+21.16 Approval deadlines
+
+22. COMMUNICATION & NOTIFICATIONS
+--------------------------------------------------------------------------------
+22.01 In-app
+22.02 Email
+22.03 SMS
+22.04 Push notifications
+22.05 Examples:
+22.06 "Your leave request was approved."
+22.07 "Your performance review is due."
+22.08 "Your certification expires in 30 days."
+22.09 "Payroll has been processed."
+
+23. REPORTING & BUSINESS INTELLIGENCE
+--------------------------------------------------------------------------------
+23.01 Employee list
+23.02 Headcount
+23.03 Turnover
+23.04 New hires
+23.05 Departures
+23.06 Absenteeism
+23.07 Late arrivals
+23.08 Leave utilization
+23.09 Leave balances
+23.10 Payroll summary
+23.11 Salary analysis
+23.12 Deduction report
+23.13 Applications
+23.14 Hiring time
+23.15 Recruitment pipeline
+23.16 Performance distribution
+23.17 Goal completion
+
+24. HR ANALYTICS
+--------------------------------------------------------------------------------
+24.01 HR ANALYTICS
+24.02 DATA
+24.03 ANALYTICS
+24.04 TRENDS
+24.05 INSIGHTS
+24.06 MANAGEMENT DECISION
+
+25. COMPLIANCE & AUDIT
+--------------------------------------------------------------------------------
+25.01 Every important action should be traceable.
+25.02 Who?
+25.03 What?
+25.04 When?
+25.05 Old Value:
+25.06 New Value:
+25.07 IP:
+25.08 Action:
+25.09 Login history
+25.10 Data changes
+25.11 Approval history
+25.12 Payroll changes
+25.13 Permission changes
+25.14 Document access
+25.15 System configuration changes
+
+26. ASSET MANAGEMENT
+--------------------------------------------------------------------------------
+26.01 Track company property assigned to employees.
+26.02 Laptop
+26.03 Serial Number
+26.04 Issue Date
+26.05 Condition
+26.06 Return Date
+26.07 Assets:
+26.08 Computers
+26.09 Phones
+26.10 Vehicles
+26.11 ID cards
+26.12 Office equipment
+26.13 Access cards
+
+27. HEALTH, SAFETY & WELLBEING
+--------------------------------------------------------------------------------
+27.01 Workplace incidents
+27.02 Safety records
+27.03 Wellness programs
+27.04 Medical/benefit administration
+27.05 Occupational health records
+27.06 Emergency contacts
+27.07 Sensitive information must have strict access controls.
+
+28. TRAVEL & BUSINESS REQUESTS
+--------------------------------------------------------------------------------
+28.01 Travel Request
+28.02 HR / Finance
+28.03 Approval
+28.04 Travel
+28.05 Expense Claim
+28.06 Travel requests
+28.07 Travel authorization
+28.08 Advances
+28.09 Accommodation
+28.10 Transport
+28.11 Travel expenses
+
+29. ADMINISTRATION
+--------------------------------------------------------------------------------
+[NO REQUIREMENT CANDIDATES EXTRACTED]
+
+30. INTEGRATIONS & APIs
+--------------------------------------------------------------------------------
+30.01 ENTERPRISE HRMS
+30.02 BANK             TAX            EMAIL
+30.03 BIOMETRIC          ERP             SSO
+30.04 Banking
+30.05 Tax systems
+30.06 Pension systems
+30.07 Email
+30.08 SMS
+30.09 Active Directory / Entra ID
+30.10 Biometric devices
+30.11 Accounting/ERP
+30.12 Microsoft 365
+30.13 External recruitment platforms
+
+31. SYSTEM OPERATIONS
+--------------------------------------------------------------------------------
+31.01 System Health
+31.02 Database
+31.03 Backups
+31.04 Logs
+31.05 Error Monitoring
+31.06 API Monitoring
+31.07 Background Jobs
+31.08 Email Queue
+31.09 Storage
+31.10 Security Monitoring

@@ -1,0 +1,63 @@
+URLS AND API ROUTES
+================================================================================
+
+[accounts\urls.py]
+--------------------------------------------------------------------------------
+9: router.register(
+17:     path("", include(router.urls)),
+18:     path(
+
+[claims\urls.py]
+--------------------------------------------------------------------------------
+6: router.register(r'', ExpenseClaimViewSet, basename='expenseclaim')
+9:     path('', include(router.urls)),
+
+[config\urls.py]
+--------------------------------------------------------------------------------
+37: router.register(
+43: router.register(
+49: router.register(
+54: router.register(
+60: router.register(
+66: router.register(
+72: router.register(
+80:     path('admin/', admin.site.urls),
+81:     path('accounts/', include('django.contrib.auth.urls')),
+84:     path('', lambda request: redirect('dashboard')),
+87:     path('dashboard/', central_dashboard_view, name='dashboard'),
+88:     path('leave-dashboard/', leave_dashboard_view, name='leave-dashboard'),
+89:     path('attendance-dashboard/', attendance_dashboard_view, name='attendance-dashboard'),
+90:     path('claims-dashboard/', claims_dashboard_view, name='claims-dashboard'),
+91:     path('employee-360/<int:user_id>/', employee_360_view, name='employee-360-ui'),
+92:     path('employees/', employee_directory_view, name='employee-directory'),
+95:     path('api/token/', SecureTokenObtainPairView.as_view(), name='token_obtain_pair'),
+96:     path('api/token/refresh/', SecureTokenRefreshView.as_view(), name='token_refresh'),
+99:     path('api/organization/', include('organization.urls')),
+100:     path('api/accounts/', include('accounts.urls')),
+101:     path('api/leave/', include('leave.urls')),
+102:     path('api/claims/', include('claims.urls')),
+103:     path('claims/', include('claims.urls')),
+104:     path('api/', include('hrms_modules.urls')),
+107:     path('api/', include(router.urls)),
+109:     path(
+
+[hrms_modules\urls.py]
+--------------------------------------------------------------------------------
+13: router.register(r'employees', EmployeeProfileViewSet, basename='employee')
+14: router.register(r'attendance', AttendanceViewSet, basename='attendance')
+15: router.register(r'claims', ExpenseClaimViewSet, basename='claim')
+16: router.register(r'leave-requests', LeaveRequestViewSet, basename='leave-request')
+19:     path('', include(router.urls)),
+20:     path('employee-360/<int:user_id>/', Employee360DetailView.as_view(), name='employee-360'),
+21:     path('portal/', employee_portal_dashboard, name='employee-portal'),
+
+[leave\urls.py]
+--------------------------------------------------------------------------------
+6: router.register(r'', LeaveRequestViewSet, basename='leave-request')
+9:     path('', include(router.urls)),
+
+[organization\urls.py]
+--------------------------------------------------------------------------------
+6: router.register(r'departments', DepartmentViewSet)
+7: router.register(r'positions', PositionViewSet)
+10:     path('', include(router.urls)),

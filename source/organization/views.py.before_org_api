@@ -1,0 +1,64 @@
+from rest_framework import permissions, viewsets
+
+from authorization.permissions import HasPermission
+
+from .models import Department, Position
+from .serializers import DepartmentSerializer, PositionSerializer
+
+
+class OrganizationPermissionMixin:
+    """
+    Apply database-driven permissions according to the API action.
+
+    Read operations require:
+        organization.view
+
+    Write operations require:
+        organization.manage
+    """
+
+    permission_classes = [HasPermission]
+
+    def get_permissions(self):
+        permission_instances = super().get_permissions()
+
+        if self.action in {"list", "retrieve"}:
+            required_permission = "organization.view"
+        else:
+            required_permission = "organization.manage"
+
+        for permission_instance in permission_instances:
+            if isinstance(permission_instance, HasPermission):
+                permission_instance.permission_code = required_permission
+
+        return permission_instances
+
+
+class DepartmentViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    """
+    Department API protected by database-driven HRMS permissions.
+
+    READ:
+        organization.view
+
+    CREATE / UPDATE / DELETE:
+        organization.manage
+    """
+
+    queryset = Department.objects.all().order_by("name")
+    serializer_class = DepartmentSerializer
+
+
+class PositionViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    """
+    Position API protected by database-driven HRMS permissions.
+
+    READ:
+        organization.view
+
+    CREATE / UPDATE / DELETE:
+        organization.manage
+    """
+
+    queryset = Position.objects.all().order_by("title")
+    serializer_class = PositionSerializer

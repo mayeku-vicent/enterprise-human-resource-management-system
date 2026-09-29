@@ -1,0 +1,35 @@
+ENTERPRISE-HRMS SYSTEM AUDIT
+================================================================================
+Generated from: C:\Users\mayek\projects\enterprise-human-resource-management-system\source
+
+This is a READ-ONLY static/code audit.
+It does not modify application source code or database data.
+
+REPORTS GENERATED:
+--------------------------------------------------------------------------------
+01_project_structure.txt
+02_apps_modules.txt
+03_models_and_relationships.txt
+04_migrations.txt
+05_serializers.txt
+06_views_and_permissions.txt
+07_urls_and_api_routes.txt
+08_security_and_authorization.txt
+09_tests.txt
+10_frontend_files.txt
+11_placeholders_and_todos.txt
+12_potential_duplicates.txt
+13_requirement_keyword_audit.txt
+14_git_status.txt
+15_django_check.txt
+16_master_requirements.txt
+17_detailed_master_requirements.txt
+FULL_AUDIT.txt
+MASTER_AUDIT_REPORT.txt
+
+IMPORTANT:
+--------------------------------------------------------------------------------
+This report is evidence for requirements analysis.
+It does not automatically declare a requirement complete.
+Each requirement must still be classified as:
+COMPLETE / PARTIAL / MISSING / DUPLICATED / BROKEN / NEEDS VERIFICATION.

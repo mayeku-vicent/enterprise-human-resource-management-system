@@ -1,17 +1,223 @@
 from rest_framework import serializers
-from .models import Department, Position
 
-class PositionSerializer(serializers.ModelSerializer):
-    department_name = serializers.ReadOnlyField(source='department.name')
+from .models import (
+    Branch,
+    Company,
+    CostCenter,
+    Department,
+    Division,
+    JobGrade,
+    JobTitle,
+    Location,
+    Position,
+    Section,
+)
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = [
+            "id",
+            "name",
+            "code",
+            "description",
+            "is_active",
+            "created_at",
+        ]
+
+
+class BranchSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source="company.name", read_only=True)
 
     class Meta:
-        model = Position
-        fields = ['id', 'title', 'department', 'department_name', 'grade', 'description']
+        model = Branch
+        fields = [
+            "id",
+            "company",
+            "company_name",
+            "name",
+            "code",
+            "description",
+            "is_active",
+            "created_at",
+        ]
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    branch_name = serializers.CharField(source="branch.name", read_only=True)
+    company_name = serializers.CharField(
+        source="branch.company.name",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Location
+        fields = [
+            "id",
+            "branch",
+            "branch_name",
+            "company_name",
+            "name",
+            "code",
+            "address",
+            "is_active",
+            "created_at",
+        ]
+
+
+class DivisionSerializer(serializers.ModelSerializer):
+    departments = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
+
+    class Meta:
+        model = Division
+        fields = [
+            "id",
+            "name",
+            "code",
+            "description",
+            "is_active",
+            "created_at",
+            "departments",
+        ]
+
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    positions = PositionSerializer(many=True, read_only=True)
-    employee_count = serializers.IntegerField(source='employees.count', read_only=True)
+    sections = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
+    division_name = serializers.CharField(
+        source="division.name",
+        read_only=True,
+    )
+    positions = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
+    employee_count = serializers.IntegerField(
+        source="employees.count",
+        read_only=True,
+    )
 
     class Meta:
         model = Department
-        fields = ['id', 'name', 'code', 'description', 'employee_count', 'positions', 'created_at']
+        fields = [
+            "id",
+            "division",
+            "division_name",
+            "name",
+            "code",
+            "description",
+            "created_at",
+            "sections",
+            "positions",
+            "employee_count",
+        ]
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    positions = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
+
+    department_name = serializers.CharField(
+        source="department.name",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Section
+        fields = [
+            "id",
+            "department",
+            "department_name",
+            "name",
+            "code",
+            "positions",
+        ]
+
+
+class JobTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobTitle
+        fields = [
+            "id",
+            "name",
+            "code",
+            "description",
+            "is_active",
+            "created_at",
+        ]
+
+
+class JobGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobGrade
+        fields = [
+            "id",
+            "name",
+            "code",
+            "description",
+            "is_active",
+            "created_at",
+        ]
+
+
+class CostCenterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CostCenter
+        fields = [
+            "id",
+            "name",
+            "code",
+            "description",
+            "is_active",
+            "created_at",
+        ]
+
+
+class PositionSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(
+        source="department.name",
+        read_only=True,
+    )
+    section_name = serializers.CharField(
+        source="section.name",
+        read_only=True,
+    )
+    job_title_name = serializers.CharField(
+        source="job_title.name",
+        read_only=True,
+    )
+    job_grade_name = serializers.CharField(
+        source="job_grade.name",
+        read_only=True,
+    )
+    cost_center_name = serializers.CharField(
+        source="cost_center.name",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Position
+        fields = [
+            "id",
+            "title",
+            "department",
+            "department_name",
+            "section",
+            "section_name",
+            "job_title",
+            "job_title_name",
+            "job_grade",
+            "job_grade_name",
+            "cost_center",
+            "cost_center_name",
+            "grade",
+            "description",
+        ]

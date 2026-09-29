@@ -1,14 +1,301 @@
-from rest_framework import viewsets
-from .models import Department, Position
-from .serializers import DepartmentSerializer, PositionSerializer
+from django.shortcuts import render
+from rest_framework import serializers, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-class DepartmentViewSet(viewsets.ModelViewSet):
-   
-    queryset = Department.objects.all().order_by('name')
+from authorization.permissions import HasPermission
+
+from .models import (
+    Branch,
+    Company,
+    CostCenter,
+    Department,
+    Division,
+    JobGrade,
+    JobTitle,
+    Location,
+    Position,
+    Section,
+)
+from .serializers import (
+    BranchSerializer,
+    CompanySerializer,
+    CostCenterSerializer,
+    DepartmentSerializer,
+    DivisionSerializer,
+    JobGradeSerializer,
+    JobTitleSerializer,
+    LocationSerializer,
+    PositionSerializer,
+    SectionSerializer,
+)
+
+
+class OrganizationPermissionMixin:
+    """
+    Apply database-driven permissions according to the API action.
+
+    Read operations require:
+        organization.view
+
+    Write operations require:
+        organization.manage
+    """
+
+    permission_classes = [HasPermission]
+
+    def get_permissions(self):
+        permission_instances = super().get_permissions()
+
+        if self.action in {"list", "retrieve"}:
+            required_permission = "organization.view"
+        else:
+            required_permission = "organization.manage"
+
+        for permission_instance in permission_instances:
+            if isinstance(permission_instance, HasPermission):
+                permission_instance.permission_code = required_permission
+
+        return permission_instances
+
+
+class CompanyViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = Company.objects.all().order_by("name")
+    serializer_class = CompanySerializer
+
+
+class BranchViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = Branch.objects.select_related("company").all().order_by(
+        "company__name",
+        "name",
+    )
+    serializer_class = BranchSerializer
+
+
+class LocationViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = Location.objects.select_related(
+        "branch",
+        "branch__company",
+    ).all().order_by(
+        "branch__company__name",
+        "branch__name",
+        "name",
+    )
+    serializer_class = LocationSerializer
+
+
+class DivisionViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = Division.objects.all().order_by("name")
+    serializer_class = DivisionSerializer
+
+
+class DepartmentViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = Department.objects.all().order_by("name")
     serializer_class = DepartmentSerializer
 
 
-class PositionViewSet(viewsets.ModelViewSet):
-  
-    queryset = Position.objects.all().order_by('title')
+class SectionViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = Section.objects.select_related("department").all().order_by(
+        "department__name",
+        "name",
+    )
+    serializer_class = SectionSerializer
+
+
+class JobTitleViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = JobTitle.objects.all().order_by("name")
+    serializer_class = JobTitleSerializer
+
+
+class JobGradeViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = JobGrade.objects.all().order_by("name")
+    serializer_class = JobGradeSerializer
+
+
+class CostCenterViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = CostCenter.objects.all().order_by("name")
+    serializer_class = CostCenterSerializer
+
+
+class PositionViewSet(OrganizationPermissionMixin, viewsets.ModelViewSet):
+    queryset = Position.objects.select_related(
+        "department",
+        "section",
+        "job_title",
+        "job_grade",
+        "cost_center",
+    ).all().order_by("title")
     serializer_class = PositionSerializer
+
+
+class OrganizationChartAPIView(APIView):
+    """
+    Read-only representation of the authoritative organization hierarchy.
+
+    Hierarchy:
+        Division -> Department -> Section -> Position
+    """
+
+    permission_classes = [HasPermission]
+
+    def get_permissions(self):
+        permission_instances = super().get_permissions()
+
+        for permission_instance in permission_instances:
+            if isinstance(permission_instance, HasPermission):
+                permission_instance.permission_code = "organization.view"
+
+        return permission_instances
+
+    def get(self, request, *args, **kwargs):
+        divisions = Division.objects.prefetch_related(
+            "departments__sections__positions"
+        ).all().order_by("name")
+
+        data = []
+
+        for division in divisions:
+            division_data = {
+                "id": division.id,
+                "name": division.name,
+                "code": division.code,
+                "departments": [],
+            }
+
+            for department in division.departments.all().order_by("name"):
+                department_data = {
+                    "id": department.id,
+                    "name": department.name,
+                    "code": department.code,
+                    "sections": [],
+                }
+
+                for section in department.sections.all().order_by("name"):
+                    section_data = {
+                        "id": section.id,
+                        "name": section.name,
+                        "code": section.code,
+                        "positions": [],
+                    }
+
+                    for position in section.positions.all().order_by("title"):
+                        section_data["positions"].append(
+                            {
+                                "id": position.id,
+                                "title": position.title,
+                                "job_title": (
+                                    position.job_title.name
+                                    if position.job_title
+                                    else None
+                                ),
+                                "job_grade": (
+                                    position.job_grade.name
+                                    if position.job_grade
+                                    else None
+                                ),
+                                "cost_center": (
+                                    position.cost_center.name
+                                    if position.cost_center
+                                    else None
+                                ),
+                            }
+                        )
+
+                    department_data["sections"].append(section_data)
+
+                division_data["departments"].append(department_data)
+
+            data.append(division_data)
+
+        unassigned_departments = Department.objects.filter(
+            division__isnull=True
+        ).prefetch_related(
+            "sections__positions"
+        ).order_by("name")
+
+        if unassigned_departments.exists():
+            unassigned_data = {
+                "id": None,
+                "name": "Unassigned Departments",
+                "code": None,
+                "departments": [],
+            }
+
+            for department in unassigned_departments:
+                department_data = {
+                    "id": department.id,
+                    "name": department.name,
+                    "code": department.code,
+                    "sections": [],
+                }
+
+                for section in department.sections.all().order_by("name"):
+                    section_data = {
+                        "id": section.id,
+                        "name": section.name,
+                        "code": section.code,
+                        "positions": [],
+                    }
+
+                    for position in section.positions.all().order_by("title"):
+                        section_data["positions"].append(
+                            {
+                                "id": position.id,
+                                "title": position.title,
+                                "job_title": (
+                                    position.job_title.name
+                                    if position.job_title
+                                    else None
+                                ),
+                                "job_grade": (
+                                    position.job_grade.name
+                                    if position.job_grade
+                                    else None
+                                ),
+                                "cost_center": (
+                                    position.cost_center.name
+                                    if position.cost_center
+                                    else None
+                                ),
+                            }
+                        )
+
+                    department_data["sections"].append(section_data)
+
+                unassigned_data["departments"].append(department_data)
+
+            data.append(unassigned_data)
+
+        permission = HasPermission()
+        permission.permission_code = "organization.view"
+
+        if not permission.has_permission(request, self):
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied(
+                "You do not have permission to view the organization chart."
+            )
+
+        return Response(
+            {
+                "hierarchy": data,
+                "count": len(data),
+            }
+        )
+
+def organization_management_view(request):
+    companies = (
+        Company.objects
+        .prefetch_related("branches__locations")
+        .filter(is_active=True)
+        .order_by("name")
+    )
+
+    return render(
+        request,
+        "organization_management.html",
+        {
+            "companies": companies,
+        },
+    )
+

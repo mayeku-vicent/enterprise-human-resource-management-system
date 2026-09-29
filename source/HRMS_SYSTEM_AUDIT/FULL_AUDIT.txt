@@ -1,0 +1,1927 @@
+ENTERPRISE-HRMS PROJECT STRUCTURE
+================================================================================
+Project root: C:\Users\mayek\projects\enterprise-human-resource-management-system\source
+
+FILE  .env
+DIR   accounts
+FILE  AI_DEVELOPMENT_RULES.md
+DIR   assets
+DIR   attendance_shifts
+DIR   authorization
+DIR   claims
+DIR   compliance
+DIR   config
+FILE  db.sqlite3
+FILE  db.sqlite3.backup
+DIR   documents
+DIR   employee_docs
+DIR   hrms_modules
+FILE  INITIAL_ARCHITECTURE_AUDIT.md
+DIR   leave
+FILE  manage.py
+DIR   media
+DIR   organization
+DIR   payroll
+DIR   performance
+FILE  Procfile
+FILE  project_audit.py
+FILE  PROJECT_PROGRESS.md
+FILE  PROJECT_REQUIREMENTS.md
+DIR   recruitment
+FILE  requirements.txt
+DIR   templates
+FILE  test_employee_document.txt
+DIR   training
+
+DJANGO / PYTHON FILES
+--------------------------------------------------------------------------------
+accounts\__init__.py
+accounts\admin.py
+accounts\apps.py
+accounts\migrations\0001_initial.py
+accounts\migrations\0002_alter_employeeprofile_department_and_more.py
+accounts\migrations\0003_employeeprofile_job_title.py
+accounts\migrations\0004_migrate_employee_profiles.py
+accounts\migrations\0005_employeeprofile_employment_status_and_more.py
+accounts\migrations\0006_employmenthistory.py
+accounts\migrations\0007_emergencycontact_employeecontact.py
+accounts\migrations\0008_user_token_version.py
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py
+accounts\migrations\__init__.py
+accounts\models.py
+accounts\serializers.py
+accounts\tests.py
+accounts\urls.py
+accounts\views.py
+assets\__init__.py
+assets\admin.py
+assets\apps.py
+assets\migrations\0001_initial.py
+assets\migrations\__init__.py
+assets\models.py
+assets\serializers.py
+assets\tests.py
+assets\views.py
+attendance_shifts\__init__.py
+attendance_shifts\admin.py
+attendance_shifts\apps.py
+attendance_shifts\migrations\0001_initial.py
+attendance_shifts\migrations\__init__.py
+attendance_shifts\models.py
+attendance_shifts\serializers.py
+attendance_shifts\tests.py
+attendance_shifts\views.py
+authorization\__init__.py
+authorization\admin.py
+authorization\apps.py
+authorization\migrations\0001_initial.py
+authorization\migrations\__init__.py
+authorization\models.py
+authorization\permissions.py
+authorization\services.py
+authorization\tests.py
+authorization\views.py
+claims\__init__.py
+claims\admin.py
+claims\apps.py
+claims\migrations\0001_initial.py
+claims\migrations\0002_remove_expenseclaim_approved_by_and_more.py
+claims\migrations\0003_alter_expenseclaim_employee_and_more.py
+claims\migrations\__init__.py
+claims\models.py
+claims\serializers.py
+claims\tests.py
+claims\urls.py
+claims\views.py
+compliance\__init__.py
+compliance\admin.py
+compliance\apps.py
+compliance\management\__init__.py
+compliance\management\commands\__init__.py
+compliance\management\commands\audit_expired_sessions.py
+compliance\management\commands\cleanup_expired_sessions.py
+compliance\migrations\0001_initial.py
+compliance\migrations\__init__.py
+compliance\models.py
+compliance\tests.py
+compliance\views.py
+config\__init__.py
+config\asgi.py
+config\authentication.py
+config\jwt_authentication.py
+config\security.py
+config\settings.py
+config\urls.py
+config\views.py
+config\wsgi.py
+documents\__init__.py
+documents\admin.py
+documents\apps.py
+documents\migrations\0001_initial.py
+documents\migrations\__init__.py
+documents\models.py
+documents\tests.py
+documents\views.py
+hrms_modules\__init__.py
+hrms_modules\admin.py
+hrms_modules\apps.py
+hrms_modules\dashboard_views.py
+hrms_modules\migrations\0001_initial.py
+hrms_modules\migrations\0002_remove_expenseclaim_title_employeeprofile_position_and_more.py
+hrms_modules\migrations\0003_delete_employeeprofile.py
+hrms_modules\migrations\__init__.py
+hrms_modules\models.py
+hrms_modules\serializers.py
+hrms_modules\tests.py
+hrms_modules\urls.py
+hrms_modules\views.py
+leave\__init__.py
+leave\admin.py
+leave\apps.py
+leave\migrations\0001_initial.py
+leave\migrations\0002_remove_leaverequest_approved_by_and_more.py
+leave\migrations\__init__.py
+leave\models.py
+leave\serializers.py
+leave\tests.py
+leave\urls.py
+leave\views.py
+manage.py
+organization\__init__.py
+organization\admin.py
+organization\apps.py
+organization\migrations\0001_initial.py
+organization\migrations\__init__.py
+organization\models.py
+organization\serializers.py
+organization\tests.py
+organization\urls.py
+organization\views.py
+payroll\__init__.py
+payroll\admin.py
+payroll\apps.py
+payroll\migrations\0001_initial.py
+payroll\migrations\__init__.py
+payroll\models.py
+payroll\tests.py
+payroll\views.py
+performance\__init__.py
+performance\admin.py
+performance\apps.py
+performance\migrations\0001_initial.py
+performance\migrations\__init__.py
+performance\models.py
+performance\serializers.py
+performance\tests.py
+performance\views.py
+project_audit.py
+recruitment\__init__.py
+recruitment\admin.py
+recruitment\apps.py
+recruitment\migrations\0001_initial.py
+recruitment\migrations\__init__.py
+recruitment\models.py
+recruitment\tests.py
+recruitment\views.py
+training\__init__.py
+training\admin.py
+training\apps.py
+training\migrations\0001_initial.py
+training\migrations\__init__.py
+training\models.py
+training\serializers.py
+training\tests.py
+training\views.py
+DJANGO APPS / MODULES
+================================================================================
+
+accounts
+assets
+attendance_shifts
+authorization
+claims
+compliance
+documents
+hrms_modules
+leave
+organization
+payroll
+performance
+recruitment
+training
+MODELS AND MODEL DEFINITIONS
+================================================================================
+
+[accounts\models.py]
+--------------------------------------------------------------------------------
+6: class User(AbstractUser):
+8:     class Role(models.TextChoices):
+12:     token_version = models.PositiveIntegerField(
+17:     failed_login_attempts = models.PositiveIntegerField(
+22:     locked_until = models.DateTimeField(
+27:     role = models.CharField(
+34:     is_active = models.BooleanField(default=True)
+40: class EmployeeProfile(models.Model):
+42:     class EmploymentType(models.TextChoices):
+49:     class EmploymentStatus(models.TextChoices):
+59:     user = models.OneToOneField(
+61:         on_delete=models.CASCADE,
+65:     employee_id = models.CharField(
+71:     photo = models.ImageField(
+77:     job_title = models.CharField(
+83:     phone_number = models.CharField(
+89:     date_of_joining = models.DateField(
+94:     employment_type = models.CharField(
+100:     employment_status = models.CharField(
+106:     department = models.ForeignKey(
+108:         on_delete=models.SET_NULL,
+114:     position = models.ForeignKey(
+116:         on_delete=models.SET_NULL,
+122:     manager = models.ForeignKey(
+124:         on_delete=models.SET_NULL,
+130:     location = models.CharField(
+136:     emergency_contact = models.CharField(
+150: class EmploymentHistory(models.Model):
+152:     employee = models.ForeignKey(
+154:         on_delete=models.CASCADE,
+158:     employment_type = models.CharField(
+163:     employment_status = models.CharField(
+168:     job_title = models.CharField(
+174:     department = models.ForeignKey(
+176:         on_delete=models.SET_NULL,
+182:     position = models.ForeignKey(
+184:         on_delete=models.SET_NULL,
+190:     start_date = models.DateField()
+192:     end_date = models.DateField(
+197:     reason = models.CharField(
+203:     notes = models.TextField(
+208:     created_at = models.DateTimeField(
+212:     class Meta:
+221: class EmployeeContact(models.Model):
+223:     class ContactType(models.TextChoices):
+228:     employee = models.ForeignKey(
+230:         on_delete=models.CASCADE,
+234:     contact_type = models.CharField(
+240:     phone_number = models.CharField(
+246:     alternate_phone = models.CharField(
+252:     email = models.EmailField(
+257:     address = models.TextField(
+262:     is_primary = models.BooleanField(
+266:     created_at = models.DateTimeField(
+270:     class Meta:
+281: class EmergencyContact(models.Model):
+283:     employee = models.ForeignKey(
+285:         on_delete=models.CASCADE,
+289:     full_name = models.CharField(
+293:     relationship = models.CharField(
+297:     phone_number = models.CharField(
+301:     alternate_phone = models.CharField(
+307:     email = models.EmailField(
+312:     address = models.TextField(
+317:     is_primary = models.BooleanField(
+321:     created_at = models.DateTimeField(
+325:     class Meta:
+
+[assets\models.py]
+--------------------------------------------------------------------------------
+6: class CompanyAsset(models.Model):
+7:     class AssetCategory(models.TextChoices):
+14:     name = models.CharField(max_length=150)
+15:     category = models.CharField(max_length=50, choices=AssetCategory.choices, default=AssetCategory.LAPTOP)
+16:     serial_number = models.CharField(max_length=100, unique=True)
+17:     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_assets')
+18:     issue_date = models.DateField(null=True, blank=True)
+19:     return_date = models.DateField(null=True, blank=True)
+20:     condition = models.CharField(max_length=100, default='New / Good')
+
+[attendance_shifts\models.py]
+--------------------------------------------------------------------------------
+6: class WorkShift(models.Model):
+7:     name = models.CharField(max_length=100) # e.g. "Morning Shift (8AM - 5PM)"
+8:     start_time = models.TimeField()
+9:     end_time = models.TimeField()
+10:     grace_period_minutes = models.PositiveIntegerField(default=15)
+15: class EmployeeShiftAssignment(models.Model):
+16:     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shift_assignments')
+17:     shift = models.ForeignKey(WorkShift, on_delete=models.CASCADE)
+18:     assigned_date = models.DateField()
+
+[authorization\models.py]
+--------------------------------------------------------------------------------
+5: class Permission(models.Model):
+10:     code = models.CharField(
+15:     name = models.CharField(
+19:     description = models.TextField(
+23:     module = models.CharField(
+28:     is_active = models.BooleanField(default=True)
+30:     class Meta:
+37: class Role(models.Model):
+42:     code = models.CharField(
+47:     name = models.CharField(
+51:     description = models.TextField(blank=True)
+53:     is_system_role = models.BooleanField(
+57:     is_active = models.BooleanField(default=True)
+59:     permissions = models.ManyToManyField(
+66:     created_at = models.DateTimeField(auto_now_add=True)
+67:     updated_at = models.DateTimeField(auto_now=True)
+69:     class Meta:
+76: class RolePermission(models.Model):
+81:     role = models.ForeignKey(
+83:         on_delete=models.CASCADE,
+86:     permission = models.ForeignKey(
+88:         on_delete=models.CASCADE,
+91:     granted_at = models.DateTimeField(auto_now_add=True)
+93:     class Meta:
+95:             models.UniqueConstraint(
+105: class UserRole(models.Model):
+113:     user = models.ForeignKey(
+115:         on_delete=models.CASCADE,
+118:     role = models.ForeignKey(
+120:         on_delete=models.CASCADE,
+123:     assigned_at = models.DateTimeField(auto_now_add=True)
+124:     is_active = models.BooleanField(default=True)
+126:     class Meta:
+128:             models.UniqueConstraint(
+
+[claims\models.py]
+--------------------------------------------------------------------------------
+4: class ClaimType(models.TextChoices):
+9: class ExpenseClaim(models.Model):
+10:     class Status(models.TextChoices):
+15:     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+16:     claim_type = models.CharField(max_length=20, choices=ClaimType.choices, default=ClaimType.OTHER)
+17:     amount = models.DecimalField(max_digits=12, decimal_places=2)
+18:     description = models.TextField()
+19:     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+20:     created_at = models.DateTimeField(auto_now_add=True)
+
+[compliance\models.py]
+--------------------------------------------------------------------------------
+6: class AuditLog(models.Model):
+7:     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='audit_logs')
+8:     action = models.CharField(max_length=255) # e.g. "APPROVED_LEAVE", "UPDATED_SALARY"
+9:     ip_address = models.GenericIPAddressField(null=True, blank=True)
+10:     description = models.TextField()
+11:     timestamp = models.DateTimeField(auto_now_add=True)
+
+[documents\models.py]
+--------------------------------------------------------------------------------
+6: class EmployeeDocument(models.Model):
+7:     class DocumentCategory(models.TextChoices):
+14:     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='documents')
+15:     title = models.CharField(max_length=200)
+16:     category = models.CharField(max_length=50, choices=DocumentCategory.choices, default=DocumentCategory.OTHER)
+17:     file = models.FileField(upload_to='employee_docs/')
+18:     uploaded_at = models.DateTimeField(auto_now_add=True)
+19:     expiration_date = models.DateField(null=True, blank=True)
+
+[hrms_modules\models.py]
+--------------------------------------------------------------------------------
+5: class Attendance(models.Model):
+6:     class Status(models.TextChoices):
+11:     employee = models.ForeignKey(
+13:         on_delete=models.CASCADE,
+16:     date = models.DateField(auto_now_add=True)
+17:     check_in_time = models.TimeField(auto_now_add=True)
+18:     check_out_time = models.TimeField(null=True, blank=True)
+19:     status = models.CharField(
+25:     class Meta:
+33: class ExpenseClaim(models.Model):
+34:     class Status(models.TextChoices):
+40:     employee = models.ForeignKey(
+42:         on_delete=models.CASCADE,
+45:     claim_type = models.CharField(max_length=150, default="General Expense")
+46:     amount = models.DecimalField(max_digits=10, decimal_places=2)
+47:     description = models.TextField()
+48:     status = models.CharField(
+53:     created_at = models.DateTimeField(auto_now_add=True)
+
+[leave\models.py]
+--------------------------------------------------------------------------------
+4: class LeaveType(models.TextChoices):
+11: class LeaveRequest(models.Model):
+12:     class Status(models.TextChoices):
+17:     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+18:     leave_type = models.CharField(max_length=20, choices=LeaveType.choices, default=LeaveType.ANNUAL)
+19:     start_date = models.DateField()
+20:     end_date = models.DateField()
+21:     reason = models.TextField()
+22:     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+23:     created_at = models.DateTimeField(auto_now_add=True)
+
+[organization\models.py]
+--------------------------------------------------------------------------------
+3: class Department(models.Model):
+5:     name = models.CharField(max_length=100, unique=True)
+6:     code = models.CharField(max_length=20, unique=True, help_text="Short code e.g. ENG, HR")
+7:     description = models.TextField(blank=True, null=True)
+8:     created_at = models.DateTimeField(auto_now_add=True)
+14: class Position(models.Model):
+18:     title = models.CharField(max_length=100)
+19:     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='positions')
+20:     grade = models.CharField(max_length=50, blank=True, null=True, help_text="Job grade level e.g. L1, L2, Executive")
+21:     description = models.TextField(blank=True, null=True)
+
+[payroll\models.py]
+--------------------------------------------------------------------------------
+6: class EmployeeSalary(models.Model):
+7:     employee = models.OneToOneField(User, on_delete=models.CASCADE, related_name='salary_profile')
+8:     basic_salary = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+9:     allowances = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+10:     deductions = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+11:     updated_at = models.DateTimeField(auto_now=True)
+16: class Payslip(models.Model):
+17:     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payslips')
+18:     pay_period = models.CharField(max_length=50) # e.g., "September 2026"
+19:     net_pay = models.DecimalField(max_digits=12, decimal_places=2)
+20:     is_paid = models.BooleanField(default=False)
+21:     generated_at = models.DateTimeField(auto_now_add=True)
+
+[performance\models.py]
+--------------------------------------------------------------------------------
+6: class PerformanceGoal(models.Model):
+7:     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='goals')
+8:     title = models.CharField(max_length=200)
+9:     description = models.TextField()
+10:     target_date = models.DateField()
+11:     is_completed = models.BooleanField(default=False)
+12:     created_at = models.DateTimeField(auto_now_add=True)
+17: class Appraisal(models.Model):
+18:     class RatingChoices(models.TextChoices):
+25:     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appraisals')
+26:     reviewer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='conducted_appraisals')
+27:     review_period = models.CharField(max_length=50) # e.g. "Q2 2026 Review"
+28:     rating = models.CharField(max_length=50, choices=RatingChoices.choices, default=RatingChoices.SATISFACTORY)
+29:     comments = models.TextField()
+30:     reviewed_at = models.DateTimeField(auto_now_add=True)
+
+[recruitment\models.py]
+--------------------------------------------------------------------------------
+6: class JobVacancy(models.Model):
+7:     title = models.CharField(max_length=200)
+8:     department_name = models.CharField(max_length=100)
+9:     description = models.TextField()
+10:     is_active = models.BooleanField(default=True)
+11:     created_at = models.DateTimeField(auto_now_add=True)
+16: class Applicant(models.Model):
+17:     vacancy = models.ForeignKey(JobVacancy, on_delete=models.CASCADE, related_name='applicants')
+18:     full_name = models.CharField(max_length=150)
+19:     email = models.EmailField()
+20:     status = models.CharField(max_length=50, default='APPLIED') # APPLIED, SHORTLISTED, HIRED
+21:     applied_at = models.DateTimeField(auto_now_add=True)
+
+[training\models.py]
+--------------------------------------------------------------------------------
+6: class TrainingCourse(models.Model):
+7:     title = models.CharField(max_length=200)
+8:     provider = models.CharField(max_length=150) # e.g. "Coursera", "Internal HR"
+9:     description = models.TextField()
+10:     duration_hours = models.PositiveIntegerField(default=1)
+11:     is_active = models.BooleanField(default=True)
+16: class EmployeeCertification(models.Model):
+17:     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certifications')
+18:     certification_name = models.CharField(max_length=200)
+19:     issuing_organization = models.CharField(max_length=150)
+20:     issue_date = models.DateField()
+21:     expiry_date = models.DateField(null=True, blank=True)
+22:     credential_id = models.CharField(max_length=100, blank=True, null=True)
+MIGRATIONS
+================================================================================
+
+[accounts\migrations]
+--------------------------------------------------------------------------------
+accounts\migrations\0001_initial.py
+accounts\migrations\0002_alter_employeeprofile_department_and_more.py
+accounts\migrations\0003_employeeprofile_job_title.py
+accounts\migrations\0004_migrate_employee_profiles.py
+accounts\migrations\0005_employeeprofile_employment_status_and_more.py
+accounts\migrations\0006_employmenthistory.py
+accounts\migrations\0007_emergencycontact_employeecontact.py
+accounts\migrations\0008_user_token_version.py
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py
+accounts\migrations\__init__.py
+
+[assets\migrations]
+--------------------------------------------------------------------------------
+assets\migrations\0001_initial.py
+assets\migrations\__init__.py
+
+[attendance_shifts\migrations]
+--------------------------------------------------------------------------------
+attendance_shifts\migrations\0001_initial.py
+attendance_shifts\migrations\__init__.py
+
+[authorization\migrations]
+--------------------------------------------------------------------------------
+authorization\migrations\0001_initial.py
+authorization\migrations\__init__.py
+
+[claims\migrations]
+--------------------------------------------------------------------------------
+claims\migrations\0001_initial.py
+claims\migrations\0002_remove_expenseclaim_approved_by_and_more.py
+claims\migrations\0003_alter_expenseclaim_employee_and_more.py
+claims\migrations\__init__.py
+
+[compliance\migrations]
+--------------------------------------------------------------------------------
+compliance\migrations\0001_initial.py
+compliance\migrations\__init__.py
+
+[documents\migrations]
+--------------------------------------------------------------------------------
+documents\migrations\0001_initial.py
+documents\migrations\__init__.py
+
+[hrms_modules\migrations]
+--------------------------------------------------------------------------------
+hrms_modules\migrations\0001_initial.py
+hrms_modules\migrations\0002_remove_expenseclaim_title_employeeprofile_position_and_more.py
+hrms_modules\migrations\0003_delete_employeeprofile.py
+hrms_modules\migrations\__init__.py
+
+[leave\migrations]
+--------------------------------------------------------------------------------
+leave\migrations\0001_initial.py
+leave\migrations\0002_remove_leaverequest_approved_by_and_more.py
+leave\migrations\__init__.py
+
+[organization\migrations]
+--------------------------------------------------------------------------------
+organization\migrations\0001_initial.py
+organization\migrations\__init__.py
+
+[payroll\migrations]
+--------------------------------------------------------------------------------
+payroll\migrations\0001_initial.py
+payroll\migrations\__init__.py
+
+[performance\migrations]
+--------------------------------------------------------------------------------
+performance\migrations\0001_initial.py
+performance\migrations\__init__.py
+
+[recruitment\migrations]
+--------------------------------------------------------------------------------
+recruitment\migrations\0001_initial.py
+recruitment\migrations\__init__.py
+
+[training\migrations]
+--------------------------------------------------------------------------------
+training\migrations\0001_initial.py
+training\migrations\__init__.py
+SERIALIZERS
+================================================================================
+
+[accounts\serializers.py]
+--------------------------------------------------------------------------------
+6: class EmployeeProfileSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = [
+28:         read_only_fields = [
+37: class UserSerializer(serializers.ModelSerializer):
+40:     class Meta:
+42:         fields = [
+52:         read_only_fields = [
+59:     def create(self, validated_data):
+70:             EmployeeProfile.objects.create(
+76:             EmployeeProfile.objects.create(
+83:     def update(self, instance, validated_data):
+
+[assets\serializers.py]
+--------------------------------------------------------------------------------
+4: class CompanyAssetSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+
+[attendance_shifts\serializers.py]
+--------------------------------------------------------------------------------
+4: class WorkShiftSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+9: class EmployeeShiftAssignmentSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = '__all__'
+
+[claims\serializers.py]
+--------------------------------------------------------------------------------
+4: class ExpenseClaimSerializer(serializers.ModelSerializer):
+7:     class Meta:
+9:         fields = [
+19:         read_only_fields = ['id', 'employee', 'status', 'created_at']
+
+[hrms_modules\serializers.py]
+--------------------------------------------------------------------------------
+13: class UserSerializer(serializers.ModelSerializer):
+14:     class Meta:
+16:         fields = ['id', 'username', 'first_name', 'last_name', 'email']
+19: class ManagerSummarySerializer(serializers.ModelSerializer):
+22:     class Meta:
+24:         fields = ['id', 'employee_id', 'full_name', 'job_title']
+30: class EmployeeProfileSerializer(serializers.ModelSerializer):
+37:     class Meta:
+39:         fields = [
+60: class AttendanceSerializer(serializers.ModelSerializer):
+63:     class Meta:
+65:         fields = [
+74:         read_only_fields = ['id', 'employee', 'date', 'check_in_time']
+77: class ExpenseClaimSerializer(serializers.ModelSerializer):
+80:     class Meta:
+82:         fields = [
+92:         read_only_fields = ['id', 'employee', 'status', 'created_at']
+94:     def create(self, validated_data):
+98:         return super().create(validated_data)
+99: class EmployeeSalarySerializer(serializers.ModelSerializer):
+104:     class Meta:
+106:         fields = [
+117: class PayslipSerializer(serializers.ModelSerializer):
+122:     class Meta:
+124:         fields = [
+135: class EmployeeDocumentSerializer(serializers.ModelSerializer):
+142:     class Meta:
+144:         fields = [
+165: class AuditLogSerializer(serializers.ModelSerializer):
+170:     class Meta:
+172:         fields = [
+
+[leave\serializers.py]
+--------------------------------------------------------------------------------
+4: class LeaveRequestSerializer(serializers.ModelSerializer):
+7:     class Meta:
+9:         fields = [
+13:         read_only_fields = ['id', 'employee', 'status', 'created_at']
+15:     def create(self, validated_data):
+19:         return super().create(validated_data)
+
+[organization\serializers.py]
+--------------------------------------------------------------------------------
+4: class PositionSerializer(serializers.ModelSerializer):
+7:     class Meta:
+9:         fields = ['id', 'title', 'department', 'department_name', 'grade', 'description']
+11: class DepartmentSerializer(serializers.ModelSerializer):
+15:     class Meta:
+17:         fields = ['id', 'name', 'code', 'description', 'employee_count', 'positions', 'created_at']
+
+[performance\serializers.py]
+--------------------------------------------------------------------------------
+4: class PerformanceGoalSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+9: class AppraisalSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = '__all__'
+
+[training\serializers.py]
+--------------------------------------------------------------------------------
+4: class TrainingCourseSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+9: class EmployeeCertificationSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = '__all__'
+VIEWS / VIEWSETS
+================================================================================
+
+[accounts\views.py]
+--------------------------------------------------------------------------------
+20: class UserViewSet(viewsets.ModelViewSet):
+57:     permission_classes = [permissions.IsAuthenticated]
+59:     def get_queryset(self):
+75:     def create(self, request, *args, **kwargs):
+89:     def update(self, request, *args, **kwargs):
+103:     def partial_update(self, request, *args, **kwargs):
+117:     def destroy(self, request, *args, **kwargs):
+136:     def set_active(self, request, pk=None):
+274:     def revoke_sessions(self, request, pk=None):
+366:     def sessions(self, request, pk=None):
+448:     def revoke_session(self, request, pk=None, jti=None):
+534: class PasswordChangeView(APIView):
+546:     permission_classes = [permissions.IsAuthenticated]
+548:     def post(self, request):
+
+[assets\views.py]
+--------------------------------------------------------------------------------
+11: class CompanyAssetViewSet(viewsets.ModelViewSet):
+25:     permission_classes = [permissions.IsAuthenticated]
+27:     def get_queryset(self):
+45:     def create(self, request, *args, **kwargs):
+59:     def update(self, request, *args, **kwargs):
+73:     def partial_update(self, request, *args, **kwargs):
+87:     def destroy(self, request, *args, **kwargs):
+
+[attendance_shifts\views.py]
+--------------------------------------------------------------------------------
+15: class WorkShiftViewSet(viewsets.ModelViewSet):
+31:     permission_classes = [permissions.IsAuthenticated]
+33:     def get_queryset(self):
+41:     def create(self, request, *args, **kwargs):
+55:     def update(self, request, *args, **kwargs):
+69:     def partial_update(self, request, *args, **kwargs):
+83:     def destroy(self, request, *args, **kwargs):
+98: class EmployeeShiftAssignmentViewSet(viewsets.ModelViewSet):
+116:     permission_classes = [permissions.IsAuthenticated]
+118:     def get_queryset(self):
+138:     def create(self, request, *args, **kwargs):
+210:     def update(self, request, *args, **kwargs):
+253:     def partial_update(self, request, *args, **kwargs):
+298:     def destroy(self, request, *args, **kwargs):
+
+[authorization\views.py]
+--------------------------------------------------------------------------------
+
+[claims\views.py]
+--------------------------------------------------------------------------------
+8: def dashboard_view(request):
+11: class ExpenseClaimViewSet(viewsets.ModelViewSet):
+14:     permission_classes = [permissions.AllowAny]
+17:     def perform_create(self, serializer):
+24:     def approve(self, request, pk=None):
+31:     def reject(self, request, pk=None):
+
+[compliance\views.py]
+--------------------------------------------------------------------------------
+
+[config\views.py]
+--------------------------------------------------------------------------------
+1: from rest_framework.decorators import api_view, permission_classes
+7: @permission_classes([AllowAny])
+8: def api_root(request, format=None):
+
+[documents\views.py]
+--------------------------------------------------------------------------------
+
+[hrms_modules\views.py]
+--------------------------------------------------------------------------------
+67: class EmployeeProfileViewSet(viewsets.ModelViewSet):
+83:     permission_classes = [permissions.IsAuthenticated]
+85:     def get_queryset(self):
+118:     def create(self, request, *args, **kwargs):
+132:     def update(self, request, *args, **kwargs):
+151:     def partial_update(self, request, *args, **kwargs):
+155:     def destroy(self, request, *args, **kwargs):
+173: class AttendanceViewSet(viewsets.ModelViewSet):
+176:     permission_classes = [permissions.IsAuthenticated]
+178:     def get_queryset(self):
+193:     def perform_create(self, serializer):
+196:     def update(self, request, *args, **kwargs):
+223:     def partial_update(self, request, *args, **kwargs):
+227:     def destroy(self, request, *args, **kwargs):
+243: class ExpenseClaimViewSet(viewsets.ModelViewSet):
+246:     permission_classes = [permissions.IsAuthenticated]
+248:     def get_queryset(self):
+263:     def perform_create(self, serializer):
+266:     def update(self, request, *args, **kwargs):
+299:     def partial_update(self, request, *args, **kwargs):
+303:     def destroy(self, request, *args, **kwargs):
+324:     def approve(self, request, pk=None):
+354:     def mark_paid(self, request, pk=None):
+375: class LeaveRequestViewSet(viewsets.ModelViewSet):
+378:     permission_classes = [permissions.IsAuthenticated]
+380:     def get_queryset(self):
+406:     def perform_create(self, serializer):
+415:     def update(self, request, *args, **kwargs):
+481:     def partial_update(self, request, *args, **kwargs):
+489:     def destroy(self, request, *args, **kwargs):
+527:     def approve(self, request, pk=None):
+598:     def reject(self, request, pk=None):
+668: class PayrollViewSet(viewsets.ModelViewSet):
+680:     permission_classes = [permissions.IsAuthenticated]
+682:     def get_queryset(self):
+710:     def create(self, request, *args, **kwargs):
+728:     def update(self, request, *args, **kwargs):
+746:     def partial_update(self, request, *args, **kwargs):
+754:     def destroy(self, request, *args, **kwargs):
+772: class Employee360DetailView(APIView):
+773:     permission_classes = [permissions.IsAuthenticated]
+775:     def get(self, request, user_id):
+1151: def secure_employee_document_view(request, document_id):
+1266: def employee_portal_dashboard(request):
+1295: def attendance_dashboard_view(request):
+1303: def claims_dashboard_view(request):
+1311: def employee_directory_view(request):
+1317: def employee_360_view(request, user_id):
+
+[leave\views.py]
+--------------------------------------------------------------------------------
+8: class LeaveRequestViewSet(viewsets.ModelViewSet):
+11:     permission_classes = [permissions.AllowAny]
+13:     def perform_create(self, serializer):
+20:     def approve(self, request, pk=None):
+27:     def reject(self, request, pk=None):
+33: def leave_dashboard_view(request):
+
+[organization\views.py]
+--------------------------------------------------------------------------------
+8: class DepartmentViewSet(viewsets.ModelViewSet):
+25:     permission_classes = [permissions.IsAuthenticated]
+27:     def create(self, request, *args, **kwargs):
+41:     def update(self, request, *args, **kwargs):
+55:     def partial_update(self, request, *args, **kwargs):
+69:     def destroy(self, request, *args, **kwargs):
+84: class PositionViewSet(viewsets.ModelViewSet):
+101:     permission_classes = [permissions.IsAuthenticated]
+103:     def create(self, request, *args, **kwargs):
+117:     def update(self, request, *args, **kwargs):
+131:     def partial_update(self, request, *args, **kwargs):
+145:     def destroy(self, request, *args, **kwargs):
+
+[payroll\views.py]
+--------------------------------------------------------------------------------
+
+[performance\views.py]
+--------------------------------------------------------------------------------
+12: class PerformanceGoalViewSet(viewsets.ModelViewSet):
+30:     permission_classes = [permissions.IsAuthenticated]
+32:     def get_queryset(self):
+56:     def create(self, request, *args, **kwargs):
+139:     def update(self, request, *args, **kwargs):
+205:     def partial_update(self, request, *args, **kwargs):
+263:     def destroy(self, request, *args, **kwargs):
+303: class AppraisalViewSet(viewsets.ModelViewSet):
+322:     permission_classes = [permissions.IsAuthenticated]
+324:     def get_queryset(self):
+348:     def create(self, request, *args, **kwargs):
+416:     def update(self, request, *args, **kwargs):
+462:     def partial_update(self, request, *args, **kwargs):
+509:     def destroy(self, request, *args, **kwargs):
+
+[recruitment\views.py]
+--------------------------------------------------------------------------------
+
+[training\views.py]
+--------------------------------------------------------------------------------
+10: class TrainingCourseViewSet(viewsets.ModelViewSet):
+26:     permission_classes = [permissions.IsAuthenticated]
+28:     def get_queryset(self):
+38:     def create(self, request, *args, **kwargs):
+52:     def update(self, request, *args, **kwargs):
+66:     def partial_update(self, request, *args, **kwargs):
+80:     def destroy(self, request, *args, **kwargs):
+93: class EmployeeCertificationViewSet(viewsets.ModelViewSet):
+112:     permission_classes = [permissions.IsAuthenticated]
+114:     def get_queryset(self):
+138:     def create(self, request, *args, **kwargs):
+210:     def update(self, request, *args, **kwargs):
+253:     def partial_update(self, request, *args, **kwargs):
+298:     def destroy(self, request, *args, **kwargs):
+URLS AND API ROUTES
+================================================================================
+
+[accounts\urls.py]
+--------------------------------------------------------------------------------
+9: router.register(
+17:     path("", include(router.urls)),
+18:     path(
+
+[claims\urls.py]
+--------------------------------------------------------------------------------
+6: router.register(r'', ExpenseClaimViewSet, basename='expenseclaim')
+9:     path('', include(router.urls)),
+
+[config\urls.py]
+--------------------------------------------------------------------------------
+37: router.register(
+43: router.register(
+49: router.register(
+54: router.register(
+60: router.register(
+66: router.register(
+72: router.register(
+80:     path('admin/', admin.site.urls),
+81:     path('accounts/', include('django.contrib.auth.urls')),
+84:     path('', lambda request: redirect('dashboard')),
+87:     path('dashboard/', central_dashboard_view, name='dashboard'),
+88:     path('leave-dashboard/', leave_dashboard_view, name='leave-dashboard'),
+89:     path('attendance-dashboard/', attendance_dashboard_view, name='attendance-dashboard'),
+90:     path('claims-dashboard/', claims_dashboard_view, name='claims-dashboard'),
+91:     path('employee-360/<int:user_id>/', employee_360_view, name='employee-360-ui'),
+92:     path('employees/', employee_directory_view, name='employee-directory'),
+95:     path('api/token/', SecureTokenObtainPairView.as_view(), name='token_obtain_pair'),
+96:     path('api/token/refresh/', SecureTokenRefreshView.as_view(), name='token_refresh'),
+99:     path('api/organization/', include('organization.urls')),
+100:     path('api/accounts/', include('accounts.urls')),
+101:     path('api/leave/', include('leave.urls')),
+102:     path('api/claims/', include('claims.urls')),
+103:     path('claims/', include('claims.urls')),
+104:     path('api/', include('hrms_modules.urls')),
+107:     path('api/', include(router.urls)),
+109:     path(
+
+[hrms_modules\urls.py]
+--------------------------------------------------------------------------------
+13: router.register(r'employees', EmployeeProfileViewSet, basename='employee')
+14: router.register(r'attendance', AttendanceViewSet, basename='attendance')
+15: router.register(r'claims', ExpenseClaimViewSet, basename='claim')
+16: router.register(r'leave-requests', LeaveRequestViewSet, basename='leave-request')
+19:     path('', include(router.urls)),
+20:     path('employee-360/<int:user_id>/', Employee360DetailView.as_view(), name='employee-360'),
+21:     path('portal/', employee_portal_dashboard, name='employee-portal'),
+
+[leave\urls.py]
+--------------------------------------------------------------------------------
+6: router.register(r'', LeaveRequestViewSet, basename='leave-request')
+9:     path('', include(router.urls)),
+
+[organization\urls.py]
+--------------------------------------------------------------------------------
+6: router.register(r'departments', DepartmentViewSet)
+7: router.register(r'positions', PositionViewSet)
+10:     path('', include(router.urls)),
+AUTHORIZATION / SECURITY AUDIT
+================================================================================
+
+PATTERN: user\.role\s*==
+--------------------------------------------------------------------------------
+accounts\views.py:62: if user.role == "ADMIN":
+accounts\views.py:65: if user.role == "MANAGER":
+assets\views.py:30: if user.role == "ADMIN":
+assets\views.py:33: if user.role == "MANAGER":
+attendance_shifts\views.py:36: if user.role == "ADMIN":
+attendance_shifts\views.py:121: if user.role == "ADMIN":
+attendance_shifts\views.py:126: if user.role == "MANAGER":
+attendance_shifts\views.py:174: if user.role == "ADMIN":
+attendance_shifts\views.py:177: elif user.role == "MANAGER":
+attendance_shifts\views.py:214: if user.role == "ADMIN":
+attendance_shifts\views.py:227: if user.role == "MANAGER":
+attendance_shifts\views.py:257: if user.role == "ADMIN":
+attendance_shifts\views.py:271: if user.role == "MANAGER":
+attendance_shifts\views.py:302: if user.role == "ADMIN":
+attendance_shifts\views.py:308: if user.role == "MANAGER":
+authorization\services.py:16: and user.role == "ADMIN"
+authorization\services.py:24: and user.role == "MANAGER"
+authorization\services.py:32: and user.role == "EMPLOYEE"
+hrms_modules\views.py:91: if user.role == "ADMIN":
+hrms_modules\views.py:100: if user.role == "MANAGER":
+hrms_modules\views.py:135: if request.user.role == "ADMIN":
+hrms_modules\views.py:181: if user.role == "ADMIN":
+hrms_modules\views.py:184: if user.role == "MANAGER":
+hrms_modules\views.py:199: if request.user.role == "ADMIN":
+hrms_modules\views.py:202: if request.user.role == "MANAGER":
+hrms_modules\views.py:230: if request.user.role == "ADMIN":
+hrms_modules\views.py:251: if user.role == "ADMIN":
+hrms_modules\views.py:254: if user.role == "MANAGER":
+hrms_modules\views.py:269: if request.user.role == "ADMIN":
+hrms_modules\views.py:272: if request.user.role == "MANAGER":
+hrms_modules\views.py:306: if request.user.role == "ADMIN":
+hrms_modules\views.py:327: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:333: if request.user.role == "MANAGER":
+hrms_modules\views.py:386: if user.role == "ADMIN":
+hrms_modules\views.py:393: if user.role == "MANAGER":
+hrms_modules\views.py:419: if request.user.role == "ADMIN":
+hrms_modules\views.py:423: if request.user.role == "MANAGER":
+hrms_modules\views.py:493: if request.user.role == "ADMIN":
+hrms_modules\views.py:531: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:543: if request.user.role == "MANAGER":
+hrms_modules\views.py:602: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:614: if request.user.role == "MANAGER":
+hrms_modules\views.py:688: if user.role == "ADMIN":
+hrms_modules\views.py:694: if user.role == "MANAGER":
+hrms_modules\views.py:790: if user.role == "ADMIN":
+hrms_modules\views.py:793: elif user.role == "MANAGER":
+hrms_modules\views.py:828: user.role == "ADMIN"
+hrms_modules\views.py:995: and user.role == "MANAGER"
+hrms_modules\views.py:1015: if user.role == "MANAGER" and target_user != user
+hrms_modules\views.py:1180: if user.role == "ADMIN":
+hrms_modules\views.py:1183: elif user.role == "MANAGER":
+hrms_modules\views.py:1338: if user.role == "ADMIN":
+hrms_modules\views.py:1341: elif user.role == "MANAGER":
+performance\views.py:35: if user.role == "ADMIN":
+performance\views.py:40: if user.role == "MANAGER":
+performance\views.py:98: if user.role == "ADMIN":
+performance\views.py:101: elif user.role == "MANAGER":
+performance\views.py:154: if request.user.role == "ADMIN":
+performance\views.py:174: if request.user.role == "MANAGER":
+performance\views.py:208: if request.user.role == "ADMIN":
+performance\views.py:231: if request.user.role == "MANAGER":
+performance\views.py:266: if request.user.role == "ADMIN":
+performance\views.py:280: if request.user.role == "MANAGER":
+performance\views.py:327: if user.role == "ADMIN":
+performance\views.py:332: if user.role == "MANAGER":
+performance\views.py:379: if user.role == "ADMIN":
+performance\views.py:381: elif user.role == "MANAGER":
+performance\views.py:420: if user.role == "ADMIN":
+performance\views.py:423: if user.role == "MANAGER":
+performance\views.py:466: if user.role == "ADMIN":
+performance\views.py:469: if user.role == "MANAGER":
+performance\views.py:513: if user.role == "ADMIN":
+performance\views.py:516: if user.role == "MANAGER":
+training\views.py:31: if user.role == "ADMIN":
+training\views.py:117: if user.role == "ADMIN":
+training\views.py:122: if user.role == "MANAGER":
+training\views.py:174: if user.role == "ADMIN":
+training\views.py:177: elif user.role == "MANAGER":
+training\views.py:214: if user.role == "ADMIN":
+training\views.py:227: if user.role == "MANAGER":
+training\views.py:257: if user.role == "ADMIN":
+training\views.py:271: if user.role == "MANAGER":
+training\views.py:302: if user.role == "ADMIN":
+training\views.py:308: if user.role == "MANAGER":
+
+PATTERN: user\.role\s*!=
+--------------------------------------------------------------------------------
+accounts\views.py:76: if request.user.role != "ADMIN":
+accounts\views.py:90: if request.user.role != "ADMIN":
+accounts\views.py:104: if request.user.role != "ADMIN":
+accounts\views.py:118: if request.user.role != "ADMIN":
+accounts\views.py:146: if request.user.role != "ADMIN":
+accounts\views.py:286: if request.user.role != "ADMIN":
+accounts\views.py:375: if request.user.role != "ADMIN":
+accounts\views.py:458: if request.user.role != "ADMIN":
+assets\views.py:46: if request.user.role != "ADMIN":
+assets\views.py:60: if request.user.role != "ADMIN":
+assets\views.py:74: if request.user.role != "ADMIN":
+assets\views.py:88: if request.user.role != "ADMIN":
+attendance_shifts\views.py:42: if request.user.role != "ADMIN":
+attendance_shifts\views.py:56: if request.user.role != "ADMIN":
+attendance_shifts\views.py:70: if request.user.role != "ADMIN":
+attendance_shifts\views.py:84: if request.user.role != "ADMIN":
+authorization\services.py:61: if manager_user.role != "MANAGER":
+hrms_modules\views.py:119: if request.user.role != "ADMIN":
+hrms_modules\views.py:156: if request.user.role != "ADMIN":
+hrms_modules\views.py:355: if request.user.role != "ADMIN":
+hrms_modules\views.py:711: if request.user.role != "ADMIN":
+hrms_modules\views.py:729: if request.user.role != "ADMIN":
+hrms_modules\views.py:755: if request.user.role != "ADMIN":
+organization\views.py:28: if request.user.role != "ADMIN":
+organization\views.py:42: if request.user.role != "ADMIN":
+organization\views.py:56: if request.user.role != "ADMIN":
+organization\views.py:70: if request.user.role != "ADMIN":
+organization\views.py:104: if request.user.role != "ADMIN":
+organization\views.py:118: if request.user.role != "ADMIN":
+organization\views.py:132: if request.user.role != "ADMIN":
+organization\views.py:146: if request.user.role != "ADMIN":
+training\views.py:39: if request.user.role != "ADMIN":
+training\views.py:53: if request.user.role != "ADMIN":
+training\views.py:67: if request.user.role != "ADMIN":
+training\views.py:81: if request.user.role != "ADMIN":
+
+PATTERN: request\.user\.role
+--------------------------------------------------------------------------------
+accounts\views.py:76: if request.user.role != "ADMIN":
+accounts\views.py:90: if request.user.role != "ADMIN":
+accounts\views.py:104: if request.user.role != "ADMIN":
+accounts\views.py:118: if request.user.role != "ADMIN":
+accounts\views.py:146: if request.user.role != "ADMIN":
+accounts\views.py:286: if request.user.role != "ADMIN":
+accounts\views.py:375: if request.user.role != "ADMIN":
+accounts\views.py:458: if request.user.role != "ADMIN":
+assets\views.py:46: if request.user.role != "ADMIN":
+assets\views.py:60: if request.user.role != "ADMIN":
+assets\views.py:74: if request.user.role != "ADMIN":
+assets\views.py:88: if request.user.role != "ADMIN":
+attendance_shifts\views.py:42: if request.user.role != "ADMIN":
+attendance_shifts\views.py:56: if request.user.role != "ADMIN":
+attendance_shifts\views.py:70: if request.user.role != "ADMIN":
+attendance_shifts\views.py:84: if request.user.role != "ADMIN":
+hrms_modules\views.py:119: if request.user.role != "ADMIN":
+hrms_modules\views.py:135: if request.user.role == "ADMIN":
+hrms_modules\views.py:156: if request.user.role != "ADMIN":
+hrms_modules\views.py:199: if request.user.role == "ADMIN":
+hrms_modules\views.py:202: if request.user.role == "MANAGER":
+hrms_modules\views.py:230: if request.user.role == "ADMIN":
+hrms_modules\views.py:269: if request.user.role == "ADMIN":
+hrms_modules\views.py:272: if request.user.role == "MANAGER":
+hrms_modules\views.py:306: if request.user.role == "ADMIN":
+hrms_modules\views.py:327: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:333: if request.user.role == "MANAGER":
+hrms_modules\views.py:355: if request.user.role != "ADMIN":
+hrms_modules\views.py:419: if request.user.role == "ADMIN":
+hrms_modules\views.py:423: if request.user.role == "MANAGER":
+hrms_modules\views.py:493: if request.user.role == "ADMIN":
+hrms_modules\views.py:531: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:543: if request.user.role == "MANAGER":
+hrms_modules\views.py:602: if request.user.role == "EMPLOYEE":
+hrms_modules\views.py:614: if request.user.role == "MANAGER":
+hrms_modules\views.py:711: if request.user.role != "ADMIN":
+hrms_modules\views.py:729: if request.user.role != "ADMIN":
+hrms_modules\views.py:755: if request.user.role != "ADMIN":
+organization\views.py:28: if request.user.role != "ADMIN":
+organization\views.py:42: if request.user.role != "ADMIN":
+organization\views.py:56: if request.user.role != "ADMIN":
+organization\views.py:70: if request.user.role != "ADMIN":
+organization\views.py:104: if request.user.role != "ADMIN":
+organization\views.py:118: if request.user.role != "ADMIN":
+organization\views.py:132: if request.user.role != "ADMIN":
+organization\views.py:146: if request.user.role != "ADMIN":
+performance\views.py:142: if request.user.role not in {
+performance\views.py:154: if request.user.role == "ADMIN":
+performance\views.py:174: if request.user.role == "MANAGER":
+performance\views.py:208: if request.user.role == "ADMIN":
+performance\views.py:231: if request.user.role == "MANAGER":
+performance\views.py:266: if request.user.role == "ADMIN":
+performance\views.py:280: if request.user.role == "MANAGER":
+training\views.py:39: if request.user.role != "ADMIN":
+training\views.py:53: if request.user.role != "ADMIN":
+training\views.py:67: if request.user.role != "ADMIN":
+training\views.py:81: if request.user.role != "ADMIN":
+
+PATTERN: IsAuthenticated
+--------------------------------------------------------------------------------
+project_audit.py:341: r"IsAuthenticated",
+accounts\views.py:57: permission_classes = [permissions.IsAuthenticated]
+accounts\views.py:546: permission_classes = [permissions.IsAuthenticated]
+assets\views.py:25: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:31: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:116: permission_classes = [permissions.IsAuthenticated]
+authorization\permissions.py:138: class IsAuthenticatedEmployee(permissions.BasePermission):
+config\settings.py:131: 'rest_framework.permissions.IsAuthenticated',
+hrms_modules\views.py:83: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:176: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:246: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:378: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:680: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:773: permission_classes = [permissions.IsAuthenticated]
+organization\views.py:25: permission_classes = [permissions.IsAuthenticated]
+organization\views.py:101: permission_classes = [permissions.IsAuthenticated]
+performance\views.py:30: permission_classes = [permissions.IsAuthenticated]
+performance\views.py:322: permission_classes = [permissions.IsAuthenticated]
+training\views.py:26: permission_classes = [permissions.IsAuthenticated]
+training\views.py:112: permission_classes = [permissions.IsAuthenticated]
+
+PATTERN: AllowAny
+--------------------------------------------------------------------------------
+project_audit.py:342: r"AllowAny",
+claims\views.py:14: permission_classes = [permissions.AllowAny]
+config\views.py:2: from rest_framework.permissions import AllowAny
+config\views.py:7: @permission_classes([AllowAny])
+leave\views.py:11: permission_classes = [permissions.AllowAny]
+
+PATTERN: IsAdmin
+--------------------------------------------------------------------------------
+project_audit.py:343: r"IsAdmin",
+authorization\permissions.py:92: class IsAdmin(permissions.BasePermission):
+
+PATTERN: HasPermission
+--------------------------------------------------------------------------------
+project_audit.py:344: r"HasPermission",
+authorization\permissions.py:10: class HasPermission(permissions.BasePermission):
+
+PATTERN: HasRole
+--------------------------------------------------------------------------------
+project_audit.py:345: r"HasRole",
+authorization\permissions.py:66: class HasRole(permissions.BasePermission):
+
+PATTERN: permission_classes
+--------------------------------------------------------------------------------
+project_audit.py:280: or "permission_classes" in stripped
+project_audit.py:346: r"permission_classes",
+accounts\views.py:57: permission_classes = [permissions.IsAuthenticated]
+accounts\views.py:546: permission_classes = [permissions.IsAuthenticated]
+assets\views.py:25: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:31: permission_classes = [permissions.IsAuthenticated]
+attendance_shifts\views.py:116: permission_classes = [permissions.IsAuthenticated]
+claims\views.py:14: permission_classes = [permissions.AllowAny]
+config\settings.py:130: 'DEFAULT_PERMISSION_CLASSES': (
+config\views.py:1: from rest_framework.decorators import api_view, permission_classes
+config\views.py:7: @permission_classes([AllowAny])
+hrms_modules\views.py:83: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:176: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:246: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:378: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:680: permission_classes = [permissions.IsAuthenticated]
+hrms_modules\views.py:773: permission_classes = [permissions.IsAuthenticated]
+leave\views.py:11: permission_classes = [permissions.AllowAny]
+organization\views.py:25: permission_classes = [permissions.IsAuthenticated]
+organization\views.py:101: permission_classes = [permissions.IsAuthenticated]
+performance\views.py:30: permission_classes = [permissions.IsAuthenticated]
+performance\views.py:322: permission_classes = [permissions.IsAuthenticated]
+training\views.py:26: permission_classes = [permissions.IsAuthenticated]
+training\views.py:112: permission_classes = [permissions.IsAuthenticated]
+
+PATTERN: authentication_classes
+--------------------------------------------------------------------------------
+project_audit.py:281: or "authentication_classes" in stripped
+project_audit.py:347: r"authentication_classes",
+config\settings.py:126: 'DEFAULT_AUTHENTICATION_CLASSES': (
+
+PATTERN: token_version
+--------------------------------------------------------------------------------
+project_audit.py:348: r"token_version",
+accounts\models.py:12: token_version = models.PositiveIntegerField(
+accounts\views.py:52: Every activation-status change rotates token_version,
+accounts\views.py:142: Every status change increments token_version, which
+accounts\views.py:215: target_user.token_version += 1
+accounts\views.py:220: "token_version",
+accounts\views.py:262: "token_version": target_user.token_version,
+accounts\views.py:281: Incrementing token_version immediately invalidates
+accounts\views.py:317: previous_token_version = target_user.token_version
+accounts\views.py:319: target_user.token_version += 1
+accounts\views.py:323: "token_version",
+accounts\views.py:342: f"{previous_token_version} to "
+accounts\views.py:343: f"{target_user.token_version}. "
+accounts\views.py:357: "token_version": target_user.token_version,
+accounts\views.py:604: user.token_version += 1
+accounts\views.py:610: "token_version",
+accounts\migrations\0008_user_token_version.py:15: name='token_version',
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:9: ('accounts', '0008_user_token_version'),
+config\authentication.py:33: - Adds token_version to issued JWTs.
+config\authentication.py:44: token["token_version"] = user.token_version
+config\authentication.py:249: token_version = refresh.get("token_version")
+config\authentication.py:258: if token_version is None:
+config\authentication.py:261: code="refresh_token_version_missing",
+config\authentication.py:286: if token_version != user.token_version:
+config\authentication.py:289: code="refresh_token_version_invalid",
+config\jwt_authentication.py:9: A token becomes invalid when the user's token_version changes.
+config\jwt_authentication.py:15: token_version = validated_token.get("token_version")
+config\jwt_authentication.py:17: if token_version is None:
+config\jwt_authentication.py:20: code="token_version_missing",
+config\jwt_authentication.py:23: if token_version != user.token_version:
+config\jwt_authentication.py:26: code="token_version_invalid",
+
+PATTERN: locked_until
+--------------------------------------------------------------------------------
+project_audit.py:349: r"locked_until",
+accounts\models.py:22: locked_until = models.DateTimeField(
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:20: name='locked_until',
+config\authentication.py:64: if attempted_user and attempted_user.locked_until:
+config\authentication.py:65: if attempted_user.locked_until > now:
+config\authentication.py:85: attempted_user.locked_until = None
+config\authentication.py:90: "locked_until",
+config\authentication.py:104: attempted_user.locked_until = (
+config\authentication.py:111: "locked_until",
+config\authentication.py:167: self.user.locked_until = None
+config\authentication.py:172: "locked_until",
+
+PATTERN: failed_login_attempts
+--------------------------------------------------------------------------------
+project_audit.py:350: r"failed_login_attempts",
+accounts\models.py:17: failed_login_attempts = models.PositiveIntegerField(
+accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:15: name='failed_login_attempts',
+config\authentication.py:84: attempted_user.failed_login_attempts = 0
+config\authentication.py:89: "failed_login_attempts",
+config\authentication.py:100: attempted_user.failed_login_attempts += 1
+config\authentication.py:102: if attempted_user.failed_login_attempts >= MAX_LOGIN_ATTEMPTS:
+config\authentication.py:103: attempted_user.failed_login_attempts = MAX_LOGIN_ATTEMPTS
+config\authentication.py:110: "failed_login_attempts",
+config\authentication.py:133: "failed_login_attempts",
+config\authentication.py:145: f"{attempted_user.failed_login_attempts}."
+config\authentication.py:166: self.user.failed_login_attempts = 0
+config\authentication.py:171: "failed_login_attempts",
+
+PATTERN: password
+--------------------------------------------------------------------------------
+project_audit.py:351: r"password",
+accounts\urls.py:4: from .views import UserViewSet, PasswordChangeView
+accounts\urls.py:19: "password/change/",
+accounts\urls.py:20: PasswordChangeView.as_view(),
+accounts\urls.py:21: name="password-change",
+accounts\views.py:1: ﻿from django.contrib.auth.password_validation import validate_password
+accounts\views.py:534: class PasswordChangeView(APIView):
+accounts\views.py:536: Secure authenticated-user password change.
+accounts\views.py:540: - Current password must be verified.
+accounts\views.py:541: - New password must match confirmation.
+accounts\views.py:542: - New password must differ from current password.
+accounts\views.py:543: - Django's configured password validators are enforced.
+accounts\views.py:551: current_password = request.data.get("current_password")
+accounts\views.py:552: new_password = request.data.get("new_password")
+accounts\views.py:553: confirm_password = request.data.get("confirm_password")
+accounts\views.py:555: if not current_password or not new_password or not confirm_password:
+accounts\views.py:559: "current_password, new_password, and "
+accounts\views.py:560: "confirm_password are required."
+accounts\views.py:566: if not user.check_password(current_password):
+accounts\views.py:568: {"detail": "The current password is incorrect."},
+accounts\views.py:572: if new_password != confirm_password:
+accounts\views.py:574: {"detail": "The new passwords do not match."},
+accounts\views.py:578: if current_password == new_password:
+accounts\views.py:582: "The new password must be different from "
+accounts\views.py:583: "the current password."
+accounts\views.py:590: validate_password(new_password, user)
+accounts\views.py:605: user.set_password(new_password)
+accounts\views.py:609: "password",
+accounts\views.py:622: action="PASSWORD_CHANGED",
+accounts\views.py:625: "User password changed successfully. "
+accounts\views.py:632: {"detail": "Password changed successfully."},
+accounts\migrations\0001_initial.py:24: ('password', models.CharField(max_length=128, verbose_name='password')),
+attendance_shifts\tests.py:30: self.user = User.objects.create_user(username="hr_admin", password="password123")
+authorization\tests.py:21: password="TestPassword123!",
+authorization\tests.py:26: password="TestPassword123!",
+config\authentication.py:38: - Never records passwords or JWT tokens.
+config\settings.py:91: AUTH_PASSWORD_VALIDATORS = [
+config\settings.py:93: 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+config\settings.py:96: 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+config\settings.py:99: 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+config\settings.py:102: 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+
+PATTERN: JWT
+--------------------------------------------------------------------------------
+project_audit.py:352: r"JWT",
+accounts\models.py:14: help_text="Security version used to invalidate previously issued JWT tokens."
+accounts\views.py:13: from rest_framework_simplejwt.token_blacklist.models import (
+accounts\views.py:53: invalidating all previously issued JWT sessions.
+accounts\views.py:143: immediately invalidates previously issued JWT sessions.
+accounts\views.py:282: previously issued JWT access and refresh tokens while
+accounts\views.py:344: "All previously issued JWT authentication sessions "
+accounts\views.py:368: Return security metadata for a user's outstanding JWT sessions.
+accounts\migrations\0008_user_token_version.py:16: field=models.PositiveIntegerField(default=1, help_text='Security version used to invalidate previously issued JWT tokens.'),
+compliance\management\commands\audit_expired_sessions.py:6: from rest_framework_simplejwt.token_blacklist.models import (
+compliance\management\commands\audit_expired_sessions.py:14: "Audit expired JWT session records using a retention period. "
+compliance\management\commands\audit_expired_sessions.py:63: "JWT SESSION CLEANUP AUDIT - DRY RUN"
+compliance\management\commands\cleanup_expired_sessions.py:7: from rest_framework_simplejwt.token_blacklist.models import (
+compliance\management\commands\cleanup_expired_sessions.py:14: "Safely remove expired JWT session records beyond the "
+compliance\management\commands\cleanup_expired_sessions.py:69: "JWT SESSION CLEANUP"
+compliance\management\commands\cleanup_expired_sessions.py:155: "Deleting eligible expired JWT session records..."
+config\authentication.py:8: from rest_framework_simplejwt.serializers import (
+config\authentication.py:12: from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+config\authentication.py:13: from rest_framework_simplejwt.tokens import RefreshToken
+config\authentication.py:14: from rest_framework_simplejwt.exceptions import TokenError
+config\authentication.py:15: from rest_framework_simplejwt.views import (
+config\authentication.py:30: Secure JWT login serializer.
+config\authentication.py:33: - Adds token_version to issued JWTs.
+config\authentication.py:38: - Never records passwords or JWT tokens.
+config\authentication.py:181: "User authenticated successfully and a new JWT "
+config\jwt_authentication.py:2: from rest_framework_simplejwt.authentication import JWTAuthentication
+config\jwt_authentication.py:5: class SecureJWTAuthentication(JWTAuthentication):
+config\jwt_authentication.py:7: JWT authentication with per-user token-version validation.
+config\settings.py:37: 'rest_framework_simplejwt.token_blacklist',
+config\settings.py:127: 'config.jwt_authentication.SecureJWTAuthentication',
+config\settings.py:146: # JWT SECURITY CONFIGURATION
+config\settings.py:151: SIMPLE_JWT = {
+config\settings.py:169: 'rest_framework_simplejwt.tokens.AccessToken',
+config\urls.py:94: # JWT Authentication APIs
+
+PATTERN: MFA
+--------------------------------------------------------------------------------
+project_audit.py:353: r"MFA",
+
+PATTERN: SSO
+--------------------------------------------------------------------------------
+project_audit.py:354: r"SSO",
+accounts\views.py:503: "The associated refresh token was blacklisted."
+config\authentication.py:276: "The user associated with this refresh token no longer exists.",
+config\settings.py:73: 'context_processors': [
+config\settings.py:74: 'django.template.context_processors.request',
+config\settings.py:75: 'django.contrib.auth.context_processors.auth',
+config\settings.py:76: 'django.contrib.messages.context_processors.messages',
+TEST FILES
+================================================================================
+accounts\tests.py
+assets\tests.py
+attendance_shifts\tests.py
+authorization\tests.py
+claims\tests.py
+compliance\tests.py
+documents\tests.py
+hrms_modules\tests.py
+leave\tests.py
+organization\tests.py
+payroll\tests.py
+performance\tests.py
+recruitment\tests.py
+training\tests.py
+
+TEST CLASSES / TEST METHODS
+--------------------------------------------------------------------------------
+attendance_shifts\tests.py:13:     def test_work_shift_creation(self):
+attendance_shifts\tests.py:40:     def test_list_work_shifts(self):
+attendance_shifts\tests.py:50:     def test_create_work_shift(self):
+authorization\tests.py:60:     def test_user_without_role_is_denied(self):
+authorization\tests.py:65:     def test_user_with_active_role_is_allowed(self):
+authorization\tests.py:76:     def test_inactive_user_role_is_denied(self):
+authorization\tests.py:87:     def test_inactive_role_is_denied(self):
+authorization\tests.py:101:     def test_superuser_has_role_access(self):
+authorization\tests.py:106:     def test_user_with_permission_is_allowed(self):
+authorization\tests.py:120:     def test_user_without_permission_is_denied(self):
+authorization\tests.py:134:     def test_inactive_permission_is_denied(self):
+authorization\tests.py:151:     def test_superuser_has_any_permission(self):
+authorization\tests.py:159:     def test_has_any_permission(self):
+authorization\tests.py:174:     def test_has_any_permission_returns_false_when_none_exist(self):
+authorization\tests.py:189:     def test_has_all_permissions(self):
+authorization\tests.py:204:     def test_has_all_permissions_returns_false_when_missing(self):
+authorization\tests.py:220:     def test_superuser_has_all_permissions(self):
+TEMPLATES / JAVASCRIPT / CSS
+================================================================================
+hrms_modules\templates\hrms_modules\employee_portal.html
+templates\attendance_dashboard.html
+templates\base.html
+templates\claims_dashboard.html
+templates\dashboard.html
+templates\employee_360.html
+templates\employee_directory.html
+templates\hrms_dashboard.html
+templates\leave_dashboard.html
+templates\registration\login.html
+TODO / PLACEHOLDER / INCOMPLETE IMPLEMENTATIONS
+================================================================================
+
+PATTERN: #\s*TODO
+--------------------------------------------------------------------------------
+[NO MATCHES]
+
+PATTERN: #\s*FIXME
+--------------------------------------------------------------------------------
+[NO MATCHES]
+
+PATTERN: pass\s*$
+--------------------------------------------------------------------------------
+AI_DEVELOPMENT_RULES.md:331: * tests pass
+AI_DEVELOPMENT_RULES.md:332: * system checks pass
+PROJECT_PROGRESS.md:174: * Django checks: PASS
+PROJECT_PROGRESS.md:175: * Existing tests: PASS
+PROJECT_PROGRESS.md:176: * Migrations check: PASS
+PROJECT_PROGRESS.md:189: PASS
+PROJECT_PROGRESS.md:192: PASS
+PROJECT_PROGRESS.md:196: PASS
+
+PATTERN: NotImplementedError
+--------------------------------------------------------------------------------
+project_audit.py:464: r"NotImplementedError",
+
+PATTERN: Create your tests here
+--------------------------------------------------------------------------------
+project_audit.py:465: r"Create your tests here",
+accounts\tests.py:3: # Create your tests here.
+assets\tests.py:3: # Create your tests here.
+claims\tests.py:3: # Create your tests here.
+compliance\tests.py:3: # Create your tests here.
+documents\tests.py:3: # Create your tests here.
+hrms_modules\tests.py:3: # Create your tests here.
+leave\tests.py:3: # Create your tests here.
+organization\tests.py:3: # Create your tests here.
+payroll\tests.py:3: # Create your tests here.
+performance\tests.py:3: # Create your tests here.
+recruitment\tests.py:3: # Create your tests here.
+training\tests.py:3: # Create your tests here.
+
+PATTERN: Create your models here
+--------------------------------------------------------------------------------
+project_audit.py:466: r"Create your models here",
+POTENTIAL DUPLICATE / OVERLAPPING DEFINITIONS
+================================================================================
+
+Command
+  - compliance\management\commands\audit_expired_sessions.py:10
+  - compliance\management\commands\cleanup_expired_sessions.py:10
+
+EmployeeProfileSerializer
+  - accounts\serializers.py:4
+  - hrms_modules\serializers.py:28
+
+ExpenseClaim
+  - claims\models.py:9
+  - hrms_modules\models.py:33
+
+ExpenseClaimAdmin
+  - claims\admin.py:5
+  - hrms_modules\admin.py:17
+
+ExpenseClaimSerializer
+  - claims\serializers.py:3
+  - hrms_modules\serializers.py:75
+
+ExpenseClaimViewSet
+  - claims\views.py:10
+  - hrms_modules\views.py:242
+
+LeaveRequestViewSet
+  - hrms_modules\views.py:374
+  - leave\views.py:7
+
+Meta
+  - accounts\models.py:211
+  - accounts\models.py:269
+  - accounts\models.py:324
+  - accounts\serializers.py:9
+  - accounts\serializers.py:39
+  - assets\serializers.py:5
+  - attendance_shifts\serializers.py:5
+  - attendance_shifts\serializers.py:10
+  - authorization\models.py:29
+  - authorization\models.py:68
+  - authorization\models.py:92
+  - authorization\models.py:125
+  - claims\serializers.py:6
+  - hrms_modules\models.py:24
+  - hrms_modules\serializers.py:14
+  - hrms_modules\serializers.py:21
+  - hrms_modules\serializers.py:36
+  - hrms_modules\serializers.py:62
+  - hrms_modules\serializers.py:79
+  - hrms_modules\serializers.py:103
+  - hrms_modules\serializers.py:121
+  - hrms_modules\serializers.py:141
+  - hrms_modules\serializers.py:169
+  - leave\serializers.py:6
+  - organization\serializers.py:6
+  - organization\serializers.py:14
+  - performance\serializers.py:5
+  - performance\serializers.py:10
+  - training\serializers.py:5
+  - training\serializers.py:10
+
+Migration
+  - accounts\migrations\0001_initial.py:9
+  - accounts\migrations\0002_alter_employeeprofile_department_and_more.py:5
+  - accounts\migrations\0003_employeeprofile_job_title.py:4
+  - accounts\migrations\0004_migrate_employee_profiles.py:26
+  - accounts\migrations\0005_employeeprofile_employment_status_and_more.py:5
+  - accounts\migrations\0006_employmenthistory.py:5
+  - accounts\migrations\0007_emergencycontact_employeecontact.py:5
+  - accounts\migrations\0008_user_token_version.py:4
+  - accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:4
+  - assets\migrations\0001_initial.py:6
+  - attendance_shifts\migrations\0001_initial.py:6
+  - authorization\migrations\0001_initial.py:6
+  - claims\migrations\0001_initial.py:6
+  - claims\migrations\0002_remove_expenseclaim_approved_by_and_more.py:6
+  - claims\migrations\0003_alter_expenseclaim_employee_and_more.py:6
+  - compliance\migrations\0001_initial.py:6
+  - documents\migrations\0001_initial.py:6
+  - hrms_modules\migrations\0001_initial.py:6
+  - hrms_modules\migrations\0002_remove_expenseclaim_title_employeeprofile_position_and_more.py:6
+  - hrms_modules\migrations\0003_delete_employeeprofile.py:4
+  - leave\migrations\0001_initial.py:6
+  - leave\migrations\0002_remove_leaverequest_approved_by_and_more.py:6
+  - organization\migrations\0001_initial.py:5
+  - payroll\migrations\0001_initial.py:6
+  - performance\migrations\0001_initial.py:6
+  - recruitment\migrations\0001_initial.py:5
+  - training\migrations\0001_initial.py:6
+
+Role
+  - accounts\models.py:7
+  - authorization\models.py:35
+
+Status
+  - claims\models.py:10
+  - hrms_modules\models.py:6
+  - hrms_modules\models.py:34
+  - leave\models.py:12
+
+UserSerializer
+  - accounts\serializers.py:35
+  - hrms_modules\serializers.py:11
+REQUIREMENT-RELATED CODE SEARCH
+================================================================================
+
+EMPLOYEE -> 916 occurrence(s)
+AI_DEVELOPMENT_RULES.md:108: # 6. MASTER EMPLOYEE PRINCIPLE
+AI_DEVELOPMENT_RULES.md:110: Enterprise-HRMS must maintain one authoritative employee master record.
+AI_DEVELOPMENT_RULES.md:112: The system must avoid creating multiple independent employee profile models representing the same employee.
+AI_DEVELOPMENT_RULES.md:112: The system must avoid creating multiple independent employee profile models representing the same employee.
+AI_DEVELOPMENT_RULES.md:114: Employee 360 should integrate information from the authoritative employee record and related modules.
+AI_DEVELOPMENT_RULES.md:114: Employee 360 should integrate information from the authoritative employee record and related modules.
+AI_DEVELOPMENT_RULES.md:133: * Employee 360
+AI_DEVELOPMENT_RULES.md:169: Approval, payroll, employee-management, document-management, and administrative operations must not rely only on generic authentication.
+
+EMPLOYEEPROFILE -> 116 occurrence(s)
+AI_DEVELOPMENT_RULES.md:399: `accounts.EmployeeProfile`
+AI_DEVELOPMENT_RULES.md:403: `hrms_modules.EmployeeProfile`
+INITIAL_ARCHITECTURE_AUDIT.md:67: `accounts.EmployeeProfile`
+INITIAL_ARCHITECTURE_AUDIT.md:69: `hrms_modules.EmployeeProfile`
+INITIAL_ARCHITECTURE_AUDIT.md:73: `accounts.EmployeeProfile = 0`
+INITIAL_ARCHITECTURE_AUDIT.md:75: `hrms_modules.EmployeeProfile = 1`
+project_audit.py:537: "employeeprofile",
+PROJECT_PROGRESS.md:40: | V1.04 | Employee 360        | ?? Partial    | Uses authoritative `accounts.EmployeeProfile`; broader 360 integration remains |
+
+EMPLOYEE 360 -> 33 occurrence(s)
+AI_DEVELOPMENT_RULES.md:114: Employee 360 should integrate information from the authoritative employee record and related modules.
+AI_DEVELOPMENT_RULES.md:133: * Employee 360
+AI_DEVELOPMENT_RULES.md:414: 6. Employee 360
+INITIAL_ARCHITECTURE_AUDIT.md:284: * Employee 360 integration
+INITIAL_ARCHITECTURE_AUDIT.md:327: * Employee 360 integration
+INITIAL_ARCHITECTURE_AUDIT.md:405: * Employee 360
+project_audit.py:538: "employee 360",
+PROJECT_PROGRESS.md:25: **V1.04 — Employee 360**
+
+ORGANIZATION -> 36 occurrence(s)
+AI_DEVELOPMENT_RULES.md:124: * organization
+AI_DEVELOPMENT_RULES.md:412: 4. Organization expansion
+INITIAL_ARCHITECTURE_AUDIT.md:16: * organization
+INITIAL_ARCHITECTURE_AUDIT.md:153: ## Organization
+INITIAL_ARCHITECTURE_AUDIT.md:166: Extend existing organization architecture rather than creating another organization app.
+INITIAL_ARCHITECTURE_AUDIT.md:166: Extend existing organization architecture rather than creating another organization app.
+INITIAL_ARCHITECTURE_AUDIT.md:406: * organization
+project_audit.py:539: "organization",
+
+DEPARTMENT -> 103 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:157: * Department
+project_audit.py:540: "department",
+PROJECT_PROGRESS.md:41: | V1.05 | Organization        | 🟡 Partial    | Department and Position models exist                                           |
+PROJECT_REQUIREMENTS.md:90: * Department
+PROJECT_REQUIREMENTS.md:124: * Departments
+accounts\models.py:3: from organization.models import Department, Position
+accounts\models.py:106: department = models.ForeignKey(
+accounts\models.py:107: Department,
+
+POSITION -> 79 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:158: * Position
+project_audit.py:541: "position",
+PROJECT_PROGRESS.md:41: | V1.05 | Organization        | 🟡 Partial    | Department and Position models exist                                           |
+PROJECT_REQUIREMENTS.md:91: * Position
+PROJECT_REQUIREMENTS.md:125: * Positions
+accounts\models.py:3: from organization.models import Department, Position
+accounts\models.py:114: position = models.ForeignKey(
+accounts\models.py:115: Position,
+
+DOCUMENT -> 213 occurrence(s)
+AI_DEVELOPMENT_RULES.md:5: This document controls how AI assistants and developers must work on the Enterprise-HRMS project.
+AI_DEVELOPMENT_RULES.md:131: * documents
+AI_DEVELOPMENT_RULES.md:169: Approval, payroll, employee-management, document-management, and administrative operations must not rely only on generic authentication.
+AI_DEVELOPMENT_RULES.md:413: 5. Documents
+INITIAL_ARCHITECTURE_AUDIT.md:25: * documents
+INITIAL_ARCHITECTURE_AUDIT.md:170: ## Documents
+INITIAL_ARCHITECTURE_AUDIT.md:174: `documents.EmployeeDocument`
+INITIAL_ARCHITECTURE_AUDIT.md:174: `documents.EmployeeDocument`
+
+ROLE -> 348 occurrence(s)
+AI_DEVELOPMENT_RULES.md:163: * role
+AI_DEVELOPMENT_RULES.md:175: # 10. ROLE AND PERMISSION ARCHITECTURE
+AI_DEVELOPMENT_RULES.md:184: The target architecture is a configurable Role + Permission system.
+AI_DEVELOPMENT_RULES.md:186: The master structure defines roles including:
+AI_DEVELOPMENT_RULES.md:236: * important user roles
+INITIAL_ARCHITECTURE_AUDIT.md:341: Current User roles:
+INITIAL_ARCHITECTURE_AUDIT.md:349: The role field exists but comprehensive role-to-permission enforcement is not established.
+INITIAL_ARCHITECTURE_AUDIT.md:349: The role field exists but comprehensive role-to-permission enforcement is not established.
+
+PERMISSION -> 247 occurrence(s)
+AI_DEVELOPMENT_RULES.md:150: 7. Check permissions.
+AI_DEVELOPMENT_RULES.md:164: * permission
+AI_DEVELOPMENT_RULES.md:175: # 10. ROLE AND PERMISSION ARCHITECTURE
+AI_DEVELOPMENT_RULES.md:184: The target architecture is a configurable Role + Permission system.
+AI_DEVELOPMENT_RULES.md:201: These must eventually be implemented through permissions rather than hard-coded assumptions.
+AI_DEVELOPMENT_RULES.md:232: * permissions
+AI_DEVELOPMENT_RULES.md:409: 1. RBAC and permissions
+INITIAL_ARCHITECTURE_AUDIT.md:349: The role field exists but comprehensive role-to-permission enforcement is not established.
+
+AUDIT -> 115 occurrence(s)
+AI_DEVELOPMENT_RULES.md:199: * AUDITOR
+AI_DEVELOPMENT_RULES.md:410: 2. Audit infrastructure
+INITIAL_ARCHITECTURE_AUDIT.md:1: # ENTERPRISE-HRMS — INITIAL ARCHITECTURE AUDIT
+INITIAL_ARCHITECTURE_AUDIT.md:3: ## Audit Purpose
+INITIAL_ARCHITECTURE_AUDIT.md:5: This audit compares the existing Enterprise-HRMS repository with the master architecture defined in `STRUCTURE.txt`.
+INITIAL_ARCHITECTURE_AUDIT.md:7: The audit was performed before major new feature development to prevent duplication and unnecessary rebuilding.
+INITIAL_ARCHITECTURE_AUDIT.md:188: * audit integration
+INITIAL_ARCHITECTURE_AUDIT.md:196: ## Compliance / Audit
+
+ATTENDANCE -> 108 occurrence(s)
+AI_DEVELOPMENT_RULES.md:132: * attendance
+INITIAL_ARCHITECTURE_AUDIT.md:23: * attendance_shifts
+INITIAL_ARCHITECTURE_AUDIT.md:133: ## Attendance
+INITIAL_ARCHITECTURE_AUDIT.md:135: Attendance exists in:
+INITIAL_ARCHITECTURE_AUDIT.md:137: `hrms_modules.Attendance`
+INITIAL_ARCHITECTURE_AUDIT.md:141: `attendance_shifts`
+INITIAL_ARCHITECTURE_AUDIT.md:382: * `/api/attendance/`
+INITIAL_ARCHITECTURE_AUDIT.md:383: * `/api/attendance/check_out/`
+
+LEAVE -> 255 occurrence(s)
+AI_DEVELOPMENT_RULES.md:125: * leave
+AI_DEVELOPMENT_RULES.md:211: Leave:
+INITIAL_ARCHITECTURE_AUDIT.md:17: * leave
+INITIAL_ARCHITECTURE_AUDIT.md:115: ## Leave
+INITIAL_ARCHITECTURE_AUDIT.md:119: `leave.LeaveRequest`
+INITIAL_ARCHITECTURE_AUDIT.md:119: `leave.LeaveRequest`
+INITIAL_ARCHITECTURE_AUDIT.md:129: Consolidate API architecture without deleting the underlying LeaveRequest model.
+INITIAL_ARCHITECTURE_AUDIT.md:354: * Leave uses AllowAny
+
+PAYROLL -> 61 occurrence(s)
+AI_DEVELOPMENT_RULES.md:127: * payroll
+AI_DEVELOPMENT_RULES.md:169: Approval, payroll, employee-management, document-management, and administrative operations must not rely only on generic authentication.
+AI_DEVELOPMENT_RULES.md:193: * PAYROLL OFFICER
+INITIAL_ARCHITECTURE_AUDIT.md:19: * payroll
+INITIAL_ARCHITECTURE_AUDIT.md:218: ## Payroll
+INITIAL_ARCHITECTURE_AUDIT.md:231: * payroll engine
+INITIAL_ARCHITECTURE_AUDIT.md:244: Extend existing payroll application.
+INITIAL_ARCHITECTURE_AUDIT.md:411: * payroll
+
+RECRUITMENT -> 20 occurrence(s)
+AI_DEVELOPMENT_RULES.md:192: * RECRUITMENT OFFICER
+INITIAL_ARCHITECTURE_AUDIT.md:20: * recruitment
+INITIAL_ARCHITECTURE_AUDIT.md:248: ## Recruitment
+INITIAL_ARCHITECTURE_AUDIT.md:273: Extend existing recruitment application.
+INITIAL_ARCHITECTURE_AUDIT.md:412: * recruitment
+project_audit.py:549: "recruitment",
+PROJECT_PROGRESS.md:66: | Recruitment | 🟡 Foundation    | Models exist; workflow/UI/API incomplete |
+PROJECT_PROGRESS.md:310: * Recruitment audit
+
+ONBOARDING -> 4 occurrence(s)
+project_audit.py:550: "onboarding",
+PROJECT_PROGRESS.md:67: | Onboarding  | 🔴 Missing       | Not implemented                          |
+PROJECT_REQUIREMENTS.md:220: → Onboarding
+PROJECT_REQUIREMENTS.md:224: * Onboarding
+
+OFFBOARDING -> 1 occurrence(s)
+project_audit.py:551: "offboarding",
+
+PERFORMANCE -> 68 occurrence(s)
+AI_DEVELOPMENT_RULES.md:128: * performance
+INITIAL_ARCHITECTURE_AUDIT.md:21: * performance
+INITIAL_ARCHITECTURE_AUDIT.md:277: ## Performance
+INITIAL_ARCHITECTURE_AUDIT.md:281: * PerformanceGoal
+INITIAL_ARCHITECTURE_AUDIT.md:413: * performance
+project_audit.py:552: "performance",
+PROJECT_PROGRESS.md:68: | Performance | 🟢/🟡 Foundation | Goals and appraisals exist               |
+PROJECT_REQUIREMENTS.md:110: * Performance
+
+TRAINING -> 49 occurrence(s)
+AI_DEVELOPMENT_RULES.md:129: * training
+AI_DEVELOPMENT_RULES.md:195: * TRAINING OFFICER
+INITIAL_ARCHITECTURE_AUDIT.md:22: * training
+INITIAL_ARCHITECTURE_AUDIT.md:296: ## Training
+INITIAL_ARCHITECTURE_AUDIT.md:300: * TrainingCourse
+INITIAL_ARCHITECTURE_AUDIT.md:414: * training
+project_audit.py:553: "training",
+PROJECT_PROGRESS.md:69: | Training    | 🟢/🟡 Foundation | Courses and certifications exist         |
+
+CAREER -> 4 occurrence(s)
+project_audit.py:554: "career",
+PROJECT_PROGRESS.md:70: | Career      | 🔴 Missing       | Not implemented                          |
+PROJECT_REQUIREMENTS.md:116: * Career information
+PROJECT_REQUIREMENTS.md:227: * Career Management
+
+SUCCESSION -> 3 occurrence(s)
+project_audit.py:555: "succession",
+PROJECT_PROGRESS.md:71: | Succession  | 🔴 Missing       | Not implemented                          |
+PROJECT_REQUIREMENTS.md:228: * Succession Planning
+
+BENEFIT -> 5 occurrence(s)
+project_audit.py:556: "benefit",
+PROJECT_PROGRESS.md:81: | Benefits     | 🔴 Missing    | Not implemented                                   |
+PROJECT_REQUIREMENTS.md:109: * Benefits
+PROJECT_REQUIREMENTS.md:238: * Benefits
+PROJECT_REQUIREMENTS.md:257: * Benefits
+
+CLAIM -> 281 occurrence(s)
+AI_DEVELOPMENT_RULES.md:126: * claims
+INITIAL_ARCHITECTURE_AUDIT.md:18: * claims
+INITIAL_ARCHITECTURE_AUDIT.md:89: ## Expense Claims
+INITIAL_ARCHITECTURE_AUDIT.md:93: `claims.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:93: `claims.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:95: `hrms_modules.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:99: `claims.ExpenseClaim = 4`
+INITIAL_ARCHITECTURE_AUDIT.md:99: `claims.ExpenseClaim = 4`
+
+EXPENSE -> 97 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:89: ## Expense Claims
+INITIAL_ARCHITECTURE_AUDIT.md:93: `claims.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:95: `hrms_modules.ExpenseClaim`
+INITIAL_ARCHITECTURE_AUDIT.md:99: `claims.ExpenseClaim = 4`
+INITIAL_ARCHITECTURE_AUDIT.md:101: `hrms_modules.ExpenseClaim = 0`
+project_audit.py:558: "expense",
+PROJECT_PROGRESS.md:82: | Expenses     | 🟡 Partial    | Claims/expense functionality exists               |
+PROJECT_PROGRESS.md:82: | Expenses     | 🟡 Partial    | Claims/expense functionality exists               |
+
+WORKFLOW -> 21 occurrence(s)
+AI_DEVELOPMENT_RULES.md:205: # 11. WORKFLOW RULES
+AI_DEVELOPMENT_RULES.md:207: Approval processes must be treated as business workflows.
+AI_DEVELOPMENT_RULES.md:219: The AI must not implement approval logic independently in many unrelated views if the requirement calls for a reusable workflow engine.
+AI_DEVELOPMENT_RULES.md:233: * workflow transitions
+INITIAL_ARCHITECTURE_AUDIT.md:111: Preserve existing claim records and consolidate API/workflow architecture.
+INITIAL_ARCHITECTURE_AUDIT.md:182: * complete document management workflow
+INITIAL_ARCHITECTURE_AUDIT.md:269: * hiring workflow
+INITIAL_ARCHITECTURE_AUDIT.md:416: * workflows
+
+NOTIFICATION -> 4 occurrence(s)
+project_audit.py:560: "notification",
+PROJECT_PROGRESS.md:57: | Notifications         | 🔴 Missing    | Not implemented as a complete subsystem     |
+PROJECT_REQUIREMENTS.md:184: * Notifications
+PROJECT_REQUIREMENTS.md:383: * Notification where applicable
+
+REPORT -> 87 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:239: * reports
+project_audit.py:8: REPORT_DIR = BASE_DIR / "HRMS_SYSTEM_AUDIT"
+project_audit.py:24: REPORT_DIR.mkdir(exist_ok=True)
+project_audit.py:38: def write_report(filename, content):
+project_audit.py:39: path = REPORT_DIR / filename
+project_audit.py:108: write_report(
+project_audit.py:126: write_report(
+project_audit.py:173: write_report(
+
+ANALYTICS -> 6 occurrence(s)
+project_audit.py:562: "analytics",
+PROJECT_PROGRESS.md:91: | Advanced Analytics    | 🔴 Missing       | Not implemented                                                   |
+PROJECT_REQUIREMENTS.md:28: * Analytics
+PROJECT_REQUIREMENTS.md:272: * Advanced Analytics
+hrms_modules\dashboard_views.py:152: # Analytics
+templates\hrms_dashboard.html:217: ANALYTICS
+
+COMPLIANCE -> 16 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:26: * compliance
+INITIAL_ARCHITECTURE_AUDIT.md:196: ## Compliance / Audit
+INITIAL_ARCHITECTURE_AUDIT.md:200: `compliance.AuditLog`
+project_audit.py:563: "compliance",
+PROJECT_PROGRESS.md:97: | Compliance            | 🟡 Foundation    | AuditLog model exists; implementation incomplete                  |
+PROJECT_PROGRESS.md:312: * Compliance audit
+PROJECT_REQUIREMENTS.md:27: * Compliance
+PROJECT_REQUIREMENTS.md:278: * Compliance
+
+ASSET -> 90 occurrence(s)
+AI_DEVELOPMENT_RULES.md:130: * assets
+INITIAL_ARCHITECTURE_AUDIT.md:24: * assets
+INITIAL_ARCHITECTURE_AUDIT.md:315: ## Assets
+INITIAL_ARCHITECTURE_AUDIT.md:319: * CompanyAsset
+INITIAL_ARCHITECTURE_AUDIT.md:415: * assets
+project_audit.py:564: "asset",
+PROJECT_PROGRESS.md:308: * Assets audit
+PROJECT_REQUIREMENTS.md:113: * Assets
+
+TRAVEL -> 6 occurrence(s)
+project_audit.py:565: "travel",
+claims\models.py:6: TRANSPORT = 'TRANSPORT', 'Travel & Transport'
+claims\migrations\0001_initial.py:21: ('claim_type', models.CharField(choices=[('MEDICAL', 'Medical Expenses'), ('TRAVEL', 'Travel & Transport'), ('FUNERAL', 'Funeral & Welfare Support'), ('OTHER', 'Other Operational Expenses')], default='OTHER', max_length=20)),
+claims\migrations\0001_initial.py:21: ('claim_type', models.CharField(choices=[('MEDICAL', 'Medical Expenses'), ('TRAVEL', 'Travel & Transport'), ('FUNERAL', 'Funeral & Welfare Support'), ('OTHER', 'Other Operational Expenses')], default='OTHER', max_length=20)),
+claims\migrations\0002_remove_expenseclaim_approved_by_and_more.py:28: field=models.CharField(choices=[('MEDICAL', 'Medical Expenses'), ('TRANSPORT', 'Travel & Transport'), ('FUNERAL', 'Funeral & Welfare Support'), ('OTHER', 'Other Operational Expenses')], default='OTHER', max_length=20),
+templates\dashboard.html:18: <option value="TRANSPORT">Travel & Transport</option>
+
+INTEGRATION -> 14 occurrence(s)
+INITIAL_ARCHITECTURE_AUDIT.md:188: * audit integration
+INITIAL_ARCHITECTURE_AUDIT.md:209: * integration with important operations
+INITIAL_ARCHITECTURE_AUDIT.md:284: * Employee 360 integration
+INITIAL_ARCHITECTURE_AUDIT.md:303: * Employee portal integration
+INITIAL_ARCHITECTURE_AUDIT.md:327: * Employee 360 integration
+project_audit.py:566: "integration",
+PROJECT_PROGRESS.md:39: | V1.03 | Employees / Core HR | Complete | Authoritative employee master, employment history, contacts, emergency contacts, employee directory, and Employee 360 integration implemented and verified |
+PROJECT_PROGRESS.md:40: | V1.04 | Employee 360        | ?? Partial    | Uses authoritative `accounts.EmployeeProfile`; broader 360 integration remains |
+
+API -> 105 occurrence(s)
+AI_DEVELOPMENT_RULES.md:41: The AI must never create a new model, application, API, serializer, view, template, or service merely because a requirement exists.
+AI_DEVELOPMENT_RULES.md:120: Before changing a shared model or API, identify dependent modules.
+AI_DEVELOPMENT_RULES.md:140: # 8. API RULES
+AI_DEVELOPMENT_RULES.md:142: Before creating an API endpoint:
+AI_DEVELOPMENT_RULES.md:231: * API behavior
+AI_DEVELOPMENT_RULES.md:295: * identify API calls
+AI_DEVELOPMENT_RULES.md:353: Which files, models, APIs, templates, migrations, or tests prove it?
+INITIAL_ARCHITECTURE_AUDIT.md:111: Preserve existing claim records and consolidate API/workflow architecture.
+GIT STATUS
+================================================================================
+## main...origin/main
+ M accounts/models.py
+ M accounts/serializers.py
+ M accounts/urls.py
+ M accounts/views.py
+ M assets/views.py
+ M attendance_shifts/views.py
+ M config/settings.py
+ M config/urls.py
+ M db.sqlite3
+ M hrms_modules/serializers.py
+ M hrms_modules/views.py
+ M organization/views.py
+ M performance/views.py
+ M templates/employee_360.html
+ M training/views.py
+?? HRMS_SYSTEM_AUDIT/
+?? accounts/migrations/0008_user_token_version.py
+?? accounts/migrations/0009_user_failed_login_attempts_user_locked_until.py
+?? accounts/views.py.backup
+?? accounts/views.py.before_audit_transaction_password_change
+?? accounts/views.py.before_audit_transaction_revoke_sessions
+?? accounts/views.py.before_audit_transaction_set_active
+?? accounts/views.py.before_audit_transaction_set_active_final
+?? accounts/views.py.before_individual_session_revoke
+?? accounts/views.py.before_password_lock_hardening
+?? accounts/views.py.before_password_lock_hardening_v2
+?? accounts/views.py.before_safe_destroy
+?? accounts/views.py.before_session_management
+?? accounts/views.py.before_token_version_atomic
+?? authorization/
+?? compliance/management/
+?? config/authentication.py
+?? config/authentication.py.backup
+?? config/authentication.py.before_refresh_reuse
+?? config/jwt_authentication.py
+?? config/security.py
+?? db.sqlite3.backup
+?? employee_docs/
+?? project_audit.py
+?? templates/employee_360.html.backup
+?? test_employee_document.txt
+DJANGO SYSTEM CHECK
+================================================================================
+RETURN CODE:
+0
+
+STDOUT:
+System check identified no issues (0 silenced).
+
+STDERR:
+ENTERPRISE-HRMS SYSTEM AUDIT
+================================================================================
+Generated from: C:\Users\mayek\projects\enterprise-human-resource-management-system\source
+
+This is a READ-ONLY static/code audit.
+It does not modify application source code or database data.
+
+REPORTS GENERATED:
+--------------------------------------------------------------------------------
+01_project_structure.txt
+02_apps_modules.txt
+03_models_and_relationships.txt
+04_migrations.txt
+05_serializers.txt
+06_views_and_permissions.txt
+07_urls_and_api_routes.txt
+08_security_and_authorization.txt
+09_tests.txt
+10_frontend_files.txt
+11_placeholders_and_todos.txt
+12_potential_duplicates.txt
+13_requirement_keyword_audit.txt
+14_git_status.txt
+15_django_check.txt
+
+IMPORTANT:
+--------------------------------------------------------------------------------
+This report is evidence for requirements analysis.
+It does not automatically declare a requirement complete.
+Each requirement must still be classified as:
+COMPLETE / PARTIAL / MISSING / DUPLICATED / BROKEN / NEEDS VERIFICATION.

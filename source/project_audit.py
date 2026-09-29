@@ -1,0 +1,1554 @@
+﻿import os
+import re
+import subprocess
+from pathlib import Path
+from collections import defaultdict
+
+BASE_DIR = Path(__file__).resolve().parent
+REPORT_DIR = BASE_DIR / "HRMS_SYSTEM_AUDIT"
+
+EXCLUDED_DIRS = {
+    ".git",
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    "HRMS_SYSTEM_AUDIT",
+    "staticfiles",
+}
+
+TEXT_EXTENSIONS = {
+    ".py", ".html", ".htm", ".js", ".css", ".txt",
+    ".md", ".json", ".yml", ".yaml", ".ini", ".env.example"
+}
+
+REPORT_DIR.mkdir(exist_ok=True)
+
+def read_text(path):
+    try:
+        return path.read_text(encoding="utf-8", errors="ignore")
+    except Exception as exc:
+        return f"[READ ERROR: {exc}]"
+
+def relative(path):
+    try:
+        return str(path.relative_to(BASE_DIR))
+    except ValueError:
+        return str(path)
+
+def write_report(filename, content):
+    path = REPORT_DIR / filename
+    path.write_text(content, encoding="utf-8")
+    return path
+
+def all_files():
+    for root, dirs, files in os.walk(BASE_DIR):
+        dirs[:] = [
+            d for d in dirs
+            if d not in EXCLUDED_DIRS
+        ]
+
+        for filename in files:
+            path = Path(root) / filename
+
+            if path.suffix.lower() in TEXT_EXTENSIONS:
+                yield path
+
+def python_files():
+    return [
+        p for p in all_files()
+        if p.suffix.lower() == ".py"
+    ]
+
+def find_pattern(pattern, files=None, flags=re.IGNORECASE):
+    results = []
+
+    if files is None:
+        files = all_files()
+
+    regex = re.compile(pattern, flags)
+
+    for path in files:
+        text = read_text(path)
+
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            if regex.search(line):
+                results.append(
+                    f"{relative(path)}:{line_no}: {line.strip()}"
+                )
+
+    return results
+
+# ---------------------------------------------------------
+# 1. PROJECT STRUCTURE
+# ---------------------------------------------------------
+
+structure_lines = [
+    "ENTERPRISE-HRMS PROJECT STRUCTURE",
+    "=" * 80,
+    f"Project root: {BASE_DIR}",
+    "",
+]
+
+for path in sorted(BASE_DIR.iterdir(), key=lambda p: p.name.lower()):
+    if path.name in EXCLUDED_DIRS:
+        continue
+
+    kind = "DIR " if path.is_dir() else "FILE"
+    structure_lines.append(f"{kind}  {path.name}")
+
+structure_lines.extend([
+    "",
+    "DJANGO / PYTHON FILES",
+    "-" * 80,
+])
+
+for path in sorted(python_files()):
+    structure_lines.append(relative(path))
+
+write_report(
+    "01_project_structure.txt",
+    "\n".join(structure_lines)
+)
+
+# ---------------------------------------------------------
+# 2. DJANGO APPS / MODULES
+# ---------------------------------------------------------
+
+apps = []
+
+for path in sorted(BASE_DIR.iterdir(), key=lambda p: p.name.lower()):
+    if not path.is_dir() or path.name in EXCLUDED_DIRS:
+        continue
+
+    if (path / "apps.py").exists() or (path / "models.py").exists():
+        apps.append(path.name)
+
+write_report(
+    "02_apps_modules.txt",
+    "\n".join([
+        "DJANGO APPS / MODULES",
+        "=" * 80,
+        "",
+        *apps
+    ])
+)
+
+# ---------------------------------------------------------
+# 3. MODELS
+# ---------------------------------------------------------
+
+model_files = [
+    p for p in python_files()
+    if p.name == "models.py"
+]
+
+model_lines = [
+    "MODELS AND MODEL DEFINITIONS",
+    "=" * 80,
+]
+
+for path in sorted(model_files):
+    text = read_text(path)
+
+    model_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class ")
+            or "models." in stripped
+            or "OneToOneField(" in stripped
+            or "ForeignKey(" in stripped
+            or "ManyToManyField(" in stripped
+        ):
+            model_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "03_models_and_relationships.txt",
+    "\n".join(model_lines)
+)
+
+# ---------------------------------------------------------
+# 4. MIGRATIONS
+# ---------------------------------------------------------
+
+migration_lines = [
+    "MIGRATIONS",
+    "=" * 80,
+]
+
+for path in sorted(BASE_DIR.rglob("migrations")):
+    if not path.is_dir():
+        continue
+
+    if any(part in EXCLUDED_DIRS for part in path.parts):
+        continue
+
+    migration_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for migration in sorted(path.glob("*.py")):
+        migration_lines.append(relative(migration))
+
+write_report(
+    "04_migrations.txt",
+    "\n".join(migration_lines)
+)
+
+# ---------------------------------------------------------
+# 5. SERIALIZERS
+# ---------------------------------------------------------
+
+serializer_files = [
+    p for p in python_files()
+    if p.name == "serializers.py"
+]
+
+serializer_lines = [
+    "SERIALIZERS",
+    "=" * 80,
+]
+
+for path in sorted(serializer_files):
+    text = read_text(path)
+
+    serializer_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class ")
+            or "fields =" in stripped
+            or "read_only_fields" in stripped
+            or "create(" in stripped
+            or "update(" in stripped
+        ):
+            serializer_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "05_serializers.txt",
+    "\n".join(serializer_lines)
+)
+
+# ---------------------------------------------------------
+# 6. VIEWS / VIEWSETS
+# ---------------------------------------------------------
+
+view_files = [
+    p for p in python_files()
+    if p.name in {"views.py", "viewsets.py"}
+]
+
+view_lines = [
+    "VIEWS / VIEWSETS",
+    "=" * 80,
+]
+
+for path in sorted(view_files):
+    text = read_text(path)
+
+    view_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class ")
+            or stripped.startswith("def ")
+            or stripped.startswith("async def ")
+            or "permission_classes" in stripped
+            or "authentication_classes" in stripped
+            or "get_queryset" in stripped
+        ):
+            view_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "06_views_and_permissions.txt",
+    "\n".join(view_lines)
+)
+
+# ---------------------------------------------------------
+# 7. URLS / API ROUTES
+# ---------------------------------------------------------
+
+url_files = [
+    p for p in python_files()
+    if p.name == "urls.py"
+]
+
+url_lines = [
+    "URLS AND API ROUTES",
+    "=" * 80,
+]
+
+for path in sorted(url_files):
+    text = read_text(path)
+
+    url_lines.extend([
+        "",
+        f"[{relative(path)}]",
+        "-" * 80,
+    ])
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            "path(" in stripped
+            or "router.register" in stripped
+            or "include(" in stripped
+        ):
+            url_lines.append(
+                f"{line_no}: {line}"
+            )
+
+write_report(
+    "07_urls_and_api_routes.txt",
+    "\n".join(url_lines)
+)
+
+# ---------------------------------------------------------
+# 8. AUTHORIZATION / SECURITY
+# ---------------------------------------------------------
+
+security_patterns = [
+    r"user\.role\s*==",
+    r"user\.role\s*!=",
+    r"request\.user\.role",
+    r"IsAuthenticated",
+    r"AllowAny",
+    r"IsAdmin",
+    r"HasPermission",
+    r"HasRole",
+    r"permission_classes",
+    r"authentication_classes",
+    r"token_version",
+    r"locked_until",
+    r"failed_login_attempts",
+    r"password",
+    r"JWT",
+    r"MFA",
+    r"SSO",
+]
+
+security_lines = [
+    "AUTHORIZATION / SECURITY AUDIT",
+    "=" * 80,
+]
+
+for pattern in security_patterns:
+    matches = find_pattern(pattern, python_files())
+
+    security_lines.extend([
+        "",
+        f"PATTERN: {pattern}",
+        "-" * 80,
+    ])
+
+    if matches:
+        security_lines.extend(matches)
+    else:
+        security_lines.append("[NO MATCHES]")
+
+write_report(
+    "08_security_and_authorization.txt",
+    "\n".join(security_lines)
+)
+
+# ---------------------------------------------------------
+# 9. TESTS
+# ---------------------------------------------------------
+
+test_lines = [
+    "TEST FILES",
+    "=" * 80,
+]
+
+for path in sorted(BASE_DIR.rglob("test*.py")):
+    if any(part in EXCLUDED_DIRS for part in path.parts):
+        continue
+
+    test_lines.append(relative(path))
+
+for path in sorted(BASE_DIR.rglob("*_tests.py")):
+    if any(part in EXCLUDED_DIRS for part in path.parts):
+        continue
+
+    if path not in [Path(x) for x in []]:
+        test_lines.append(relative(path))
+
+test_lines.extend([
+    "",
+    "TEST CLASSES / TEST METHODS",
+    "-" * 80,
+])
+
+for path in sorted(python_files()):
+    if "test" not in path.name.lower():
+        continue
+
+    text = read_text(path)
+
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+
+        if (
+            stripped.startswith("class Test")
+            or stripped.startswith("def test_")
+            or stripped.startswith("def test")
+        ):
+            test_lines.append(
+                f"{relative(path)}:{line_no}: {line}"
+            )
+
+write_report(
+    "09_tests.txt",
+    "\n".join(test_lines)
+)
+
+# ---------------------------------------------------------
+# 10. TEMPLATES / JAVASCRIPT
+# ---------------------------------------------------------
+
+frontend_lines = [
+    "TEMPLATES / JAVASCRIPT / CSS",
+    "=" * 80,
+]
+
+for path in sorted(all_files()):
+    lower = str(path).lower()
+
+    if (
+        path.suffix.lower() in {".html", ".htm", ".js", ".css"}
+        or "templates" in lower
+        or "static" in lower
+    ):
+        frontend_lines.append(relative(path))
+
+write_report(
+    "10_frontend_files.txt",
+    "\n".join(frontend_lines)
+)
+
+# ---------------------------------------------------------
+# 11. TODO / PLACEHOLDER / EMPTY IMPLEMENTATIONS
+# ---------------------------------------------------------
+
+placeholder_patterns = [
+    r"#\s*TODO",
+    r"#\s*FIXME",
+    r"pass\s*$",
+    r"NotImplementedError",
+    r"Create your tests here",
+    r"Create your models here",
+]
+
+placeholder_lines = [
+    "TODO / PLACEHOLDER / INCOMPLETE IMPLEMENTATIONS",
+    "=" * 80,
+]
+
+for pattern in placeholder_patterns:
+    matches = find_pattern(pattern)
+
+    placeholder_lines.extend([
+        "",
+        f"PATTERN: {pattern}",
+        "-" * 80,
+    ])
+
+    if matches:
+        placeholder_lines.extend(matches)
+    else:
+        placeholder_lines.append("[NO MATCHES]")
+
+write_report(
+    "11_placeholders_and_todos.txt",
+    "\n".join(placeholder_lines)
+)
+
+# ---------------------------------------------------------
+# 12. POTENTIAL DUPLICATES
+# ---------------------------------------------------------
+
+duplicate_lines = [
+    "POTENTIAL DUPLICATE / OVERLAPPING DEFINITIONS",
+    "=" * 80,
+]
+
+class_locations = defaultdict(list)
+
+for path in python_files():
+    text = read_text(path)
+
+    for match in re.finditer(
+        r"^\s*class\s+([A-Za-z_][A-Za-z0-9_]*)",
+        text,
+        re.MULTILINE
+    ):
+        class_name = match.group(1)
+        line_no = text[:match.start()].count("\n") + 1
+        class_locations[class_name].append(
+            f"{relative(path)}:{line_no}"
+        )
+
+for class_name, locations in sorted(class_locations.items()):
+    if len(locations) > 1:
+        duplicate_lines.extend([
+            "",
+            f"{class_name}",
+            *[f"  - {location}" for location in locations]
+        ])
+
+write_report(
+    "12_potential_duplicates.txt",
+    "\n".join(duplicate_lines)
+)
+
+# ---------------------------------------------------------
+# 13. REQUIREMENT KEYWORDS
+# ---------------------------------------------------------
+
+requirement_keywords = [
+    "employee",
+    "employeeprofile",
+    "employee 360",
+    "organization",
+    "department",
+    "position",
+    "document",
+    "role",
+    "permission",
+    "audit",
+    "attendance",
+    "leave",
+    "payroll",
+    "recruitment",
+    "onboarding",
+    "offboarding",
+    "performance",
+    "training",
+    "career",
+    "succession",
+    "benefit",
+    "claim",
+    "expense",
+    "workflow",
+    "notification",
+    "report",
+    "analytics",
+    "compliance",
+    "asset",
+    "travel",
+    "integration",
+    "api",
+]
+
+keyword_lines = [
+    "REQUIREMENT-RELATED CODE SEARCH",
+    "=" * 80,
+]
+
+all_text_files = list(all_files())
+
+for keyword in requirement_keywords:
+    regex = re.compile(re.escape(keyword), re.IGNORECASE)
+    count = 0
+    examples = []
+
+    for path in all_text_files:
+        text = read_text(path)
+        matches = list(regex.finditer(text))
+
+        if matches:
+            count += len(matches)
+
+            if len(examples) < 8:
+                for match in matches[:8 - len(examples)]:
+                    line_no = text[:match.start()].count("\n") + 1
+                    line = text.splitlines()[line_no - 1].strip()
+                    examples.append(
+                        f"{relative(path)}:{line_no}: {line}"
+                    )
+
+    keyword_lines.extend([
+        "",
+        f"{keyword.upper()} -> {count} occurrence(s)",
+        *examples,
+    ])
+
+write_report(
+    "13_requirement_keyword_audit.txt",
+    "\n".join(keyword_lines)
+)
+
+# ---------------------------------------------------------
+# 14. GIT STATUS
+# ---------------------------------------------------------
+
+git_lines = [
+    "GIT STATUS",
+    "=" * 80,
+]
+
+try:
+    result = subprocess.run(
+        ["git", "status", "--short", "--branch"],
+        cwd=BASE_DIR,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+
+    git_lines.append(result.stdout.strip() or "[CLEAN / NO OUTPUT]")
+
+    if result.stderr.strip():
+        git_lines.extend([
+            "",
+            "STDERR:",
+            result.stderr.strip()
+        ])
+
+except Exception as exc:
+    git_lines.append(f"[GIT ERROR: {exc}]")
+
+write_report(
+    "14_git_status.txt",
+    "\n".join(git_lines)
+)
+
+# ---------------------------------------------------------
+# 15. DJANGO CHECK
+# ---------------------------------------------------------
+
+django_lines = [
+    "DJANGO SYSTEM CHECK",
+    "=" * 80,
+]
+
+manage_py = BASE_DIR / "manage.py"
+
+if manage_py.exists():
+    try:
+        result = subprocess.run(
+            [os.fspath(Path(os.sys.executable)), "manage.py", "check"],
+            cwd=BASE_DIR,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        django_lines.extend([
+            "RETURN CODE:",
+            str(result.returncode),
+            "",
+            "STDOUT:",
+            result.stdout.strip(),
+            "",
+            "STDERR:",
+            result.stderr.strip(),
+        ])
+
+    except Exception as exc:
+        django_lines.append(f"[DJANGO CHECK ERROR: {exc}]")
+else:
+    django_lines.append(
+        "manage.py not found in audit directory."
+    )
+
+write_report(
+    "15_django_check.txt",
+    "\n".join(django_lines)
+)
+
+# ---------------------------------------------------------
+# 16. MASTER REPORT
+# ---------------------------------------------------------
+
+master = [
+    "ENTERPRISE-HRMS SYSTEM AUDIT",
+    "=" * 80,
+    f"Generated from: {BASE_DIR}",
+    "",
+    "This is a READ-ONLY static/code audit.",
+    "It does not modify application source code or database data.",
+    "",
+    "REPORTS GENERATED:",
+    "-" * 80,
+]
+
+for report in sorted(REPORT_DIR.glob("*.txt")):
+    master.append(report.name)
+
+master.extend([
+    "",
+    "IMPORTANT:",
+    "-" * 80,
+    "This report is evidence for requirements analysis.",
+    "It does not automatically declare a requirement complete.",
+    "Each requirement must still be classified as:",
+    "COMPLETE / PARTIAL / MISSING / DUPLICATED / BROKEN / NEEDS VERIFICATION.",
+])
+
+write_report(
+    "MASTER_AUDIT_REPORT.txt",
+    "\n".join(master)
+)
+
+print()
+print("=" * 80)
+print("ENTERPRISE-HRMS AUDIT COMPLETE")
+print("=" * 80)
+print()
+print(f"Audit directory: {REPORT_DIR}")
+print()
+print("Generated reports:")
+for report in sorted(REPORT_DIR.glob("*.txt")):
+    print(f"  - {report.name}")
+print()
+print("No application source files were modified.")
+print("No database records were modified.")
+print("=" * 80)
+# ---------------------------------------------------------
+# 16. MASTER REQUIREMENTS FROM STRUCTURE.TXT
+# ---------------------------------------------------------
+
+MASTER_STRUCTURE_FILE = BASE_DIR.parent / "STRUCTURE.txt"
+
+master_requirement_lines = [
+    "ENTERPRISE-HRMS MASTER REQUIREMENTS",
+    "=" * 80,
+    "",
+    f"Source: {MASTER_STRUCTURE_FILE}",
+    "",
+]
+
+if MASTER_STRUCTURE_FILE.exists():
+    master_text = read_text(MASTER_STRUCTURE_FILE)
+
+    master_requirement_lines.extend([
+        "MASTER STRUCTURE FOUND: YES",
+        "",
+        "31 MASTER AREAS",
+        "-" * 80,
+    ])
+
+    master_area_pattern = re.compile(
+        r"(?m)^\s*(\d{1,2})\.\s+(.+?)\s*$"
+    )
+
+    master_areas = []
+
+    for match in master_area_pattern.finditer(master_text):
+        number = int(match.group(1))
+        name = match.group(2).strip()
+
+        if 1 <= number <= 31:
+            master_areas.append((number, name))
+
+    seen_numbers = set()
+
+    for number, name in master_areas:
+        if number in seen_numbers:
+            continue
+
+        seen_numbers.add(number)
+        master_requirement_lines.append(
+            f"{number:02d}. {name}"
+        )
+
+    master_requirement_lines.extend([
+        "",
+        "DEVELOPMENT ROADMAP",
+        "-" * 80,
+    ])
+
+    roadmap_pattern = re.compile(
+        r"(?ms)^V([1-5])\s*[—-]\s*([^\n]+)\n(.*?)(?=^V[1-5]\s*[—-]|^This gives us\b|\Z)"
+    )
+
+    roadmap_matches = roadmap_pattern.findall(master_text)
+
+    for version, title, contents in roadmap_matches:
+        master_requirement_lines.extend([
+            "",
+            f"V{version} — {title.strip()}",
+        ])
+
+        for line in contents.splitlines():
+            cleaned = line.strip()
+
+            if cleaned:
+                master_requirement_lines.append(
+                    f"  - {cleaned}"
+                )
+
+    master_requirement_lines.extend([
+        "",
+        "STATUS CLASSIFICATION",
+        "-" * 80,
+        "COMPLETE — existing implementation satisfies the requirement sufficiently.",
+        "PARTIAL — something exists, but important functionality is missing.",
+        "MISSING — no meaningful implementation found.",
+        "DUPLICATE/LEGACY — old implementation exists but should not be rebuilt.",
+        "NOT YET AUDITED — insufficient evidence has been inspected.",
+        "",
+        "IMPORTANT:",
+        "This report records the repository master specification.",
+        "It does not automatically declare requirements complete.",
+        "Existing implementation must be inspected before any new work is started.",
+    ])
+
+else:
+    master_requirement_lines.extend([
+        "MASTER STRUCTURE FOUND: NO",
+        "",
+        "ERROR: STRUCTURE.txt was not found at:",
+        str(MASTER_STRUCTURE_FILE),
+        "",
+        "The requirements audit cannot safely continue without the master structure.",
+    ])
+
+write_report(
+    "16_master_requirements.txt",
+    "\n".join(master_requirement_lines)
+)
+# ---------------------------------------------------------
+# 17. DETAILED MASTER REQUIREMENT ITEMS
+# ---------------------------------------------------------
+
+detailed_requirement_lines = [
+    "DETAILED MASTER REQUIREMENT ITEMS",
+    "=" * 80,
+    "",
+    "Source: STRUCTURE.txt",
+    "",
+    "This report extracts functional requirement candidates from the",
+    "31 master areas. Structural examples, diagrams, database tables,",
+    "roadmap text, audit workflow instructions, and explanatory prose",
+    "are excluded.",
+    "",
+]
+
+if MASTER_STRUCTURE_FILE.exists():
+    master_text = read_text(MASTER_STRUCTURE_FILE)
+
+    section_pattern = re.compile(
+        r"(?ms)^\s*(\d{1,2})\.\s+(.+?)\s*$"
+        r"(.*?)"
+        r"(?=^\s*(?:\d{1,2})\.\s+.+?$|\Z)"
+    )
+
+    sections = []
+
+    for match in section_pattern.finditer(master_text):
+        number = int(match.group(1))
+        title = match.group(2).strip()
+        content = match.group(3)
+
+        if 1 <= number <= 31:
+            sections.append((number, title, content))
+
+    # -----------------------------------------------------
+    # Structural/explanatory text that is NOT a requirement
+    # -----------------------------------------------------
+
+    ignored_exact = {
+        "",
+        "Features",
+        "Feature",
+        "Example",
+        "Examples",
+        "Manage:",
+        "Track:",
+        "Channels",
+        "Potential integrations:",
+        "Possible integrations:",
+        "Employee actions",
+        "Dashboard cards",
+        "Charts",
+        "Quick actions",
+        "Recruitment screens",
+        "Leave types",
+        "Workflow",
+        "Payroll",
+        "Payroll process",
+        "Onboarding",
+        "Offboarding",
+        "Administration",
+        "Organization",
+        "Employee Directory",
+        "Employee 360 Profile",
+        "EMPLOYEE 360",
+        "My Team",
+        "Manager dashboard:",
+        "Employee portal:",
+        "This should support:",
+        "This should provide:",
+        "Features:",
+        "Audit:",
+        "Reports:",
+        "Reports",
+        "HR",
+        "Attendance",
+        "Leave",
+        "Payroll",
+        "Recruitment",
+        "Performance",
+        "Training",
+        "Data",
+        "Analytics",
+        "Trends",
+        "Insights",
+        "Management Decision",
+        "At a high level:",
+        "Current evidence map",
+        "MASTER REQUIREMENT",
+        "SEARCH CURRENT PROJECT",
+        "FOUND?",
+        "YES",
+        "NO",
+        "AUDIT",
+        "BUILD",
+        "EXISTING",
+        "CODE",
+        "GAP?",
+        "IMPLEMENT ONLY GAP",
+        "TEST",
+        "MARK COMPLETE",
+        "NEXT REQUIREMENT",
+    }
+
+    ignored_prefixes = (
+        "This ",
+        "When ",
+        "The system ",
+        "Employees should ",
+        "Managers see ",
+        "Management can ",
+        "Depending on ",
+        "An international-level ",
+        "This makes ",
+        "This is ",
+        "This should ",
+        "I would ",
+        "Each gets ",
+        "But don't ",
+        "Example:",
+        "Role:",
+        "Permissions:",
+        "For the ",
+        "Eventually:",
+        "Central ",
+        "Complete ",
+        "Support ",
+        "For technical ",
+        "Based on ",
+        "These are ",
+        "We will ",
+        "Our workflow ",
+        "And visually ",
+        "If we follow ",
+        "Current evidence ",
+        "Master area ",
+        "We will classify ",
+        "These ",
+        "The database ",
+        "The most important ",
+        "I'd divide ",
+    )
+
+    # -----------------------------------------------------
+    # Sections that must stop before later architecture/
+    # roadmap material.
+    # -----------------------------------------------------
+
+    section_stop_markers = {
+        31: (
+            "THE COMPLETE USER TYPES",
+            "THE DATABASE SHOULD ALSO BE ENTERPRISE-LEVEL",
+            "THE MOST IMPORTANT PART",
+            "I'd divide development into 5 major releases:",
+            "And visually, the target should be something closer to this:",
+            "Our workflow from this point",
+            "We will build an audit like this:",
+            "We will classify every requirement as:",
+            "Current evidence map",
+            "MASTER REQUIREMENT",
+        )
+    }
+
+    # -----------------------------------------------------
+    # Ignore obvious diagram / formatting lines.
+    # -----------------------------------------------------
+
+    def is_diagram_line(line):
+        stripped = line.strip()
+
+        if not stripped:
+            return True
+
+        if stripped in {
+            "↓",
+            "│",
+            "└──",
+            "├──",
+            "┌──",
+            "┐",
+            "└",
+            "┘",
+        }:
+            return True
+
+        if any(
+            char in stripped
+            for char in ("│", "├", "└", "┌", "┐", "┘")
+        ):
+            return True
+
+        if re.fullmatch(
+            r"[-─┌┐└┘│├┤┬┴┼↓↑→←\s]+",
+            stripped,
+        ):
+            return True
+
+        return False
+
+    # -----------------------------------------------------
+    # Ignore examples, sample values, and architecture-only
+    # lines that should not become functional requirements.
+    # -----------------------------------------------------
+
+    def is_example_or_sample(line):
+        stripped = line.strip()
+
+        # Example person/date/value data.
+        if stripped in {
+            "Mayeku Vicent",
+            "Changed employee salary",
+            "19 Sept 2026 10:42",
+            "UGX X",
+            "UGX Y",
+            "UPDATE",
+        }:
+            return True
+
+        # Dashboard sample values such as:
+        # Team Size: 42
+        # Present: 38
+        # On Leave: 3
+        # Absent: 1
+        # Pending Approvals: 7
+        # Performance Reviews: 12
+        # Open Positions: 2
+        if re.match(
+            r"^(Team Size|Present|On Leave|Absent|Pending Approvals|"
+            r"Performance Reviews|Open Positions):\s*\d+$",
+            stripped,
+            re.IGNORECASE,
+        ):
+            return True
+
+        return False
+
+    # -----------------------------------------------------
+    # Actual requirement candidate filter.
+    # -----------------------------------------------------
+
+    def is_requirement_candidate(line):
+        stripped = line.strip()
+
+        if is_diagram_line(stripped):
+            return False
+
+        if is_example_or_sample(stripped):
+            return False
+
+        if stripped in ignored_exact:
+            return False
+
+        if any(
+            stripped.startswith(prefix)
+            for prefix in ignored_prefixes
+        ):
+            return False
+
+        # Ignore role-hierarchy entries.
+        if stripped.upper() in {
+            "SUPER ADMIN",
+            "SYSTEM ADMIN",
+            "HR ADMIN",
+            "HR OFFICER",
+            "RECRUITMENT OFFICER",
+            "PAYROLL OFFICER",
+            "FINANCE OFFICER",
+            "TRAINING OFFICER",
+            "MANAGER",
+            "EMPLOYEE",
+            "EXECUTIVE",
+            "AUDITOR",
+        }:
+            return False
+
+        # Ignore obvious database/architecture headings.
+        if stripped.upper() in {
+            "USERS",
+            "ROLES",
+            "PERMISSIONS",
+            "USER_ROLES",
+            "EMPLOYEES",
+            "EMPLOYMENT_HISTORY",
+            "EMPLOYEE_CONTACTS",
+            "EMERGENCY_CONTACTS",
+            "EMPLOYEE_DOCUMENTS",
+            "ORGANIZATIONS",
+            "COMPANIES",
+            "BRANCHES",
+            "DEPARTMENTS",
+            "POSITIONS",
+            "JOB_GRADES",
+            "RECRUITMENT",
+            "JOB_REQUISITIONS",
+            "VACANCIES",
+            "APPLICANTS",
+            "INTERVIEWS",
+            "OFFERS",
+            "ONBOARDING",
+            "OFFBOARDING",
+            "ATTENDANCE",
+            "SHIFTS",
+            "TIMESHEETS",
+            "OVERTIME",
+            "LEAVE",
+            "LEAVE_TYPES",
+            "LEAVE_REQUESTS",
+            "LEAVE_BALANCES",
+            "PAYROLL",
+            "SALARIES",
+            "ALLOWANCES",
+            "DEDUCTIONS",
+            "TAXES",
+            "PAYROLL_RUNS",
+            "PAYSLIPS",
+            "BENEFITS",
+            "PERFORMANCE",
+            "GOALS",
+            "APPRAISALS",
+            "TRAINING",
+            "COURSES",
+            "ENROLLMENTS",
+            "CERTIFICATIONS",
+            "CLAIMS",
+            "EXPENSES",
+            "WORKFLOWS",
+            "APPROVALS",
+            "NOTIFICATIONS",
+            "AUDIT_LOGS",
+            "REPORTS",
+            "SYSTEM_CONFIGURATION",
+        }:
+            return False
+
+        # Ignore pure labels / hierarchy fragments.
+        if re.fullmatch(r"[\s.]+", stripped):
+            return False
+
+        return True
+
+    # -----------------------------------------------------
+    # Extract the 31 functional master areas.
+    # -----------------------------------------------------
+
+    for number, title, content in sorted(sections):
+
+        # We only want the actual functional areas here.
+        # Roadmap/evidence material inside section 31 is stopped
+        # before it reaches the requirement extractor.
+        stop_markers = section_stop_markers.get(number, ())
+
+        if stop_markers:
+            content_lines = content.splitlines()
+
+            trimmed_lines = []
+
+            for raw_line in content_lines:
+                cleaned = raw_line.strip()
+
+                if any(
+                    cleaned == marker
+                    or cleaned.startswith(marker)
+                    for marker in stop_markers
+                ):
+                    break
+
+                trimmed_lines.append(raw_line)
+
+            content = "\n".join(trimmed_lines)
+
+        detailed_requirement_lines.extend([
+            "",
+            f"{number:02d}. {title}",
+            "-" * 80,
+        ])
+
+        item_number = 0
+
+        for raw_line in content.splitlines():
+            cleaned = raw_line.strip()
+
+            if not is_requirement_candidate(cleaned):
+                continue
+
+            item_number += 1
+
+            detailed_requirement_lines.append(
+                f"{number:02d}.{item_number:02d} {cleaned}"
+            )
+
+        if item_number == 0:
+            detailed_requirement_lines.append(
+                "[NO REQUIREMENT CANDIDATES EXTRACTED]"
+            )
+
+else:
+    detailed_requirement_lines.extend([
+        "ERROR: STRUCTURE.txt was not found.",
+        str(MASTER_STRUCTURE_FILE),
+    ])
+
+write_report(
+    "17_detailed_master_requirements.txt",
+    "\n".join(detailed_requirement_lines)
+)
+# ---------------------------------------------------------
+# 18. REQUIREMENT REGISTRY — VERIFIED CORE HR
+# ---------------------------------------------------------
+
+requirement_registry = [
+    {
+        "id": "CORE-001",
+        "area": "Core HR",
+        "requirement": "Employee Directory",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "source/templates/employee_directory.html; /api/employees/",
+        "gap": "",
+    },
+    {
+        "id": "CORE-002",
+        "area": "Core HR",
+        "requirement": "Employee ID",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile.employee_id; EmployeeProfileSerializer; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-003",
+        "area": "Core HR",
+        "requirement": "Photo",
+        "type": "Functional",
+        "status": "PARTIAL",
+        "evidence": "accounts.EmployeeProfile.photo; hrms_modules.serializers.EmployeeProfileSerializer",
+        "gap": "Employee directory does not currently display the employee photo.",
+    },
+    {
+        "id": "CORE-004",
+        "area": "Core HR",
+        "requirement": "Name",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.User.first_name/last_name; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-005",
+        "area": "Core HR",
+        "requirement": "Department",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile.department; department_name serializer field; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-006",
+        "area": "Core HR",
+        "requirement": "Position",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile.position; position_title serializer field; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-007",
+        "area": "Core HR",
+        "requirement": "Grade",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "organization.Position.grade; hrms_modules.serializers.EmployeeProfileSerializer; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-008",
+        "area": "Core HR",
+        "requirement": "Employment Type",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile.employment_type; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-009",
+        "area": "Core HR",
+        "requirement": "Employment Status",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile.employment_status; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-010",
+        "area": "Core HR",
+        "requirement": "Manager",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile.manager; ManagerSummarySerializer; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-011",
+        "area": "Core HR",
+        "requirement": "Location",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile.location; employee directory",
+        "gap": "",
+    },
+    {
+        "id": "CORE-012",
+        "area": "Core HR",
+        "requirement": "One employee should have one central employee record",
+        "type": "Architecture",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmployeeProfile is the authoritative EmployeeProfile model; no duplicate EmployeeProfile model found in hrms_modules",
+        "gap": "",
+    },
+
+    {
+        "id": "CORE360-001",
+        "area": "Employee 360",
+        "requirement": "Personal Information",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "Employee 360 template/header and employee profile data",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-002",
+        "area": "Employee 360",
+        "requirement": "Contact Information",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "EmployeeContact model; Employee 360 contacts section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-003",
+        "area": "Employee 360",
+        "requirement": "Employment",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "EmployeeProfile employment fields; EmploymentHistory; Employee 360 employment section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-004",
+        "area": "Employee 360",
+        "requirement": "Organization",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "EmployeeProfile department/position/manager/location; Employee 360",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-005",
+        "area": "Employee 360",
+        "requirement": "Compensation",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "payroll.EmployeeSalary; Employee 360 compensation section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-006",
+        "area": "Employee 360",
+        "requirement": "Attendance",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "attendance models/API; Employee 360 attendance history",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-007",
+        "area": "Employee 360",
+        "requirement": "Leave",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "leave.LeaveRequest; Employee 360 leave requests",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-008",
+        "area": "Employee 360",
+        "requirement": "Payroll",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "payroll.EmployeeSalary/Payslip; Employee 360 payroll section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-009",
+        "area": "Employee 360",
+        "requirement": "Benefits",
+        "type": "Functional",
+        "status": "MISSING",
+        "evidence": "No Benefits model, API, serializer, or business implementation found",
+        "gap": "Benefits domain and Employee 360 benefits section are not implemented.",
+    },
+    {
+        "id": "CORE360-010",
+        "area": "Employee 360",
+        "requirement": "Performance",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "performance.PerformanceGoal/Appraisal; Employee 360 performance sections",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-011",
+        "area": "Employee 360",
+        "requirement": "Training",
+        "type": "Functional",
+        "status": "PARTIAL",
+        "evidence": "training.TrainingCourse/EmployeeCertification; Employee 360 certifications section",
+        "gap": "Broader learning/training functionality such as enrollment, attendance, assessment, and completion evidence is not yet verified.",
+    },
+    {
+        "id": "CORE360-012",
+        "area": "Employee 360",
+        "requirement": "Documents",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "documents.EmployeeDocument; Employee 360 documents section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-013",
+        "area": "Employee 360",
+        "requirement": "Assets",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "assets.CompanyAsset; Employee 360 assigned assets section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-014",
+        "area": "Employee 360",
+        "requirement": "Claims",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "claims.ExpenseClaim; Employee 360 expense claims section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-015",
+        "area": "Employee 360",
+        "requirement": "Disciplinary Records",
+        "type": "Functional",
+        "status": "MISSING",
+        "evidence": "No disciplinary model, API, serializer, or business implementation found",
+        "gap": "Disciplinary records domain and Employee 360 section are not implemented.",
+    },
+    {
+        "id": "CORE360-016",
+        "area": "Employee 360",
+        "requirement": "Career History",
+        "type": "Functional",
+        "status": "PARTIAL",
+        "evidence": "accounts.EmploymentHistory; no dedicated career/promotion/transfer/career-path implementation found",
+        "gap": "Employment history exists, but dedicated career history/career progression functionality is not implemented.",
+    },
+    {
+        "id": "CORE360-017",
+        "area": "Employee 360",
+        "requirement": "Emergency Contacts",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "accounts.EmergencyContact; Employee 360 emergency contacts section",
+        "gap": "",
+    },
+    {
+        "id": "CORE360-018",
+        "area": "Employee 360",
+        "requirement": "Audit History",
+        "type": "Functional",
+        "status": "COMPLETE",
+        "evidence": "compliance.AuditLog; Employee 360 audit history section",
+        "gap": "",
+    },
+]
+
+registry_lines = [
+    "ENTERPRISE-HRMS REQUIREMENT REGISTRY",
+    "=" * 120,
+    "",
+    "These entries are based on requirements already inspected and verified.",
+    "They are not generated solely from keyword matching.",
+    "",
+    f"{'ID':<15} {'AREA':<18} {'TYPE':<14} {'STATUS':<14} REQUIREMENT",
+    "-" * 120,
+]
+
+for item in requirement_registry:
+    registry_lines.append(
+        f"{item['id']:<15} "
+        f"{item['area']:<18} "
+        f"{item['type']:<14} "
+        f"{item['status']:<14} "
+        f"{item['requirement']}"
+    )
+    registry_lines.append(
+        f"    Evidence: {item['evidence']}"
+    )
+    registry_lines.append(
+        f"    Gap:      {item['gap'] or '[NONE IDENTIFIED]'}"
+    )
+    registry_lines.append("")
+
+write_report(
+    "18_requirement_registry.txt",
+    "\n".join(registry_lines)
+)

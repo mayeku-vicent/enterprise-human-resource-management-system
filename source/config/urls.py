@@ -1,39 +1,80 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
+from config.authentication import (
+    SecureTokenObtainPairView,
+    SecureTokenRefreshView,
 )
 
 # Existing UI views
 from hrms_modules.dashboard_views import central_dashboard_view
 from leave.views import leave_dashboard_view
+from organization.views import organization_management_view
 from hrms_modules.views import (
     attendance_dashboard_view,
     claims_dashboard_view,
     employee_360_view,
     employee_directory_view,
+    secure_employee_document_view,
 )
 
 # New API ViewSets
 from rest_framework.routers import DefaultRouter
+
 from assets.views import CompanyAssetViewSet
 from performance.views import PerformanceGoalViewSet, AppraisalViewSet
-from training.views import TrainingCourseViewSet, EmployeeCertificationViewSet
-from attendance_shifts.views import WorkShiftViewSet, EmployeeShiftAssignmentViewSet
-
+from training.views import (
+    TrainingCourseViewSet,
+    EmployeeCertificationViewSet,
+)
+from attendance_shifts.views import (
+    WorkShiftViewSet,
+    EmployeeShiftAssignmentViewSet,
+)
 
 # Setup the DRF router for our new modules
 router = DefaultRouter()
-router.register(r'assets', CompanyAssetViewSet)
-router.register(r'performance-goals', PerformanceGoalViewSet)
-router.register(r'appraisals', AppraisalViewSet)
-router.register(r'training-courses', TrainingCourseViewSet)
-router.register(r'certifications', EmployeeCertificationViewSet)
-router.register(r'work-shifts', WorkShiftViewSet)
-router.register(r'shift-assignments', EmployeeShiftAssignmentViewSet)
 
+router.register(
+    r'assets',
+    CompanyAssetViewSet,
+    basename='asset'
+)
+
+router.register(
+    r'performance-goals',
+    PerformanceGoalViewSet,
+    basename='performance-goal'
+)
+
+router.register(
+    r'appraisals',
+    AppraisalViewSet,
+    basename='appraisal'
+)
+router.register(
+    r'training-courses',
+    TrainingCourseViewSet,
+    basename='training-course'
+)
+
+router.register(
+    r'certifications',
+    EmployeeCertificationViewSet,
+    basename='certification'
+)
+
+router.register(
+    r'work-shifts',
+    WorkShiftViewSet,
+    basename='work-shift'
+)
+
+router.register(
+    r'shift-assignments',
+    EmployeeShiftAssignmentViewSet,
+    basename='shift-assignment'
+)
 
 urlpatterns = [
     # Admin and Authentication
@@ -52,10 +93,11 @@ urlpatterns = [
     path('employees/', employee_directory_view, name='employee-directory'),
 
     # JWT Authentication APIs
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/', SecureTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', SecureTokenRefreshView.as_view(), name='token_refresh'),
 
     # Existing App APIs
+    path('organization/', organization_management_view, name='organization-management'),
     path('api/organization/', include('organization.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/leave/', include('leave.urls')),
@@ -65,4 +107,11 @@ urlpatterns = [
 
     # New Module API Endpoints
     path('api/', include(router.urls)),
+    
+    path(
+    'employee-documents/<int:document_id>/',
+    secure_employee_document_view,
+    name='secure-employee-document'
+),
 ]
+

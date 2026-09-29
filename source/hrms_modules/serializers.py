@@ -137,6 +137,8 @@ class EmployeeDocumentSerializer(serializers.ModelSerializer):
         source='employee.username'
     )
 
+    secure_file_url = serializers.SerializerMethodField()
+
     class Meta:
         model = EmployeeDocument
         fields = [
@@ -145,11 +147,20 @@ class EmployeeDocumentSerializer(serializers.ModelSerializer):
             'employee_username',
             'title',
             'category',
-            'file',
+            'secure_file_url',
             'uploaded_at',
             'expiration_date',
         ]
 
+    def get_secure_file_url(self, obj):
+        request = self.context.get('request')
+
+        if request is None:
+            return f"/employee-documents/{obj.id}/"
+
+        return request.build_absolute_uri(
+            f"/employee-documents/{obj.id}/"
+        )
 
 class AuditLogSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(

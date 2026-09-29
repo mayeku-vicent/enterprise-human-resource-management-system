@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
 from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from compliance.models import AuditLog
+from django.db.models import Q
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -31,12 +34,13 @@ from .serializers import (
 )
 
 from leave.serializers import LeaveRequestSerializer
+from config.security import get_client_ip
 
 # Employee 360 module models & serializers
 from assets.models import CompanyAsset
 from assets.serializers import CompanyAssetSerializer
-
 from payroll.models import EmployeeSalary, Payslip
+
 from documents.models import EmployeeDocument
 from compliance.models import AuditLog
 
@@ -61,64 +65,175 @@ User = get_user_model()
 # ============================================================
 
 class EmployeeProfileViewSet(viewsets.ModelViewSet):
-    queryset = EmployeeProfile.objects.all().order_by('user__username')
-    serializer_class = EmployeeProfileSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    """
+    Secure Employee Profile API.
 
+    READ access:
+    - ADMIN: all employee profiles.
+    - MANAGER: own profile and direct reports.
+    - EMPLOYEE: own profile only.
+
+    WRITE access:
+    - ADMIN: can create, update and delete profiles.
+    - EMPLOYEE: can update their own profile.
+    - MANAGER: cannot modify employee profiles.
+    """
+
+    serializer_class = EmployeeProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # ----------------------------------------------------
+        # ADMIN
+        # ----------------------------------------------------
+        if user.role == "ADMIN":
+            return EmployeeProfile.objects.all().order_by(
+                "user__username"
+            )
+
+        # ----------------------------------------------------
+        # MANAGER
+        # Own profile + direct reports
+        # ----------------------------------------------------
+        if user.role == "MANAGER":
+            return EmployeeProfile.objects.filter(
+                Q(user=user)
+                | Q(manager__user=user)
+            ).distinct().order_by(
+                "user__username"
+            )
+
+        # ----------------------------------------------------
+        # EMPLOYEE
+        # Own profile only
+        # ----------------------------------------------------
+        return EmployeeProfile.objects.filter(
+            user=user
+        ).order_by(
+            "user__username"
+        )
+
+    def create(self, request, *args, **kwargs):
+        if request.user.role != "ADMIN":
+            return Response(
+                {
+                    "detail": (
+                        "Only Administrators are authorized "
+                        "to create employee profiles."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        if request.user.role == "ADMIN":
+            return super().update(request, *args, **kwargs)
+
+        if request.user != profile.user:
+            return Response(
+                {
+                    "detail": (
+                        "You can only update your own "
+                        "employee profile."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if request.user.role != "ADMIN":
+            return Response(
+                {
+                    "detail": (
+                        "Only Administrators are authorized "
+                        "to delete employee profiles."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().destroy(request, *args, **kwargs)
 
 # ============================================================
 # ATTENDANCE API
 # ============================================================
 
 class AttendanceViewSet(viewsets.ModelViewSet):
-    queryset = Attendance.objects.all().order_by(
-        '-date',
-        '-check_in_time'
-    )
+    queryset = Attendance.objects.all().order_by('-date')
     serializer_class = AttendanceSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == "ADMIN":
+            return Attendance.objects.all().order_by('-date')
+
+        if user.role == "MANAGER":
+            return Attendance.objects.filter(
+                employee__employee_profile__manager__user=user
+            ).order_by('-date')
+
+        return Attendance.objects.filter(
+            employee=user
+        ).order_by('-date')
 
     def perform_create(self, serializer):
         serializer.save(employee=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except IntegrityError:
+    def update(self, request, *args, **kwargs):
+        attendance = self.get_object()
+
+        if request.user.role == "ADMIN":
+            return super().update(request, *args, **kwargs)
+
+        if request.user.role == "MANAGER":
+            manager_user = getattr(
+                getattr(getattr(attendance.employee, 'employee_profile', None), 'manager', None),
+                'user',
+                None
+            )
+            if manager_user != request.user:
+                return Response(
+                    {"detail": "You can only update attendance records for your direct reports."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            return super().update(request, *args, **kwargs)
+
+        if attendance.employee != request.user:
             return Response(
-                {
-                    "detail": "You have already checked in for today!"
-                },
-                status=status.HTTP_400_BAD_REQUEST
+                {"detail": "You can only update your own attendance records."},
+                status=status.HTTP_403_FORBIDDEN
             )
 
-    @action(detail=False, methods=['post'])
-    def check_out(self, request):
-        today = timezone.now().date()
+        return super().update(request, *args, **kwargs)
 
-        try:
-            attendance = Attendance.objects.get(
-                employee=request.user,
-                date=today
-            )
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
-            attendance.check_out_time = timezone.now().time()
-            attendance.save()
+    def destroy(self, request, *args, **kwargs):
+        attendance = self.get_object()
 
-            return Response(
-                {
-                    'status': 'Checked out successfully'
-                },
-                status=status.HTTP_200_OK
-            )
+        if request.user.role == "ADMIN":
+            return super().destroy(request, *args, **kwargs)
 
-        except Attendance.DoesNotExist:
-            return Response(
-                {
-                    'error': 'No check-in record found for today.'
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        return Response(
+            {"detail": "Only Administrators are authorized to delete attendance records."},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
 
 # ============================================================
@@ -130,34 +245,128 @@ class ExpenseClaimViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseClaimSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == "ADMIN":
+            return ExpenseClaim.objects.all().order_by('-created_at')
+
+        if user.role == "MANAGER":
+            return ExpenseClaim.objects.filter(
+                employee__employee_profile__manager__user=user
+            ).order_by('-created_at')
+
+        return ExpenseClaim.objects.filter(
+            employee=user
+        ).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        serializer.save(employee=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        claim = self.get_object()
+
+        if request.user.role == "ADMIN":
+            return super().update(request, *args, **kwargs)
+
+        if request.user.role == "MANAGER":
+            manager_user = getattr(
+                getattr(getattr(claim.employee, 'employee_profile', None), 'manager', None),
+                'user',
+                None
+            )
+            if manager_user != request.user:
+                return Response(
+                    {"detail": "You can only update claims for your direct reports."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            return super().update(request, *args, **kwargs)
+
+        if claim.employee != request.user:
+            return Response(
+                {"detail": "You can only update your own claims."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if claim.status != ExpenseClaim.Status.PENDING:
+            return Response(
+                {"detail": "Only pending claims can be updated."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        claim = self.get_object()
+
+        if request.user.role == "ADMIN":
+            return super().destroy(request, *args, **kwargs)
+
+        if claim.employee != request.user:
+            return Response(
+                {"detail": "You can only delete your own claims."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if claim.status != ExpenseClaim.Status.PENDING:
+            return Response(
+                {"detail": "Only pending claims can be deleted."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().destroy(request, *args, **kwargs)
+
     @action(detail=True, methods=['patch'])
     def approve(self, request, pk=None):
         claim = self.get_object()
+
+        if request.user.role == "EMPLOYEE":
+            return Response(
+                {"detail": "Employees are not authorized to approve claims."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if request.user.role == "MANAGER":
+            manager_user = getattr(
+                getattr(getattr(claim.employee, 'employee_profile', None), 'manager', None),
+                'user',
+                None
+            )
+            if manager_user != request.user:
+                return Response(
+                    {"detail": "You can only approve claims for your direct reports."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
         claim.status = ExpenseClaim.Status.APPROVED
         claim.save()
 
         return Response(
-            {
-                'status': 'Claim Approved'
-            },
+            {'status': 'Claim Approved'},
             status=status.HTTP_200_OK
         )
 
     @action(detail=True, methods=['patch'])
     def mark_paid(self, request, pk=None):
+        if request.user.role != "ADMIN":
+            return Response(
+                {"detail": "Only Administrators can mark claims as paid."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         claim = self.get_object()
 
         claim.status = ExpenseClaim.Status.PAID
         claim.save()
 
         return Response(
-            {
-                'status': 'Claim Marked as Paid'
-            },
+            {'status': 'Claim Marked as Paid'},
             status=status.HTTP_200_OK
         )
-
 
 # ============================================================
 # LEAVE REQUEST API
@@ -168,37 +377,393 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
     serializer_class = LeaveRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+
+        # ----------------------------------------------------
+        # ADMIN
+        # ----------------------------------------------------
+        if user.role == "ADMIN":
+            return LeaveRequest.objects.all().order_by('-created_at')
+
+        # ----------------------------------------------------
+        # MANAGER
+        # Only leave requests belonging to direct reports
+        # ----------------------------------------------------
+        if user.role == "MANAGER":
+            return LeaveRequest.objects.filter(
+                employee__employee_profile__manager__user=user
+            ).order_by('-created_at')
+
+        # ----------------------------------------------------
+        # EMPLOYEE
+        # Only own leave requests
+        # ----------------------------------------------------
+        return LeaveRequest.objects.filter(
+            employee=user
+        ).order_by('-created_at')
+
     def perform_create(self, serializer):
+        # Always assign the authenticated user as the employee.
+        # The employee field cannot be supplied by another user.
         serializer.save(employee=self.request.user)
+
+    # --------------------------------------------------------
+    # UPDATE
+    # --------------------------------------------------------
+
+    def update(self, request, *args, **kwargs):
+        leave_request = self.get_object()
+
+        # ADMIN can update any leave request
+        if request.user.role == "ADMIN":
+            return super().update(request, *args, **kwargs)
+
+        # MANAGER can update requests belonging to direct reports
+        if request.user.role == "MANAGER":
+            manager_user = getattr(
+                getattr(
+                    getattr(
+                        leave_request.employee,
+                        'employee_profile',
+                        None
+                    ),
+                    'manager',
+                    None
+                ),
+                'user',
+                None
+            )
+
+            if manager_user != request.user:
+                return Response(
+                    {
+                        "detail": (
+                            "You can only update leave requests "
+                            "for your direct reports."
+                        )
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            return super().update(request, *args, **kwargs)
+
+        # EMPLOYEE can only update own requests
+        if leave_request.employee != request.user:
+            return Response(
+                {
+                    "detail": (
+                        "You can only update your own "
+                        "leave requests."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Employees can only update pending requests
+        if leave_request.status != LeaveRequest.Status.PENDING:
+            return Response(
+                {
+                    "detail": (
+                        "Only pending leave requests "
+                        "can be updated."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().update(request, *args, **kwargs)
+
+    # --------------------------------------------------------
+    # PARTIAL UPDATE / PATCH
+    # --------------------------------------------------------
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+    # --------------------------------------------------------
+    # DELETE
+    # --------------------------------------------------------
+
+    def destroy(self, request, *args, **kwargs):
+        leave_request = self.get_object()
+
+        # ADMIN can delete any leave request
+        if request.user.role == "ADMIN":
+            return super().destroy(request, *args, **kwargs)
+
+        # Everyone else can only delete their own request
+        if leave_request.employee != request.user:
+            return Response(
+                {
+                    "detail": (
+                        "You can only delete your own "
+                        "leave requests."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Employees can only delete pending requests
+        if leave_request.status != LeaveRequest.Status.PENDING:
+            return Response(
+                {
+                    "detail": (
+                        "Only pending leave requests "
+                        "can be deleted."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().destroy(request, *args, **kwargs)
+
+    # --------------------------------------------------------
+    # APPROVE
+    # --------------------------------------------------------
 
     @action(detail=True, methods=['patch'])
     def approve(self, request, pk=None):
-        leave_req = self.get_object()
+        leave_request = self.get_object()
 
-        leave_req.status = 'APPROVED'
-        leave_req.save()
+        # EMPLOYEES CANNOT APPROVE
+        if request.user.role == "EMPLOYEE":
+            return Response(
+                {
+                    "detail": (
+                        "Employees are not authorized "
+                        "to approve leave requests."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # MANAGER can approve only direct reports
+        if request.user.role == "MANAGER":
+            manager_user = getattr(
+                getattr(
+                    getattr(
+                        leave_request.employee,
+                        'employee_profile',
+                        None
+                    ),
+                    'manager',
+                    None
+                ),
+                'user',
+                None
+            )
+
+            if manager_user != request.user:
+                return Response(
+                    {
+                        "detail": (
+                            "You can only approve leave requests "
+                            "for your direct reports."
+                        )
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        # Only pending requests should be approved
+        if leave_request.status != LeaveRequest.Status.PENDING:
+            return Response(
+                {
+                    "detail": (
+                        "Only pending leave requests "
+                        "can be approved."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        leave_request.status = LeaveRequest.Status.APPROVED
+        leave_request.save(
+            update_fields=['status']
+        )
 
         return Response(
             {
-                'status': 'Leave Request Approved'
+                "status": "Leave Request Approved"
             },
             status=status.HTTP_200_OK
         )
+
+    # --------------------------------------------------------
+    # REJECT
+    # --------------------------------------------------------
 
     @action(detail=True, methods=['patch'])
     def reject(self, request, pk=None):
-        leave_req = self.get_object()
+        leave_request = self.get_object()
 
-        leave_req.status = 'REJECTED'
-        leave_req.save()
+        # EMPLOYEES CANNOT REJECT
+        if request.user.role == "EMPLOYEE":
+            return Response(
+                {
+                    "detail": (
+                        "Employees are not authorized "
+                        "to reject leave requests."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # MANAGER can reject only direct reports
+        if request.user.role == "MANAGER":
+            manager_user = getattr(
+                getattr(
+                    getattr(
+                        leave_request.employee,
+                        'employee_profile',
+                        None
+                    ),
+                    'manager',
+                    None
+                ),
+                'user',
+                None
+            )
+
+            if manager_user != request.user:
+                return Response(
+                    {
+                        "detail": (
+                            "You can only reject leave requests "
+                            "for your direct reports."
+                        )
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        # Only pending requests should be rejected
+        if leave_request.status != LeaveRequest.Status.PENDING:
+            return Response(
+                {
+                    "detail": (
+                        "Only pending leave requests "
+                        "can be rejected."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        leave_request.status = LeaveRequest.Status.REJECTED
+        leave_request.save(
+            update_fields=['status']
+        )
 
         return Response(
             {
-                'status': 'Leave Request Rejected'
+                "status": "Leave Request Rejected"
             },
             status=status.HTTP_200_OK
         )
 
+# ============================================================
+# PAYROLL API
+# ============================================================
+
+class PayrollViewSet(viewsets.ModelViewSet):
+    """
+    Payroll API backed by the actual Payslip model.
+
+    Access rules:
+    - ADMIN: can view, create, update and delete all payslips.
+    - MANAGER: can view payslips belonging to direct reports.
+    - EMPLOYEE: can view only their own payslips.
+    - Only ADMIN can create, modify or delete payslips.
+    """
+
+    serializer_class = PayslipSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # ----------------------------------------------------
+        # ADMIN
+        # ----------------------------------------------------
+        if user.role == "ADMIN":
+            return Payslip.objects.all().order_by("-generated_at")
+
+        # ----------------------------------------------------
+        # MANAGER
+        # ----------------------------------------------------
+        if user.role == "MANAGER":
+            return Payslip.objects.filter(
+                employee__employee_profile__manager__user=user
+            ).order_by("-generated_at")
+
+        # ----------------------------------------------------
+        # EMPLOYEE
+        # ----------------------------------------------------
+        return Payslip.objects.filter(
+            employee=user
+        ).order_by("-generated_at")
+
+    # --------------------------------------------------------
+    # CREATE
+    # --------------------------------------------------------
+
+    def create(self, request, *args, **kwargs):
+        if request.user.role != "ADMIN":
+            return Response(
+                {
+                    "detail": (
+                        "Only Administrators are authorized "
+                        "to create payroll records."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().create(request, *args, **kwargs)
+
+    # --------------------------------------------------------
+    # UPDATE
+    # --------------------------------------------------------
+
+    def update(self, request, *args, **kwargs):
+        if request.user.role != "ADMIN":
+            return Response(
+                {
+                    "detail": (
+                        "Only Administrators are authorized "
+                        "to modify payroll records."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().update(request, *args, **kwargs)
+
+    # --------------------------------------------------------
+    # PARTIAL UPDATE / PATCH
+    # --------------------------------------------------------
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
+
+    # --------------------------------------------------------
+    # DELETE
+    # --------------------------------------------------------
+
+    def destroy(self, request, *args, **kwargs):
+        if request.user.role != "ADMIN":
+            return Response(
+                {
+                    "detail": (
+                        "Only Administrators are authorized "
+                        "to delete payroll records."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().destroy(request, *args, **kwargs)
 
 # ============================================================
 # EMPLOYEE 360 API
@@ -216,7 +781,53 @@ class Employee360DetailView(APIView):
             User,
             id=user_id
         )
+        # ----------------------------------------------------
+        # EMPLOYEE 360 AUTHORIZATION
+        # ----------------------------------------------------
 
+        user = request.user
+
+        if user.role == "ADMIN":
+            allowed = True
+
+        elif user.role == "MANAGER":
+            allowed = (
+                target_user == user
+                or EmployeeProfile.objects.filter(
+                    user=target_user,
+                    manager__user=user
+                ).exists()
+            )
+
+        else:
+            allowed = target_user == user
+
+        if not allowed:
+            return Response(
+                {
+                    "detail": (
+                        "You are not authorized to access "
+                        "this employee's records."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        # ----------------------------------------------------
+        # EMPLOYEE 360 SENSITIVE DATA AUTHORIZATION
+        # ----------------------------------------------------
+        #
+        # Managers may access the employee's general HR data,
+        # but compensation, payroll, audit history and
+        # emergency-contact information are restricted.
+        #
+        # Employees can access their own complete record.
+        # Administrators can access all records.
+        # ----------------------------------------------------
+
+        sensitive_data_allowed = (
+            user.role == "ADMIN"
+            or target_user == user
+        )
         profile = EmployeeProfile.objects.filter(
             user=target_user
         ).first()
@@ -280,24 +891,27 @@ class Employee360DetailView(APIView):
         shifts = EmployeeShiftAssignment.objects.filter(
             employee=target_user
         ).order_by('-assigned_date')
-                # ----------------------------------------------------
-        # COMPENSATION / SALARY
+
+        # ----------------------------------------------------
+        # COMPENSATION / SALARY & PAYROLL
         # ----------------------------------------------------
 
-        salary = (
-            EmployeeSalary.objects.filter(
+                # ----------------------------------------------------
+        # COMPENSATION / SALARY & PAYROLL
+        # ----------------------------------------------------
+
+        if sensitive_data_allowed:
+            salary = EmployeeSalary.objects.filter(
                 employee=target_user
             ).first()
-        )
 
-        # ----------------------------------------------------
-        # PAYROLL
-        # ----------------------------------------------------
+            payslips = Payslip.objects.filter(
+                employee=target_user
+            ).order_by('-generated_at')
 
-        payslips = Payslip.objects.filter(
-            employee=target_user
-        ).order_by('-generated_at')
-
+        else:
+            salary = None
+            payslips = Payslip.objects.none()
         # ----------------------------------------------------
         # DOCUMENTS
         # ----------------------------------------------------
@@ -309,10 +923,12 @@ class Employee360DetailView(APIView):
         # ----------------------------------------------------
         # AUDIT HISTORY
         # ----------------------------------------------------
-
-        audit_history = AuditLog.objects.filter(
-            user=target_user
-        ).order_by('-timestamp')
+        if sensitive_data_allowed:
+            audit_history = AuditLog.objects.filter(
+                user=target_user
+            ).order_by('-timestamp')
+        else:
+            audit_history = AuditLog.objects.none()
 
         # ----------------------------------------------------
         # EMPLOYMENT HISTORY
@@ -341,12 +957,11 @@ class Employee360DetailView(APIView):
         employee_contacts = (
             EmployeeContact.objects.filter(
                 employee=profile
-            )
-            .order_by(
+            ).order_by(
                 '-is_primary',
                 'id'
             )
-            if profile
+            if profile and sensitive_data_allowed
             else EmployeeContact.objects.none()
         )
 
@@ -357,14 +972,36 @@ class Employee360DetailView(APIView):
         emergency_contacts = (
             EmergencyContact.objects.filter(
                 employee=profile
-            )
-            .order_by(
+            ).order_by(
                 '-is_primary',
                 'id'
             )
-            if profile
+            if profile and sensitive_data_allowed
             else EmergencyContact.objects.none()
         )
+
+             # ----------------------------------------------------
+        # EMPLOYEE 360 PROFILE PRIVACY
+        # ----------------------------------------------------
+
+        profile_data = (
+            EmployeeProfileSerializer(profile).data
+            if profile
+            else None
+        )
+
+        if (
+            profile_data is not None
+            and user.role == "MANAGER"
+            and target_user != user
+        ):
+            profile_data.pop("phone_number", None)
+            profile_data.pop("emergency_contact", None)
+            profile_data.pop("location", None)
+
+            if isinstance(profile_data.get("user"), dict):
+                profile_data["user"].pop("email", None)
+
 
         # ----------------------------------------------------
         # EMPLOYEE 360 RESPONSE
@@ -372,18 +1009,15 @@ class Employee360DetailView(APIView):
 
         data = {
             "user_id": target_user.id,
-
             "username": target_user.username,
-
-            "email": target_user.email,
-
+            "email": (
+                None
+                if user.role == "MANAGER" and target_user != user
+                else target_user.email
+            ),
             "first_name": target_user.first_name,
-
             "last_name": target_user.last_name,
-
-            # ------------------------------------------------
-            # MASTER EMPLOYEE PROFILE
-            # ------------------------------------------------
+            "profile": profile_data,
 
             "profile": (
                 EmployeeProfileSerializer(profile).data
@@ -391,45 +1025,25 @@ class Employee360DetailView(APIView):
                 else None
             ),
 
-            # ------------------------------------------------
-            # ATTENDANCE
-            # ------------------------------------------------
-
             "attendance_history": AttendanceSerializer(
                 attendances,
                 many=True
             ).data,
-
-            # ------------------------------------------------
-            # EXPENSE CLAIMS
-            # ------------------------------------------------
 
             "expense_claims": ExpenseClaimSerializer(
                 claims,
                 many=True
             ).data,
 
-            # ------------------------------------------------
-            # LEAVE
-            # ------------------------------------------------
-
             "leave_requests": LeaveRequestSerializer(
                 leaves,
                 many=True
             ).data,
 
-            # ------------------------------------------------
-            # ASSETS
-            # ------------------------------------------------
-
             "assets": CompanyAssetSerializer(
                 assets,
                 many=True
             ).data,
-
-            # ------------------------------------------------
-            # PERFORMANCE
-            # ------------------------------------------------
 
             "performance_goals": PerformanceGoalSerializer(
                 goals,
@@ -441,26 +1055,15 @@ class Employee360DetailView(APIView):
                 many=True
             ).data,
 
-            # ------------------------------------------------
-            # TRAINING
-            # ------------------------------------------------
-
             "certifications": EmployeeCertificationSerializer(
                 certifications,
                 many=True
             ).data,
 
-            # ------------------------------------------------
-            # SHIFT ASSIGNMENTS
-            # ------------------------------------------------
-
             "shift_assignments": EmployeeShiftAssignmentSerializer(
                 shifts,
                 many=True
             ).data,
-                       # ------------------------------------------------
-            # COMPENSATION / SALARY
-            # ------------------------------------------------
 
             "salary": (
                 EmployeeSalarySerializer(salary).data
@@ -468,36 +1071,20 @@ class Employee360DetailView(APIView):
                 else None
             ),
 
-            # ------------------------------------------------
-            # PAYROLL
-            # ------------------------------------------------
-
             "payslips": PayslipSerializer(
                 payslips,
                 many=True
             ).data,
-
-            # ------------------------------------------------
-            # DOCUMENTS
-            # ------------------------------------------------
 
             "documents": EmployeeDocumentSerializer(
                 documents,
                 many=True
             ).data,
 
-            # ------------------------------------------------
-            # AUDIT HISTORY
-            # ------------------------------------------------
-
             "audit_history": AuditLogSerializer(
                 audit_history,
                 many=True
             ).data,
-
-            # ------------------------------------------------
-            # EMPLOYMENT HISTORY
-            # ------------------------------------------------
 
             "employment_history": [
                 {
@@ -519,20 +1106,12 @@ class Employee360DetailView(APIView):
                     ),
 
                     "start_date": record.start_date,
-
                     "end_date": record.end_date,
-
                     "reason": record.reason,
-
                     "notes": record.notes,
                 }
-
                 for record in employment_history
             ],
-
-            # ------------------------------------------------
-            # EMPLOYEE CONTACTS
-            # ------------------------------------------------
 
             "employee_contacts": [
                 {
@@ -544,13 +1123,8 @@ class Employee360DetailView(APIView):
                     "address": contact.address,
                     "is_primary": contact.is_primary,
                 }
-
                 for contact in employee_contacts
             ],
-
-            # ------------------------------------------------
-            # EMERGENCY CONTACTS
-            # ------------------------------------------------
 
             "emergency_contacts": [
                 {
@@ -563,13 +1137,126 @@ class Employee360DetailView(APIView):
                     "address": contact.address,
                     "is_primary": contact.is_primary,
                 }
-
                 for contact in emergency_contacts
             ],
         }
 
         return Response(data)
 
+# ============================================================
+# SECURE EMPLOYEE DOCUMENT VIEW
+# ============================================================
+
+@login_required
+def secure_employee_document_view(request, document_id):
+    """
+    Securely serves employee documents.
+
+    Access rules:
+    - ADMIN: can view any employee document.
+    - MANAGER: can view documents belonging to direct reports.
+    - EMPLOYEE: can view only their own documents.
+
+    Every access attempt is recorded in AuditLog.
+    """
+
+    document = get_object_or_404(
+        EmployeeDocument,
+        id=document_id
+    )
+
+    user = request.user
+
+    # --------------------------------------------------------
+    # GET CLIENT IP
+    # --------------------------------------------------------
+
+    ip_address = get_client_ip(request)
+
+    # --------------------------------------------------------
+    # AUTHORIZATION
+    # --------------------------------------------------------
+
+    if user.role == "ADMIN":
+        allowed = True
+
+    elif user.role == "MANAGER":
+        allowed = EmployeeProfile.objects.filter(
+            user=document.employee,
+            manager__user=user
+        ).exists()
+
+    else:
+        allowed = document.employee == user
+
+    # --------------------------------------------------------
+    # AUDIT ACCESS ATTEMPT
+    # --------------------------------------------------------
+
+    AuditLog.objects.create(
+        user=user,
+        action="DOCUMENT_ACCESS",
+        ip_address=ip_address,
+        description=(
+            f"Employee document access attempt. "
+            f"Document ID: {document.id}. "
+            f"Document owner: {document.employee.username}. "
+            f"Result: {'ALLOWED' if allowed else 'DENIED'}."
+        )
+    )
+
+    # --------------------------------------------------------
+    # DENY UNAUTHORIZED ACCESS
+    # --------------------------------------------------------
+
+    if not allowed:
+        from django.http import JsonResponse
+
+        return JsonResponse(
+            {
+                "detail": (
+                    "You are not authorized to access "
+                    "this employee document."
+                )
+            },
+            status=403
+        )
+
+    # --------------------------------------------------------
+    # CHECK FILE EXISTS
+    # --------------------------------------------------------
+
+    if not document.file:
+        AuditLog.objects.create(
+            user=user,
+            action="DOCUMENT_ACCESS_ERROR",
+            ip_address=ip_address,
+            description=(
+                f"Employee document access failed because "
+                f"Document ID {document.id} contains no file."
+            )
+        )
+
+        from django.http import JsonResponse
+
+        return JsonResponse(
+            {
+                "detail": "This document does not contain a file."
+            },
+            status=404
+        )
+
+    # --------------------------------------------------------
+    # SERVE FILE SECURELY
+    # --------------------------------------------------------
+
+    from django.http import FileResponse
+
+    return FileResponse(
+        document.file.open("rb"),
+        as_attachment=False,
+        filename=document.file.name.split("/")[-1]
+    )
 
 # ============================================================
 # DASHBOARD TEMPLATE VIEWS
@@ -604,6 +1291,7 @@ def employee_portal_dashboard(request):
     )
 
 
+@login_required
 def attendance_dashboard_view(request):
     return render(
         request,
@@ -611,6 +1299,7 @@ def attendance_dashboard_view(request):
     )
 
 
+@login_required
 def claims_dashboard_view(request):
     return render(
         request,
@@ -624,9 +1313,54 @@ def employee_directory_view(request):
         request,
         'employee_directory.html'
     )
-
-
+@login_required
 def employee_360_view(request, user_id):
+    """
+    Secure Employee 360 UI access.
+
+    Access rules:
+    - ADMIN: can view any employee.
+    - MANAGER: can view themselves and their direct reports.
+    - EMPLOYEE: can view only themselves.
+    """
+
+    target_user = get_object_or_404(
+        User,
+        id=user_id
+    )
+
+    user = request.user
+
+    # ----------------------------------------------------
+    # EMPLOYEE 360 UI AUTHORIZATION
+    # ----------------------------------------------------
+
+    if user.role == "ADMIN":
+        allowed = True
+
+    elif user.role == "MANAGER":
+        allowed = (
+            target_user == user
+            or EmployeeProfile.objects.filter(
+                user=target_user,
+                manager__user=user
+            ).exists()
+        )
+
+    else:
+        allowed = target_user == user
+
+    if not allowed:
+        return JsonResponse(
+            {
+                "detail": (
+                    "You are not authorized to access "
+                    "this employee's records."
+                )
+            },
+            status=403
+        )
+
     return render(
         request,
         'employee_360.html',
@@ -634,3 +1368,4 @@ def employee_360_view(request, user_id):
             'target_user_id': user_id
         }
     )
+

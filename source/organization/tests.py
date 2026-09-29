@@ -1,3 +1,431 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+from rest_framework.test import APIClient
 
-# Create your tests here.
+from authorization.models import Permission, Role, RolePermission, UserRole
+
+from .models import (
+    Branch,
+    Company,
+    CostCenter,
+    Department,
+    Division,
+    JobGrade,
+    JobTitle,
+    Location,
+    Section,
+    Position,
+)
+
+
+User = get_user_model()
+
+
+class OrganizationAuthorizationTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+
+        self.employee = User.objects.create_user(
+            username="organization_employee",
+            password="TestPassword123!",
+        )
+
+        self.manager = User.objects.create_user(
+            username="organization_manager",
+            password="TestPassword123!",
+        )
+
+        self.view_permission = Permission.objects.create(
+            code="organization.view",
+            name="View Organization",
+            description="Allows viewing organization data.",
+            module="Organization",
+        )
+
+        self.manage_permission = Permission.objects.create(
+            code="organization.manage",
+            name="Manage Organization",
+            description="Allows creating, updating and deleting organization data.",
+            module="Organization",
+        )
+
+        self.view_role = Role.objects.create(
+            code="ORGANIZATION_VIEW_TEST",
+            name="Organization View Test Role",
+            is_system_role=False,
+        )
+
+        self.manage_role = Role.objects.create(
+            code="ORGANIZATION_MANAGE_TEST",
+            name="Organization Manage Test Role",
+            is_system_role=False,
+        )
+
+        RolePermission.objects.create(
+            role=self.view_role,
+            permission=self.view_permission,
+        )
+
+        RolePermission.objects.create(
+            role=self.manage_role,
+            permission=self.manage_permission,
+        )
+
+        UserRole.objects.create(
+            user=self.employee,
+            role=self.view_role,
+            is_active=True,
+        )
+
+        UserRole.objects.create(
+            user=self.manager,
+            role=self.manage_role,
+            is_active=True,
+        )
+
+        self.department = Department.objects.create(
+            name="Human Resources",
+            code="HR",
+            description="Human Resources Department",
+        )
+
+        self.company = Company.objects.create(
+            name="Test Company",
+            code="TESTCO",
+        )
+
+        self.branch = Branch.objects.create(
+            company=self.company,
+            name="Main Branch",
+            code="MAIN",
+        )
+
+    def test_user_with_view_permission_can_list_departments(self):
+        self.client.force_authenticate(user=self.employee)
+
+        response = self.client.get(
+            "/api/organization/departments/"
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_with_view_permission_cannot_create_department(self):
+        self.client.force_authenticate(user=self.employee)
+
+        response = self.client.post(
+            "/api/organization/departments/",
+            {
+                "name": "Finance",
+                "code": "FIN",
+                "description": "Finance Department",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_user_with_manage_permission_can_create_department(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/departments/",
+            {
+                "name": "Finance",
+                "code": "FIN",
+                "description": "Finance Department",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_user_without_organization_permission_is_denied(self):
+        user = User.objects.create_user(
+            username="no_organization_permission",
+            password="TestPassword123!",
+        )
+
+        self.client.force_authenticate(user=user)
+
+        response = self.client.get(
+            "/api/organization/departments/"
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_manage_permission_does_not_automatically_grant_view_permission(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.get(
+            "/api/organization/departments/"
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_view_permission_can_list_all_organization_masters(self):
+        self.client.force_authenticate(user=self.employee)
+
+        endpoints = [
+            "companies",
+            "branches",
+            "locations",
+            "divisions",
+            "departments",
+            "sections",
+            "positions",
+            "job-titles",
+            "job-grades",
+            "cost-centers",
+        ]
+
+        for endpoint in endpoints:
+            response = self.client.get(
+                f"/api/organization/{endpoint}/"
+            )
+            self.assertEqual(
+                response.status_code,
+                200,
+                msg=f"GET /api/organization/{endpoint}/ failed",
+            )
+
+    def test_view_permission_cannot_create_company(self):
+        self.client.force_authenticate(user=self.employee)
+
+        response = self.client.post(
+            "/api/organization/companies/",
+            {
+                "name": "Unauthorized Company",
+                "code": "UNAUTH",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_manage_permission_can_create_company(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/companies/",
+            {
+                "name": "Managed Company",
+                "code": "MANAGED",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_manage_permission_can_create_branch(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/branches/",
+            {
+                "company": self.company.id,
+                "name": "West Branch",
+                "code": "WEST",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_manage_permission_can_create_location(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/locations/",
+            {
+                "branch": self.branch.id,
+                "name": "Head Office",
+                "code": "HO",
+                "address": "Kampala",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_manage_permission_can_create_division(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/divisions/",
+            {
+                "name": "Corporate Services",
+                "code": "CS",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_manage_permission_can_create_section(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/sections/",
+            {
+                "department": self.department.id,
+                "name": "Human Resources Operations",
+                "code": "HROPS",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_manage_permission_can_create_job_title(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/job-titles/",
+            {
+                "name": "HR Officer",
+                "code": "HRO",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_manage_permission_can_create_job_grade(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/job-grades/",
+            {
+                "name": "Grade 5",
+                "code": "G5",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_manage_permission_can_create_cost_center(self):
+        self.client.force_authenticate(user=self.manager)
+
+        response = self.client.post(
+            "/api/organization/cost-centers/",
+            {
+                "name": "Human Resources Cost Center",
+                "code": "CC-HR",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+class OrganizationChartAPITests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        self.user = User.objects.create_user(
+            username="organization_chart_user",
+            password="TestPassword123!",
+        )
+
+        self.view_permission = Permission.objects.create(
+            code="organization.view",
+            name="View Organization Chart",
+            description="Allows viewing the organization chart.",
+            module="Organization",
+        )
+
+        self.view_role = Role.objects.create(
+            code="ORGANIZATION_CHART_VIEW_TEST",
+            name="Organization Chart View Test Role",
+            is_system_role=False,
+        )
+
+        RolePermission.objects.create(
+            role=self.view_role,
+            permission=self.view_permission,
+        )
+
+        UserRole.objects.create(
+            user=self.user,
+            role=self.view_role,
+            is_active=True,
+        )
+
+        self.division = Division.objects.create(
+            name="Corporate Services",
+            code="CS",
+        )
+
+        self.department = Department.objects.create(
+            division=self.division,
+            name="Information Technology",
+            code="IT",
+        )
+
+        self.section = Section.objects.create(
+            department=self.department,
+            name="Software Development",
+            code="SD",
+        )
+
+        self.job_title = JobTitle.objects.create(
+            name="Software Engineer",
+            code="SE",
+        )
+
+        self.job_grade = JobGrade.objects.create(
+            name="Grade 5",
+            code="G5",
+        )
+
+        self.cost_center = CostCenter.objects.create(
+            name="IT Cost Center",
+            code="CC-IT",
+        )
+
+        Position.objects.create(
+            title="Software Engineer",
+            department=self.department,
+            section=self.section,
+            job_title=self.job_title,
+            job_grade=self.job_grade,
+            cost_center=self.cost_center,
+            grade="Grade 5",
+        )
+
+    def test_user_with_view_permission_can_view_organization_chart(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.get(
+            "/api/organization/organization-chart/"
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_organization_chart_contains_hierarchy(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.get(
+            "/api/organization/organization-chart/"
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        hierarchy = response.data["hierarchy"]
+
+        self.assertEqual(len(hierarchy), 1)
+        self.assertEqual(hierarchy[0]["name"], "Corporate Services")
+
+        department = hierarchy[0]["departments"][0]
+        self.assertEqual(department["name"], "Information Technology")
+
+        section = department["sections"][0]
+        self.assertEqual(section["name"], "Software Development")
+
+        position = section["positions"][0]
+        self.assertEqual(position["title"], "Software Engineer")
+        self.assertEqual(position["job_title"], "Software Engineer")
+        self.assertEqual(position["job_grade"], "Grade 5")
+        self.assertEqual(position["cost_center"], "IT Cost Center")
+

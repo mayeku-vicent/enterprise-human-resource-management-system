@@ -1,0 +1,106 @@
+POTENTIAL DUPLICATE / OVERLAPPING DEFINITIONS
+================================================================================
+
+Command
+  - authorization\management\commands\seed_authorization.py:5
+  - compliance\management\commands\audit_expired_sessions.py:10
+  - compliance\management\commands\cleanup_expired_sessions.py:10
+
+EmployeeProfileSerializer
+  - accounts\serializers.py:4
+  - hrms_modules\serializers.py:28
+
+ExpenseClaim
+  - claims\models.py:9
+  - hrms_modules\models.py:33
+
+ExpenseClaimAdmin
+  - claims\admin.py:5
+  - hrms_modules\admin.py:17
+
+ExpenseClaimSerializer
+  - claims\serializers.py:3
+  - hrms_modules\serializers.py:75
+
+ExpenseClaimViewSet
+  - claims\views.py:10
+  - hrms_modules\views.py:242
+
+LeaveRequestViewSet
+  - hrms_modules\views.py:374
+  - leave\views.py:7
+
+Meta
+  - accounts\models.py:211
+  - accounts\models.py:269
+  - accounts\models.py:324
+  - accounts\serializers.py:9
+  - accounts\serializers.py:39
+  - assets\serializers.py:5
+  - attendance_shifts\serializers.py:5
+  - attendance_shifts\serializers.py:10
+  - authorization\models.py:29
+  - authorization\models.py:68
+  - authorization\models.py:92
+  - authorization\models.py:125
+  - claims\serializers.py:6
+  - hrms_modules\models.py:24
+  - hrms_modules\serializers.py:14
+  - hrms_modules\serializers.py:21
+  - hrms_modules\serializers.py:36
+  - hrms_modules\serializers.py:62
+  - hrms_modules\serializers.py:79
+  - hrms_modules\serializers.py:103
+  - hrms_modules\serializers.py:121
+  - hrms_modules\serializers.py:141
+  - hrms_modules\serializers.py:169
+  - leave\serializers.py:6
+  - organization\serializers.py:6
+  - organization\serializers.py:14
+  - performance\serializers.py:5
+  - performance\serializers.py:10
+  - training\serializers.py:5
+  - training\serializers.py:10
+
+Migration
+  - accounts\migrations\0001_initial.py:9
+  - accounts\migrations\0002_alter_employeeprofile_department_and_more.py:5
+  - accounts\migrations\0003_employeeprofile_job_title.py:4
+  - accounts\migrations\0004_migrate_employee_profiles.py:26
+  - accounts\migrations\0005_employeeprofile_employment_status_and_more.py:5
+  - accounts\migrations\0006_employmenthistory.py:5
+  - accounts\migrations\0007_emergencycontact_employeecontact.py:5
+  - accounts\migrations\0008_user_token_version.py:4
+  - accounts\migrations\0009_user_failed_login_attempts_user_locked_until.py:4
+  - assets\migrations\0001_initial.py:6
+  - attendance_shifts\migrations\0001_initial.py:6
+  - authorization\migrations\0001_initial.py:6
+  - claims\migrations\0001_initial.py:6
+  - claims\migrations\0002_remove_expenseclaim_approved_by_and_more.py:6
+  - claims\migrations\0003_alter_expenseclaim_employee_and_more.py:6
+  - compliance\migrations\0001_initial.py:6
+  - documents\migrations\0001_initial.py:6
+  - hrms_modules\migrations\0001_initial.py:6
+  - hrms_modules\migrations\0002_remove_expenseclaim_title_employeeprofile_position_and_more.py:6
+  - hrms_modules\migrations\0003_delete_employeeprofile.py:4
+  - leave\migrations\0001_initial.py:6
+  - leave\migrations\0002_remove_leaverequest_approved_by_and_more.py:6
+  - organization\migrations\0001_initial.py:5
+  - payroll\migrations\0001_initial.py:6
+  - performance\migrations\0001_initial.py:6
+  - recruitment\migrations\0001_initial.py:5
+  - training\migrations\0001_initial.py:6
+
+Role
+  - accounts\models.py:7
+  - authorization\models.py:35
+
+Status
+  - claims\models.py:10
+  - hrms_modules\models.py:6
+  - hrms_modules\models.py:34
+  - leave\models.py:12
+
+UserSerializer
+  - accounts\serializers.py:35
+  - hrms_modules\serializers.py:11

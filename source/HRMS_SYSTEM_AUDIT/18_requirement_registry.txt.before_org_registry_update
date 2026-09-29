@@ -1,0 +1,202 @@
+ENTERPRISE-HRMS REQUIREMENT REGISTRY
+========================================================================================================================
+
+These entries are based on requirements already inspected and verified.
+They are not generated solely from keyword matching.
+
+ID              AREA               TYPE           STATUS         REQUIREMENT
+------------------------------------------------------------------------------------------------------------------------
+CORE-001        Core HR            Functional     COMPLETE       Employee Directory
+    Evidence: source/templates/employee_directory.html; /api/employees/
+    Gap:      [NONE IDENTIFIED]
+
+CORE-002        Core HR            Functional     COMPLETE       Employee ID
+    Evidence: accounts.EmployeeProfile.employee_id; EmployeeProfileSerializer; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-003        Core HR            Functional     PARTIAL        Photo
+    Evidence: accounts.EmployeeProfile.photo; hrms_modules.serializers.EmployeeProfileSerializer
+    Gap:      Employee directory does not currently display the employee photo.
+
+CORE-004        Core HR            Functional     COMPLETE       Name
+    Evidence: accounts.User.first_name/last_name; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-005        Core HR            Functional     COMPLETE       Department
+    Evidence: accounts.EmployeeProfile.department; department_name serializer field; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-006        Core HR            Functional     COMPLETE       Position
+    Evidence: accounts.EmployeeProfile.position; position_title serializer field; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-007        Core HR            Functional     COMPLETE       Grade
+    Evidence: organization.Position.grade; hrms_modules.serializers.EmployeeProfileSerializer; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-008        Core HR            Functional     COMPLETE       Employment Type
+    Evidence: accounts.EmployeeProfile.employment_type; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-009        Core HR            Functional     COMPLETE       Employment Status
+    Evidence: accounts.EmployeeProfile.employment_status; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-010        Core HR            Functional     COMPLETE       Manager
+    Evidence: accounts.EmployeeProfile.manager; ManagerSummarySerializer; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-011        Core HR            Functional     COMPLETE       Location
+    Evidence: accounts.EmployeeProfile.location; employee directory
+    Gap:      [NONE IDENTIFIED]
+
+CORE-012        Core HR            Architecture   COMPLETE       One employee should have one central employee record
+    Evidence: accounts.EmployeeProfile is the authoritative EmployeeProfile model; no duplicate EmployeeProfile model found in hrms_modules
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-001     Employee 360       Functional     COMPLETE       Personal Information
+    Evidence: Employee 360 template/header and employee profile data
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-002     Employee 360       Functional     COMPLETE       Contact Information
+    Evidence: EmployeeContact model; Employee 360 contacts section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-003     Employee 360       Functional     COMPLETE       Employment
+    Evidence: EmployeeProfile employment fields; EmploymentHistory; Employee 360 employment section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-004     Employee 360       Functional     COMPLETE       Organization
+    Evidence: EmployeeProfile department/position/manager/location; Employee 360
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-005     Employee 360       Functional     COMPLETE       Compensation
+    Evidence: payroll.EmployeeSalary; Employee 360 compensation section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-006     Employee 360       Functional     COMPLETE       Attendance
+    Evidence: attendance models/API; Employee 360 attendance history
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-007     Employee 360       Functional     COMPLETE       Leave
+    Evidence: leave.LeaveRequest; Employee 360 leave requests
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-008     Employee 360       Functional     COMPLETE       Payroll
+    Evidence: payroll.EmployeeSalary/Payslip; Employee 360 payroll section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-009     Employee 360       Functional     MISSING        Benefits
+    Evidence: No Benefits model, API, serializer, or business implementation found
+    Gap:      Benefits domain and Employee 360 benefits section are not implemented.
+
+CORE360-010     Employee 360       Functional     COMPLETE       Performance
+    Evidence: performance.PerformanceGoal/Appraisal; Employee 360 performance sections
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-011     Employee 360       Functional     PARTIAL        Training
+    Evidence: training.TrainingCourse/EmployeeCertification; Employee 360 certifications section
+    Gap:      Broader learning/training functionality such as enrollment, attendance, assessment, and completion evidence is not yet verified.
+
+CORE360-012     Employee 360       Functional     COMPLETE       Documents
+    Evidence: documents.EmployeeDocument; Employee 360 documents section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-013     Employee 360       Functional     COMPLETE       Assets
+    Evidence: assets.CompanyAsset; Employee 360 assigned assets section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-014     Employee 360       Functional     COMPLETE       Claims
+    Evidence: claims.ExpenseClaim; Employee 360 expense claims section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-015     Employee 360       Functional     MISSING        Disciplinary Records
+    Evidence: No disciplinary model, API, serializer, or business implementation found
+    Gap:      Disciplinary records domain and Employee 360 section are not implemented.
+
+CORE360-016     Employee 360       Functional     PARTIAL        Career History
+    Evidence: accounts.EmploymentHistory; no dedicated career/promotion/transfer/career-path implementation found
+    Gap:      Employment history exists, but dedicated career history/career progression functionality is not implemented.
+
+CORE360-017     Employee 360       Functional     COMPLETE       Emergency Contacts
+    Evidence: accounts.EmergencyContact; Employee 360 emergency contacts section
+    Gap:      [NONE IDENTIFIED]
+
+CORE360-018     Employee 360       Functional     COMPLETE       Audit History
+    Evidence: compliance.AuditLog; Employee 360 audit history section
+    Gap:      [NONE IDENTIFIED]
+
+# ============================================================
+# AREA 01 — AUTHENTICATION & SECURITY
+# ============================================================
+
+AUTH-001 | Authentication & Security | Login | Functional | COMPLETE | SecureTokenObtainPairSerializer and /api/token/ provide JWT authentication with failed-login tracking and audit logging. | No major functional gap identified from current inspection.
+
+AUTH-002 | Authentication & Security | Logout | Functional | PARTIAL | Django authentication URLs are included and JWT blacklist infrastructure exists. | No explicit project logout implementation was found; logout behavior and JWT invalidation on logout need verification.
+
+AUTH-003 | Authentication & Security | Forgot password | Functional | MISSING | No project PasswordReset implementation was found. | Implement secure password-forgotten request flow with email delivery and single-use/expiring reset token.
+
+AUTH-004 | Authentication & Security | Password reset | Functional | MISSING | No PasswordResetConfirm implementation or password-reset templates were found. | Implement secure password-reset confirmation workflow and required templates.
+
+AUTH-005 | Authentication & Security | Change password | Functional | COMPLETE | PasswordChangeView verifies current password, validates new password, changes password, rotates token_version, and records an audit event. | No major functional gap identified from current inspection.
+
+AUTH-006 | Authentication & Security | Multi-factor authentication | Functional | MISSING | No MFA implementation was found during project inspection. | Implement configurable MFA, preferably TOTP-based, with enrollment, verification, recovery, and enforcement policy.
+
+AUTH-007 | Authentication & Security | Single Sign-On | Functional | MISSING | No SSO implementation was found during project inspection. | Implement SSO integration architecture for an enterprise identity provider, subject to deployment requirements.
+
+AUTH-008 | Authentication & Security | Session management | Functional | COMPLETE | JWT token_version security, refresh-token validation, token blacklist support, and session invalidation are implemented. | Continue testing and migrate dependent views to the DB-driven authorization model.
+
+AUTH-009 | Authentication & Security | Device/session management | Functional | PARTIAL | User session listing, individual session revocation, all-session revocation, OutstandingToken and BlacklistedToken tracking are implemented. | Device-specific metadata such as user agent/device identity and session location is not yet established.
+
+AUTH-010 | Authentication & Security | Account lockout | Functional | COMPLETE | Secure login tracks failed attempts and temporarily locks accounts after 5 consecutive failures for 15 minutes. | Add/expand automated security tests if coverage is incomplete.
+
+AUTH-011 | Authentication & Security | Password policies | Functional | COMPLETE | Django password validators are configured and PasswordChangeView explicitly invokes validate_password(). | Verify policy presentation/administration requirements later if configurable password policies are required.
+
+AUTH-012 | Authentication & Security | Security alerts | Functional | PARTIAL | Login success, login failure, account lockout, password change, session revocation, and refresh-token reuse events are written to AuditLog. | No user-facing security-alert/notification mechanism has been established.
+
+AUTH-013 | Authentication & Security | Role management | Functional | PARTIAL | DB-driven Role, Permission, RolePermission, and UserRole models plus authorization services and permission classes exist. | Role administration and migration away from legacy user.role checks are incomplete.
+
+AUTH-014 | Authentication & Security | Role + Permission system; roles must not be hard-coded | Architecture | PARTIAL | Database-driven authorization infrastructure and HasPermission exist, with seeded enterprise roles and permissions. | Many modules still use legacy user.role checks and current users have no UserRole assignments; complete migration and assignment strategy is required.
+
+
+# ============================================================
+# AREA 02 � EXECUTIVE DASHBOARD
+# ============================================================
+DASH-001 | Executive Dashboard | Functional | COMPLETE | Total Employees | EmployeeProfile.objects.count() is displayed as the Total Employees KPI. | [NONE IDENTIFIED]
+DASH-002 | Executive Dashboard | Functional | COMPLETE | Active Employees | EmployeeProfile records linked to active users are counted and displayed as the Active Employees KPI. | [NONE IDENTIFIED]
+DASH-003 | Executive Dashboard | Functional | COMPLETE | New Employees | Employees whose date_of_joining falls within the current month are counted and displayed. | [NONE IDENTIFIED]
+DASH-004 | Executive Dashboard | Functional | COMPLETE | Employees on Leave | Approved LeaveRequest records covering today's date are counted and displayed. | [NONE IDENTIFIED]
+DASH-005 | Executive Dashboard | Functional | COMPLETE | Employees Absent | Today's Attendance records with ABSENT status are counted and displayed. | [NONE IDENTIFIED]
+DASH-006 | Executive Dashboard | Functional | COMPLETE | Open Vacancies | Active JobVacancy records are counted and displayed. | [NONE IDENTIFIED]
+DASH-007 | Executive Dashboard | Functional | PARTIAL | Pending Approvals | Pending LeaveRequest records are counted and displayed as Pending Approvals. | The dashboard currently counts only pending leave approvals rather than all platform approval types required by the enterprise workflow engine.
+DASH-008 | Executive Dashboard | Functional | COMPLETE | Payroll Amount | Net pay is aggregated for the latest available payslip period and displayed on the dashboard. | [NONE IDENTIFIED]
+DASH-009 | Executive Dashboard | Functional | COMPLETE | Headcount by Department | EmployeeProfile records are aggregated by department and displayed in the dashboard. | [NONE IDENTIFIED]
+DASH-010 | Executive Dashboard | Functional | MISSING | Gender Distribution | No gender distribution calculation or dashboard display was found during inspection. | Implement gender distribution using the authoritative employee profile data.
+DASH-011 | Executive Dashboard | Functional | MISSING | Age Distribution | No employee age distribution calculation or dashboard display was found during inspection. | Implement age calculation and appropriate age-band distribution.
+DASH-012 | Executive Dashboard | Functional | MISSING | Employee Turnover | No employee turnover calculation or dashboard display was found during inspection. | Implement turnover analytics using authoritative employment and departure data.
+DASH-013 | Executive Dashboard | Functional | COMPLETE | Attendance | Today's Present, Late, and Absent attendance values are calculated and displayed in the dashboard. | [NONE IDENTIFIED]
+DASH-014 | Executive Dashboard | Functional | MISSING | Leave Utilization | No leave utilization calculation or dashboard display was found during inspection. | Implement leave utilization using leave balances/accrual and leave usage data.
+DASH-015 | Executive Dashboard | Functional | COMPLETE | Recruitment Pipeline | Applicant records are aggregated by status and displayed as a Recruitment Pipeline dashboard section. | [NONE IDENTIFIED]
+DASH-016 | Executive Dashboard | Functional | COMPLETE | Performance Distribution | Appraisal records are aggregated by rating and displayed as Performance Distribution. | [NONE IDENTIFIED]
+DASH-017 | Executive Dashboard | Functional | MISSING | Training Completion | No training completion calculation or dashboard display was found during inspection. | Implement training completion analytics after the Training & Learning domain is fully audited.
+DASH-018 | Executive Dashboard | Functional | PARTIAL | Payroll Trends | The dashboard calculates and displays the latest payroll amount only. | Historical payroll trend data and a payroll trend visualization are not implemented.
+DASH-019 | Executive Dashboard | Functional | COMPLETE | Add Employee | A Quick Action for Add Employee is present and links to the employee creation interface. | Underlying employee-creation authorization/workflow should be verified during the Core HR administration audit.
+DASH-020 | Executive Dashboard | Functional | COMPLETE | Create Vacancy | A Quick Action for Create Vacancy is present and links to the vacancy creation interface. | Underlying recruitment authorization/workflow should be verified during the Recruitment audit.
+DASH-021 | Executive Dashboard | Functional | COMPLETE | Approve Leave | A Quick Action for Approve Leave is present and links to the leave dashboard. | Underlying approval workflow and authorization should be verified during the Leave and Workflow audits.
+DASH-022 | Executive Dashboard | Functional | PARTIAL | Run Payroll | A Payroll Quick Action exists, but it links to the payslip administration interface rather than providing a verified payroll-run action. | Implement or connect the dashboard action to the actual payroll processing workflow after Payroll is audited.
+DASH-023 | Executive Dashboard | Functional | MISSING | Generate Report | No dedicated Generate Report Quick Action or report-generation workflow was found in the dashboard template. | Implement a report-generation entry point after the Reporting & Business Intelligence domain is audited.
+
+# ============================================================
+# AREA 04 — ORGANIZATION MANAGEMENT
+# ============================================================
+ORG-001 | Organization Management | Companies | Functional | MISSING | No Company model, API, or organization-company management functionality was found during inspection. | Implement a reusable Company entity as the top-level organization structure.
+ORG-002 | Organization Management | Branches | Functional | MISSING | No Branch model, API, or management functionality was found during inspection. | Implement branches linked to the appropriate company structure.
+ORG-003 | Organization Management | Locations | Functional | PARTIAL | EmployeeProfile currently stores location as free-text rather than a managed organization Location entity. | Introduce managed locations and migrate EmployeeProfile location safely without losing existing employee data.
+ORG-004 | Organization Management | Departments | Functional | COMPLETE | Department model exists with unique name/code, description, employee relationships, REST API, administration support, and database-driven view/manage authorization tests. | No major gap identified for the current Department requirement.
+ORG-005 | Organization Management | Divisions | Functional | MISSING | No Division model, API, or management functionality was found during inspection. | Implement divisions as part of the organization hierarchy.
+ORG-006 | Organization Management | Sections | Functional | MISSING | No Section model, API, or management functionality was found during inspection. | Implement sections within the organization hierarchy.
+ORG-007 | Organization Management | Positions | Functional | PARTIAL | Position model exists with title, department, grade text, description, REST API, administration support, and employee relationships. | Evolve Position safely to use the enterprise organization hierarchy and dedicated job-grade/job-title concepts where appropriate.
+ORG-008 | Organization Management | Job Titles | Functional | PARTIAL | Position.title currently represents job titles, while EmployeeProfile also contains a separate free-text job_title field. | Establish a single authoritative job-title design and remove/reconcile duplicate representations without breaking employee data.
+ORG-009 | Organization Management | Job Grades | Functional | PARTIAL | Position.grade currently stores a free-text grade value rather than a dedicated Job Grade entity. | Implement managed Job Grades and safely migrate existing position grade values.
+ORG-010 | Organization Management | Cost Centers | Functional | MISSING | No Cost Center model, API, or management functionality was found during inspection. | Implement managed cost centers and integrate them with the organization structure.
+ORG-011 | Organization Management | Organization Chart | Functional | MISSING | No organization-chart implementation, model, API, template, or related project search result was found during inspection. | Implement an organization-chart representation and visualization using the authoritative organization hierarchy.

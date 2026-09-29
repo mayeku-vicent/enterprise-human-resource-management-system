@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 
@@ -15,7 +15,7 @@
 
         <div class="d-flex gap-2">
             <a href="/employees/" class="btn btn-outline-secondary">
-                â† Employee Directory
+                ← Employee Directory
             </a>
 
             <span id="employeeBadge"
@@ -1496,13 +1496,17 @@ function renderDocuments(documents) {
                 <td>${document.category || "-"}</td>
                 <td>${document.uploaded_at || "-"}</td>
                 <td>${document.expiration_date || "No expiration"}</td>
-                <td>
-                    ${
-                        document.file
-                            ? `<a href="${document.file}" target="_blank" rel="noopener">View</a>`
-                            : '<span class="text-muted">No file</span>'
-                    }
-                </td>
+               <td>
+    ${
+        document.secure_file_url
+    ? `<a href="${document.secure_file_url}"
+         target="_blank"
+         rel="noopener">
+         View
+       </a>`
+    : '<span class="text-muted">No file</span>'
+    }
+</td>
             </tr>
         `
     ).join("");
@@ -2171,3 +2175,4 @@ function showTableError(elementId, colspan) {
 </script>
 
 {% endblock %}
+

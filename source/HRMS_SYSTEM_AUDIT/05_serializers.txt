@@ -1,0 +1,109 @@
+SERIALIZERS
+================================================================================
+
+[accounts\serializers.py]
+--------------------------------------------------------------------------------
+6: class EmployeeProfileSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = [
+28:         read_only_fields = [
+37: class UserSerializer(serializers.ModelSerializer):
+40:     class Meta:
+42:         fields = [
+52:         read_only_fields = [
+59:     def create(self, validated_data):
+70:             EmployeeProfile.objects.create(
+76:             EmployeeProfile.objects.create(
+83:     def update(self, instance, validated_data):
+
+[assets\serializers.py]
+--------------------------------------------------------------------------------
+4: class CompanyAssetSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+
+[attendance_shifts\serializers.py]
+--------------------------------------------------------------------------------
+4: class WorkShiftSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+9: class EmployeeShiftAssignmentSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = '__all__'
+
+[claims\serializers.py]
+--------------------------------------------------------------------------------
+4: class ExpenseClaimSerializer(serializers.ModelSerializer):
+7:     class Meta:
+9:         fields = [
+19:         read_only_fields = ['id', 'employee', 'status', 'created_at']
+
+[hrms_modules\serializers.py]
+--------------------------------------------------------------------------------
+13: class UserSerializer(serializers.ModelSerializer):
+14:     class Meta:
+16:         fields = ['id', 'username', 'first_name', 'last_name', 'email']
+19: class ManagerSummarySerializer(serializers.ModelSerializer):
+22:     class Meta:
+24:         fields = ['id', 'employee_id', 'full_name', 'job_title']
+30: class EmployeeProfileSerializer(serializers.ModelSerializer):
+37:     class Meta:
+39:         fields = [
+60: class AttendanceSerializer(serializers.ModelSerializer):
+63:     class Meta:
+65:         fields = [
+74:         read_only_fields = ['id', 'employee', 'date', 'check_in_time']
+77: class ExpenseClaimSerializer(serializers.ModelSerializer):
+80:     class Meta:
+82:         fields = [
+92:         read_only_fields = ['id', 'employee', 'status', 'created_at']
+94:     def create(self, validated_data):
+98:         return super().create(validated_data)
+99: class EmployeeSalarySerializer(serializers.ModelSerializer):
+104:     class Meta:
+106:         fields = [
+117: class PayslipSerializer(serializers.ModelSerializer):
+122:     class Meta:
+124:         fields = [
+135: class EmployeeDocumentSerializer(serializers.ModelSerializer):
+142:     class Meta:
+144:         fields = [
+165: class AuditLogSerializer(serializers.ModelSerializer):
+170:     class Meta:
+172:         fields = [
+
+[leave\serializers.py]
+--------------------------------------------------------------------------------
+4: class LeaveRequestSerializer(serializers.ModelSerializer):
+7:     class Meta:
+9:         fields = [
+13:         read_only_fields = ['id', 'employee', 'status', 'created_at']
+15:     def create(self, validated_data):
+19:         return super().create(validated_data)
+
+[organization\serializers.py]
+--------------------------------------------------------------------------------
+4: class PositionSerializer(serializers.ModelSerializer):
+7:     class Meta:
+9:         fields = ['id', 'title', 'department', 'department_name', 'grade', 'description']
+11: class DepartmentSerializer(serializers.ModelSerializer):
+15:     class Meta:
+17:         fields = ['id', 'name', 'code', 'description', 'employee_count', 'positions', 'created_at']
+
+[performance\serializers.py]
+--------------------------------------------------------------------------------
+4: class PerformanceGoalSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+9: class AppraisalSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = '__all__'
+
+[training\serializers.py]
+--------------------------------------------------------------------------------
+4: class TrainingCourseSerializer(serializers.ModelSerializer):
+5:     class Meta:
+7:         fields = '__all__'
+9: class EmployeeCertificationSerializer(serializers.ModelSerializer):
+10:     class Meta:
+12:         fields = '__all__'
